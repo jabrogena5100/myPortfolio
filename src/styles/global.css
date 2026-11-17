@@ -1,0 +1,76 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+/* Self-hosted, unmodified upstream files (OFL 1.1). See docs/fonts.md. */
+@font-face {
+  font-family: 'Source Serif 4 Display';
+  src: url('/fonts/SourceSerif4Display-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Hanken Grotesk';
+  src: url('/fonts/HankenGrotesk-wght.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Page transition: a short fade between pages (Chromium; ignored elsewhere). */
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) {
+  animation-duration: var(--duration-base);
+  animation-timing-function: var(--ease-out);
+}
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+}
+
+html { background: var(--color-bg); color: var(--color-text); }
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body-stack);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+html { font-synthesis: none; }
+h1, h2 { font-family: var(--font-display-stack); line-height: 1.12; font-weight: 400; text-wrap: balance; margin: 0; }
+h3 { font-family: var(--font-body-stack); font-weight: 600; line-height: 1.3; margin: 0; }
+p { text-wrap: pretty; }
+/* Tailwind's reset removes link underlines; running-text links need a non-colour cue (WCAG 1.4.1). */
+a { color: var(--color-accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+a:hover { color: var(--color-accent-hover); }
+:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+
+.skip-link {
+  position: absolute; left: var(--space-4); top: -100px;
+  background: var(--color-accent); color: var(--color-bg);
+  padding: var(--space-2) var(--space-4); border-radius: var(--radius-sm); z-index: 10;
+}
+.skip-link:focus { top: var(--space-4); }
+.container { max-width: var(--content-max); margin-inline: auto; padding-inline: var(--gutter); }
+.eyebrow { font-size: var(--step--1); letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-muted); margin: 0; }
+.section { padding-block: var(--space-8); }
+.section-head h2 { font-size: var(--step-3); }
+.section-head { display: grid; gap: var(--space-3); margin-bottom: var(--space-7); }
+
+/* Inline diagrams (shared by all case studies). Colours come from tokens only. */
+.d-box { fill: var(--color-surface-2); stroke: var(--color-text-muted); stroke-width: 1.25; }
+.d-box-accent { fill: var(--color-surface-2); stroke: var(--color-accent); stroke-width: 1.75; }
+.d-box-dim { fill: none; stroke: var(--color-text-muted); stroke-width: 1.25; stroke-dasharray: 5 4; }
+.d-text { fill: var(--color-text); font: 600 14px var(--font-body-stack); }
+.d-sub { fill: var(--color-text-muted); font: 400 12.5px var(--font-body-stack); }
+.d-label { fill: var(--color-text-muted); font: 400 12px var(--font-body-stack); }
+.d-accent-text { fill: var(--color-accent); font: 600 12px var(--font-body-stack); }
+.d-line { stroke: var(--color-text-muted); stroke-width: 1.5; fill: none; }
+.d-line-accent { stroke: var(--color-accent); stroke-width: 1.75; fill: none; }
+.d-line-dash { stroke: var(--color-text-muted); stroke-width: 1.5; fill: none; stroke-dasharray: 5 4; }
+.d-arrow { fill: var(--color-text-muted); }
+.d-arrow-accent { fill: var(--color-accent); }
+.d-ok { fill: var(--color-sage); }
+/* Keep diagram labels legible where a line passes behind them. */
+.d-label, .d-accent-text { paint-order: stroke; stroke: var(--color-surface-1); stroke-width: 4px; stroke-linejoin: round; }

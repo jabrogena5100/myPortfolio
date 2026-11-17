@@ -1,0 +1,61 @@
+---
+import { site, nav } from '../data/site';
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => path === href || (href !== '/' && path.startsWith(href));
+---
+<header class="site-header">
+  <div class="container bar">
+    <a class="wordmark" href="/">{site.name}</a>
+    <nav aria-label="Primary">
+      <ul class="desktop">
+        {nav.map((l) => (
+          <li><a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>{l.label}</a></li>
+        ))}
+      </ul>
+      <details class="mobile" data-menu>
+        <summary>Menu</summary>
+        <ul>
+          {nav.map((l) => (
+            <li><a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>{l.label}</a></li>
+          ))}
+        </ul>
+      </details>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header { border-bottom: 1px solid var(--color-border); }
+  .bar { display: flex; align-items: center; justify-content: space-between; min-height: 64px; gap: var(--space-5); }
+  .wordmark { font-family: var(--font-display-stack); font-size: var(--step-1); color: var(--color-text); text-decoration: none; letter-spacing: 0.01em; }
+  .wordmark:hover { color: var(--color-accent-hover); }
+  ul { list-style: none; margin: 0; padding: 0; }
+  nav a { color: var(--color-text-muted); text-decoration: none; padding: var(--space-3) var(--space-2); display: inline-block; font-size: var(--step--1); letter-spacing: 0.04em; text-transform: uppercase; transition: color var(--duration-fast) var(--ease-out); }
+  nav a:hover, nav a[aria-current='page'] { color: var(--color-text); }
+  nav a[aria-current='page'] { text-decoration: underline; text-decoration-color: var(--color-accent); text-underline-offset: 0.4em; text-decoration-thickness: 2px; }
+  .desktop { display: none; gap: var(--space-4); }
+  .mobile { position: relative; }
+  .mobile summary { list-style: none; cursor: pointer; min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 0 var(--space-3); border: 1px solid var(--color-text-muted); border-radius: var(--radius-sm); font-size: var(--step--1); letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text); }
+  .mobile summary::-webkit-details-marker { display: none; }
+  .mobile[open] summary { border-color: var(--color-accent); }
+  .mobile ul { position: absolute; right: 0; top: calc(100% + var(--space-2)); z-index: 20; min-width: 220px; background: var(--color-surface-1); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-2); box-shadow: var(--shadow-2); }
+  .mobile li a { display: block; min-height: 44px; padding: var(--space-3) var(--space-4); }
+  @media (min-width: 48rem) {
+    .desktop { display: flex; }
+    .mobile { display: none; }
+  }
+</style>
+
+<script>
+  // Mobile menu: Escape closes it and returns focus to the button; clicking elsewhere closes it.
+  const menu = document.querySelector<HTMLDetailsElement>('[data-menu]');
+  if (menu) {
+    const summary = menu.querySelector('summary');
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menu.open) { menu.open = false; summary?.focus(); }
+    });
+    document.addEventListener('click', (e) => {
+      if (menu.open && !menu.contains(e.target as Node)) menu.open = false;
+    });
+  }
+</script>

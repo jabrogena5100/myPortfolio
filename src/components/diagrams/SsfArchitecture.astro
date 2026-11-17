@@ -1,0 +1,42 @@
+<svg viewBox="0 0 760 400" role="img" aria-labelledby="ssf-arch-t ssf-arch-d" xmlns="http://www.w3.org/2000/svg">
+  <title id="ssf-arch-t">RyuStoreFront system architecture</title>
+  <desc id="ssf-arch-d">The shopper's browser talks to a Next.js app, which proxies API calls to a Spring Boot API. The API and a worker share one PostgreSQL database. Stripe's hosted page takes the payment and sends a signed webhook to the API. The worker sends email.</desc>
+  <defs><marker id="ssf-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="d-arrow"/></marker></defs>
+  <rect class="d-box" x="10" y="160" width="110" height="60" rx="6"/>
+  <text class="d-text" x="65" y="187" text-anchor="middle">Shopper's</text><text class="d-text" x="65" y="205" text-anchor="middle">browser</text>
+  <rect class="d-box" x="150" y="150" width="130" height="80" rx="6"/>
+  <text class="d-text" x="215" y="180" text-anchor="middle">Next.js 16</text>
+  <text class="d-sub" x="215" y="198" text-anchor="middle">proxies /api/*</text>
+  <text class="d-sub" x="215" y="214" text-anchor="middle">(local only)</text>
+  <rect class="d-box-accent" x="330" y="40" width="170" height="90" rx="6"/>
+  <text class="d-text" x="415" y="72" text-anchor="middle">API</text>
+  <text class="d-sub" x="415" y="92" text-anchor="middle">Spring Boot, Java 25</text>
+  <text class="d-sub" x="415" y="110" text-anchor="middle">modular monolith</text>
+  <rect class="d-box-accent" x="330" y="270" width="170" height="90" rx="6"/>
+  <text class="d-text" x="415" y="302" text-anchor="middle">Worker</text>
+  <text class="d-sub" x="415" y="322" text-anchor="middle">same jar, worker profile</text>
+  <text class="d-sub" x="415" y="340" text-anchor="middle">polls the outbox every 1 s</text>
+  <rect class="d-box" x="570" y="140" width="170" height="110" rx="6"/>
+  <text class="d-text" x="655" y="172" text-anchor="middle">PostgreSQL</text>
+  <text class="d-sub" x="655" y="194" text-anchor="middle">orders, stock holds</text>
+  <text class="d-sub" x="655" y="212" text-anchor="middle">outbox, stripe_events</text>
+  <text class="d-sub" x="655" y="230" text-anchor="middle">sessions</text>
+  <rect class="d-box" x="570" y="10" width="170" height="70" rx="6"/>
+  <text class="d-text" x="655" y="40" text-anchor="middle">Stripe Checkout</text>
+  <text class="d-sub" x="655" y="60" text-anchor="middle">hosted page, test mode</text>
+  <rect class="d-box" x="570" y="290" width="170" height="60" rx="6"/>
+  <text class="d-text" x="655" y="316" text-anchor="middle">Email</text>
+  <text class="d-sub" x="655" y="334" text-anchor="middle">Mailpit locally</text>
+  <path class="d-line" d="M120 190 L150 190" marker-end="url(#ssf-a)"/>
+  <path class="d-line" d="M280 170 L330 100" marker-end="url(#ssf-a)"/>
+  <text class="d-label" x="262" y="130" text-anchor="end">/api/*</text>
+  <path class="d-line" d="M500 100 L570 170" marker-end="url(#ssf-a)"/>
+  <path class="d-line" d="M500 300 L570 225" marker-end="url(#ssf-a)"/>
+  <text class="d-label" x="545" y="284">claims events</text>
+  <path class="d-line" d="M500 335 L570 322" marker-end="url(#ssf-a)"/>
+  <path class="d-line-accent" d="M570 58 L500 62" marker-end="url(#ssf-a)"/>
+  <text class="d-accent-text" x="535" y="30" text-anchor="middle">signed</text><text class="d-accent-text" x="535" y="44" text-anchor="middle">webhook</text>
+  <path class="d-line-dash" d="M65 160 L65 22 L570 22" marker-end="url(#ssf-a)"/>
+  <text class="d-label" x="260" y="16">shopper pays on Stripe's page</text>
+  <text class="d-label" x="10" y="388">Terraform put the API, database and load balancer on AWS for one session. The worker and the frontend were not part of that run.</text>
+</svg>

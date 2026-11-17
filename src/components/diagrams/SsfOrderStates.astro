@@ -1,0 +1,22 @@
+<svg viewBox="0 0 760 290" role="img" aria-labelledby="ssf-st-t ssf-st-d" xmlns="http://www.w3.org/2000/svg">
+  <title id="ssf-st-t">RyuStoreFront order state machine</title>
+  <desc id="ssf-st-d">Pending moves to paid or cancelled. Paid moves to fulfilled or refunded. Fulfilled moves to shipped or refunded. Shipped moves to refunded. Cancelled and refunded are final.</desc>
+  <defs><marker id="ssf-s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="d-arrow"/></marker></defs>
+  <rect class="d-box-accent" x="20" y="40" width="120" height="50" rx="6"/><text class="d-text" x="80" y="70" text-anchor="middle">pending</text>
+  <rect class="d-box-accent" x="230" y="40" width="120" height="50" rx="6"/><text class="d-text" x="290" y="70" text-anchor="middle">paid</text>
+  <rect class="d-box-accent" x="440" y="40" width="140" height="50" rx="6"/><text class="d-text" x="510" y="70" text-anchor="middle">fulfilled</text>
+  <rect class="d-box-accent" x="640" y="40" width="100" height="50" rx="6"/><text class="d-text" x="690" y="70" text-anchor="middle">shipped</text>
+  <path class="d-line-accent" d="M140 65 L230 65" marker-end="url(#ssf-s)"/><text class="d-label" x="185" y="55" text-anchor="middle">webhook</text>
+  <path class="d-line" d="M350 65 L440 65" marker-end="url(#ssf-s)"/><text class="d-label" x="395" y="55" text-anchor="middle">admin</text>
+  <path class="d-line" d="M580 65 L640 65" marker-end="url(#ssf-s)"/><text class="d-label" x="610" y="55" text-anchor="middle">admin</text>
+  <rect class="d-box-dim" x="20" y="180" width="120" height="50" rx="6"/><text class="d-text" x="80" y="210" text-anchor="middle">cancelled</text>
+  <rect class="d-box-dim" x="360" y="180" width="140" height="50" rx="6"/><text class="d-text" x="430" y="210" text-anchor="middle">refunded</text>
+  <path class="d-line" d="M80 90 L80 180" marker-end="url(#ssf-s)"/>
+  <text class="d-label" x="92" y="128">newer checkout, expiry sweep,</text><text class="d-label" x="92" y="144">failed or expired payment</text>
+  <path class="d-line" d="M290 90 L390 180" marker-end="url(#ssf-s)"/>
+  <path class="d-line" d="M510 90 L450 180" marker-end="url(#ssf-s)"/>
+  <path class="d-line" d="M690 90 L490 182" marker-end="url(#ssf-s)"/>
+  <text class="d-label" x="600" y="150">admin refund</text>
+  <text class="d-label" x="80" y="248" text-anchor="middle">final</text><text class="d-label" x="430" y="248" text-anchor="middle">final</text>
+  <text class="d-label" x="20" y="278">A paid order is never cancelled. A payment arriving after cancellation is recorded and refunded; the status stays cancelled.</text>
+</svg>

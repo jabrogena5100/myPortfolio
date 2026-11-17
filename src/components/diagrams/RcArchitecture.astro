@@ -1,0 +1,27 @@
+<svg viewBox="0 0 760 440" role="img" aria-labelledby="rc-arch-t rc-arch-d" xmlns="http://www.w3.org/2000/svg">
+  <title id="rc-arch-t">RyuCloud system architecture on AWS</title>
+  <desc id="rc-arch-d">The browser reaches a load balancer that serves a Next.js app and a Go API. The browser uploads video directly to a private S3 bucket using a presigned URL. The API records the upload in PostgreSQL and puts a job ID on an SQS queue. A Go worker with FFmpeg takes the job, claims it in PostgreSQL, reads the source from S3 and writes HLS files back. Playback goes through CloudFront with signed cookies.</desc>
+  <defs><marker id="rc-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="d-arrow"/></marker></defs>
+  <rect class="d-box" x="10" y="130" width="130" height="90" rx="6"/>
+  <text class="d-text" x="75" y="165" text-anchor="middle">Browser</text><text class="d-sub" x="75" y="185" text-anchor="middle">Next.js UI</text><text class="d-sub" x="75" y="201" text-anchor="middle">hls.js player</text>
+  <rect class="d-box" x="190" y="110" width="100" height="60" rx="6"/><text class="d-text" x="240" y="146" text-anchor="middle">ALB (HTTPS)</text>
+  <rect class="d-box" x="190" y="215" width="100" height="45" rx="6"/><text class="d-text" x="240" y="243" text-anchor="middle">Next.js</text>
+  <rect class="d-box-accent" x="340" y="40" width="150" height="80" rx="6"/><text class="d-text" x="415" y="72" text-anchor="middle">Go API</text><text class="d-sub" x="415" y="92" text-anchor="middle">ECS Fargate</text>
+  <rect class="d-box" x="590" y="40" width="150" height="80" rx="6"/><text class="d-text" x="665" y="68" text-anchor="middle">PostgreSQL 17</text><text class="d-sub" x="665" y="88" text-anchor="middle">source of truth</text><text class="d-sub" x="665" y="104" text-anchor="middle">for job state</text>
+  <rect class="d-box" x="340" y="250" width="150" height="60" rx="6"/><text class="d-text" x="415" y="277" text-anchor="middle">SQS + DLQ</text><text class="d-sub" x="415" y="295" text-anchor="middle">carries a job ID only</text>
+  <rect class="d-box-accent" x="590" y="250" width="150" height="80" rx="6"/><text class="d-text" x="665" y="282" text-anchor="middle">Go worker</text><text class="d-sub" x="665" y="302" text-anchor="middle">FFmpeg, Fargate Spot</text>
+  <rect class="d-box" x="340" y="355" width="150" height="55" rx="6"/><text class="d-text" x="415" y="380" text-anchor="middle">Private S3 bucket</text><text class="d-sub" x="415" y="397" text-anchor="middle">sources and HLS</text>
+  <rect class="d-box" x="190" y="300" width="120" height="55" rx="6"/><text class="d-text" x="250" y="325" text-anchor="middle">CloudFront</text><text class="d-sub" x="250" y="342" text-anchor="middle">OAC, signed cookies</text>
+  <path class="d-line" d="M140 160 L190 142" marker-end="url(#rc-a)"/>
+  <path class="d-line" d="M290 128 L340 90" marker-end="url(#rc-a)"/>
+  <path class="d-line" d="M240 170 L240 215" marker-end="url(#rc-a)"/>
+  <path class="d-line" d="M490 80 L590 80" marker-end="url(#rc-a)"/>
+  <path class="d-line" d="M415 120 L415 250" marker-end="url(#rc-a)"/><text class="d-label" x="425" y="190">job ID</text>
+  <path class="d-line" d="M490 280 L590 280" marker-end="url(#rc-a)"/><text class="d-label" x="540" y="272" text-anchor="middle">receive</text>
+  <path class="d-line" d="M665 250 L665 120" marker-end="url(#rc-a)"/><text class="d-label" x="655" y="190" text-anchor="end">claim with a lease</text>
+  <path class="d-line" d="M590 322 L490 372" marker-end="url(#rc-a)"/><text class="d-label" x="545" y="360" text-anchor="middle">HLS out</text>
+  <path class="d-line-dash" d="M75 220 L75 385 L340 385" marker-end="url(#rc-a)"/><text class="d-label" x="85" y="404">presigned PUT, bypasses the API</text>
+  <path class="d-line-accent" d="M140 200 L190 318" marker-end="url(#rc-a)"/><text class="d-accent-text" x="168" y="296" text-anchor="end">playback</text>
+  <path class="d-line" d="M310 335 L340 372" marker-end="url(#rc-a)"/>
+  <text class="d-label" x="10" y="428">Locally, Redis, MinIO and the API itself stand in for SQS, S3 and CloudFront.</text>
+</svg>

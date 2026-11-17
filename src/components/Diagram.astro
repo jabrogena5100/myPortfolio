@@ -1,0 +1,22 @@
+---
+// Wraps an inline SVG: keyboard-scrollable on narrow screens, with a visible text description.
+interface Props { id: string; label: string; description: string }
+const { id, label, description } = Astro.props;
+---
+<figure class="diagram">
+  <p class="hint">This diagram scrolls sideways on a narrow screen.</p>
+  <div class="scroll" role="region" aria-label={`${label} (scrollable)`} tabindex="0">
+    <slot />
+  </div>
+  <figcaption id={`${id}-desc`}><strong>{label}.</strong> {description}</figcaption>
+</figure>
+
+<style>
+  .diagram { margin: var(--space-6) 0; }
+  .hint { display: none; margin: 0 0 var(--space-2); color: var(--color-text-muted); font-size: var(--step--1); }
+  @media (max-width: 47.99rem) { .hint { display: block; } }
+  .scroll { overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-1); padding: var(--space-4); }
+  .scroll :global(svg) { display: block; min-width: 680px; width: 100%; height: auto; }
+  figcaption { margin-top: var(--space-3); color: var(--color-text-muted); font-size: var(--step--1); max-width: 78ch; }
+  figcaption strong { color: var(--color-text); font-weight: 600; }
+</style>

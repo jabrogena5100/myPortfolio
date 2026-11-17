@@ -1,0 +1,26 @@
+<svg viewBox="0 0 810 330" role="img" aria-labelledby="wf-arch-t wf-arch-d" xmlns="http://www.w3.org/2000/svg">
+  <title id="wf-arch-t">Wildfire monitoring system architecture</title>
+  <desc id="wf-arch-d">An ArduPilot simulator exchanges telemetry and velocity commands with a UAV agent. The agent sends only its position to a fog service and receives a rendered image back. The fog service owns the fire simulation, so the true fire state never reaches the agent. The agent runs the YOLO detector on the image, turns boxes into grid cells, and a placeholder planner chooses where to fly. Detections go over a UDP message bus to the fog service, which scores them against the true fire and writes logs.</desc>
+  <defs><marker id="wf-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="d-arrow"/></marker></defs>
+  <rect class="d-box" x="10" y="30" width="140" height="70" rx="6"/><text class="d-text" x="80" y="60" text-anchor="middle">ArduPilot SITL</text><text class="d-sub" x="80" y="80" text-anchor="middle">ArduCopter, MAVLink</text>
+  <rect class="d-box-dim" x="210" y="10" width="300" height="200" rx="8"/><text class="d-accent-text" x="225" y="30">UAV agent</text>
+  <rect class="d-box" x="225" y="40" width="120" height="45" rx="6"/><text class="d-sub" x="285" y="68" text-anchor="middle">Telemetry</text>
+  <rect class="d-box" x="375" y="40" width="120" height="55" rx="6"/><text class="d-text" x="435" y="62" text-anchor="middle">YOLOv8s</text><text class="d-sub" x="435" y="80" text-anchor="middle">boxes to grid cells</text>
+  <rect class="d-box" x="375" y="125" width="120" height="60" rx="6"/><text class="d-text" x="435" y="147" text-anchor="middle">Planner</text><text class="d-sub" x="435" y="163" text-anchor="middle">placeholder:</text><text class="d-sub" x="435" y="177" text-anchor="middle">max confidence</text>
+  <rect class="d-box" x="225" y="125" width="130" height="60" rx="6"/><text class="d-text" x="290" y="150" text-anchor="middle">Mission step</text><text class="d-sub" x="290" y="168" text-anchor="middle">investigate or sweep</text>
+  <rect class="d-box-dim" x="590" y="10" width="210" height="200" rx="8"/><text class="d-accent-text" x="605" y="30">Fog service</text>
+  <rect class="d-box" x="605" y="40" width="180" height="45" rx="6"/><text class="d-text" x="695" y="60" text-anchor="middle">Fire simulation</text><text class="d-sub" x="695" y="76" text-anchor="middle">the only copy of the truth</text>
+  <rect class="d-box" x="605" y="95" width="180" height="45" rx="6"/><text class="d-text" x="695" y="115" text-anchor="middle">Camera service</text><text class="d-sub" x="695" y="131" text-anchor="middle">renders an image only</text>
+  <rect class="d-box" x="605" y="150" width="180" height="50" rx="6"/><text class="d-text" x="695" y="170" text-anchor="middle">Scoring at ingest</text><text class="d-sub" x="695" y="186" text-anchor="middle">logs and run manifest</text>
+  <rect class="d-box" x="210" y="255" width="590" height="40" rx="6"/><text class="d-sub" x="505" y="279" text-anchor="middle">UDP multicast bus: pose, visit, map, detection, belief, fog state</text>
+  <path class="d-line" d="M150 55 L225 62" marker-end="url(#wf-a)"/><text class="d-label" x="187" y="48" text-anchor="middle">telemetry</text>
+  <path class="d-line" d="M225 150 L150 85" marker-end="url(#wf-a)"/><text class="d-label" x="150" y="140" text-anchor="middle">velocity</text>
+  <path class="d-line" d="M345 62 L375 62" marker-end="url(#wf-a)"/>
+  <path class="d-line" d="M435 95 L435 125" marker-end="url(#wf-a)"/>
+  <path class="d-line" d="M375 155 L355 155" marker-end="url(#wf-a)"/>
+  <path class="d-line-accent" d="M495 67 L605 117" marker-end="url(#wf-a)"/><text class="d-accent-text" x="550" y="150" text-anchor="middle">pose out,</text><text class="d-accent-text" x="550" y="164" text-anchor="middle">image back</text>
+  <path class="d-line" d="M695 85 L695 95" marker-end="url(#wf-a)"/>
+  <path class="d-line" d="M360 210 L360 255" marker-end="url(#wf-a)"/><text class="d-label" x="370" y="236">detections</text>
+  <path class="d-line" d="M740 255 L740 200" marker-end="url(#wf-a)"/>
+  <text class="d-label" x="210" y="318">The agent never sees the fire state. It sends its own position and receives a picture.</text>
+</svg>

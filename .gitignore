@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.astro/
+.npm-cache/
+test-results/
+playwright-report/
+.lighthouse-tmp/
+.env
+.env.*
+!.env.example
+*.log

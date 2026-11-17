@@ -1,0 +1,35 @@
+<svg viewBox="0 0 760 360" role="img" aria-labelledby="rc-cr-t rc-cr-d" xmlns="http://www.w3.org/2000/svg">
+  <title id="rc-cr-t">RyuCloud worker crash recovery timeline</title>
+  <desc id="rc-cr-d">Worker A claims a job, which sets attempts to 1 and a 120 second lease, and starts encoding. It is killed at about 2 percent progress. The lease runs out. A sweeper notices the job has no live owner and puts the job ID back on the queue. Worker B claims it with attempts equal to 2, finishes, commits the result and only then acknowledges the message.</desc>
+  <defs><marker id="rc-t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="d-arrow"/></marker></defs>
+  <text class="d-text" x="10" y="66">Worker A</text>
+  <text class="d-text" x="10" y="146">Job row</text>
+  <text class="d-text" x="10" y="226">Sweeper</text>
+  <text class="d-text" x="10" y="306">Worker B</text>
+  <path class="d-line-dash" d="M10 100 L750 100"/>
+  <path class="d-line-dash" d="M10 180 L750 180"/>
+  <path class="d-line-dash" d="M10 260 L750 260"/>
+
+  <rect class="d-box-accent" x="130" y="46" width="200" height="40" rx="6"/>
+  <text class="d-sub" x="230" y="70" text-anchor="middle">encoding, sending heartbeats</text>
+  <text class="d-accent-text" x="344" y="70">killed at about 2%</text>
+
+  <rect class="d-box" x="130" y="126" width="260" height="40" rx="6"/>
+  <text class="d-sub" x="260" y="150" text-anchor="middle">A owns the job: attempts = 1, lease 120 s</text>
+  <rect class="d-box-dim" x="400" y="126" width="160" height="40" rx="6"/>
+  <text class="d-sub" x="480" y="150" text-anchor="middle">lease runs out</text>
+  <rect class="d-box" x="570" y="126" width="170" height="40" rx="6"/>
+  <text class="d-sub" x="655" y="150" text-anchor="middle">B owns it: attempts = 2</text>
+
+  <rect class="d-box-accent" x="400" y="206" width="160" height="40" rx="6"/>
+  <text class="d-sub" x="480" y="224" text-anchor="middle">no live owner found,</text>
+  <text class="d-sub" x="480" y="239" text-anchor="middle">job ID sent again</text>
+  <path class="d-line-accent" d="M480 206 L480 168" marker-end="url(#rc-t)"/>
+
+  <rect class="d-box-accent" x="570" y="286" width="170" height="40" rx="6"/>
+  <text class="d-sub" x="655" y="304" text-anchor="middle">encodes, commits result,</text>
+  <text class="d-sub" x="655" y="319" text-anchor="middle">then acknowledges</text>
+  <path class="d-line" d="M560 226 L600 226 L600 286" marker-end="url(#rc-t)"/>
+
+  <text class="d-label" x="10" y="346">Defaults: lease 120 s, heartbeat every third of the lease, sweeper every 15 s. Recovery took "several minutes" when tested.</text>
+</svg>

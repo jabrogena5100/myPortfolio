@@ -1,0 +1,28 @@
+---
+// Pointer spotlight on a card. Our own implementation (about 15 lines); the idea only is
+// credited in design/COMPONENT-NOTES.md. Purely decorative: it never carries information.
+---
+<div class="spot"><slot /></div>
+
+<style>
+  .spot { position: relative; height: 100%; box-sizing: border-box; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-1); transition: border-color var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out); overflow: hidden; }
+  .spot:hover, .spot:focus-within { border-color: var(--color-accent); transform: translateY(-2px); box-shadow: var(--shadow-2); }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .spot::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity var(--duration-base) var(--ease-out); background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--color-accent) 16%, transparent), transparent 70%); }
+    .spot:hover::before { opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) { .spot:hover, .spot:focus-within { transform: none; } }
+</style>
+
+<script>
+  // One delegated listener for every card, only on hover-capable pointers.
+  if (matchMedia('(hover: hover)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.addEventListener('pointermove', (e) => {
+      const card = (e.target as Element | null)?.closest<HTMLElement>('.spot');
+      if (!card) return;
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', `${e.clientX - r.left}px`);
+      card.style.setProperty('--my', `${e.clientY - r.top}px`);
+    }, { passive: true });
+  }
+</script>
