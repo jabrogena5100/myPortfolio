@@ -96,3 +96,15 @@ Full-stack work is a capability, not a headline service (no deployed frontend an
 | Owner details | Display name "Joshua Abrogena"; contact links and resume are **placeholders** until supplied | Contact and resume pages show a plain "to be added" state |
 | Domains | `ryustorefront.net` and `ryucloud.link` may be mentioned; both are currently down and the case studies say so | No live links |
 | Repo links | Not shown until the owner confirms each is public | Placeholders |
+
+## D8. Phase 3 choices (2026-11-17)
+
+| Decision | Choice | Tradeoff |
+| --- | --- | --- |
+| Fonts | Source Serif 4 **Display** Regular for headlines, Hanken Grotesk variable for body, both OFL 1.1, self-hosted unmodified (`docs/fonts.md`). Owner chose "option C" | 144 KB of fonts in total. Source Serif's Reserved Font Name forbids trimming without renaming, so I did not subset it. Display optical size is designed for large text, so it is used for headings only. No italic is loaded; `font-synthesis: none` prevents fake italics |
+| Navigation | Native `<nav>`, a desktop list and a mobile `<details>` menu, with about 10 lines of script for Escape and outside click | Two copies of the link list in the DOM, one always hidden |
+| Page transition | CSS cross-document View Transitions, a short fade, disabled under reduced motion | Chromium only; elsewhere pages simply navigate |
+| Card interaction | The whole card is the link (heading link stretched with `::after`); the spotlight is our own 15 lines | One focus target per card; clicking the card text follows the link |
+| Cards layout | Stacked below 1024 px, three columns from 1024 px | Tablet cards are wide and long; narrow columns looked worse |
+| Placeholders | Projects, Services, About and Contact pages are minimal "in progress" pages so that nothing links to a 404 | They are indexable placeholders until Phases 4 and 5 replace them |
+| Home copy source | All factual copy lives in `src/data/site.ts` beside its evidence reference | Case-study pages will import from the same data so numbers cannot drift |

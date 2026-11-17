@@ -38,10 +38,9 @@
 :root {
   color-scheme: dark;
 
-  /* Font stacks. Faces are chosen with the owner in Phase 3; until then these
-     are system stacks, so nothing is downloaded. */
-  --font-display-stack: ui-serif, 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
-  --font-body-stack: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  /* Font stacks. Self-hosted faces (docs/fonts.md); system fallbacks while loading. */
+  --font-display-stack: 'Source Serif 4 Display', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --font-body-stack: 'Hanken Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono-stack: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
 
   /* Type scale (7 steps; display steps are fluid). */

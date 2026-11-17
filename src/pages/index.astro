@@ -1,7 +1,178 @@
 ---
 import Base from '../layouts/Base.astro';
+import SpotlightCard from '../components/SpotlightCard.astro';
+import { site, services, projects, verifyTerms, capabilities } from '../data/site';
 ---
-<Base title="Joshua Abrogena" description="Portfolio of Joshua Abrogena, software engineer (scaffold: content arrives in Phase 3).">
-  <h1>Joshua Abrogena</h1>
-  <p>Scaffold only. Homepage content is built in Phase 3.</p>
+<Base
+  title={`${site.name}: ${site.role}`}
+  description="Backend systems that stay correct under retries and failure, and the AWS infrastructure to run them. Three projects with their evidence."
+>
+  <section class="hero">
+    <div class="container grid">
+      <p class="tag">{site.role}<br />{site.since}</p>
+      <div class="main">
+        <h1>{site.positioning}</h1>
+        <p class="intro">{site.intro}</p>
+        <p class="cta">
+          <a class="btn" href="#projects">See the projects</a>
+          <a class="link" href="/contact/">Contact</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="services" aria-labelledby="services-h">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">What I can do for you</p>
+        <h2 id="services-h">Three services, each tied to evidence</h2>
+      </div>
+      <ol class="services">
+        {services.map((s) => (
+          <li>
+            <span class="n" aria-hidden="true">{s.n}</span>
+            <div>
+              <h3>{s.title}</h3>
+              <p>{s.body}</p>
+              <p class="meta"><strong>Evidence:</strong> {s.proof} <strong>Limit:</strong> {s.limit}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <p class="more"><a href="/services/">More on services</a></p>
+    </div>
+  </section>
+
+  <section class="section" id="projects" aria-labelledby="projects-h">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Selected work</p>
+        <h2 id="projects-h">Three projects</h2>
+        <p class="lede">None of these has users or clients. Each card says exactly what is true today.</p>
+      </div>
+      <ul class="cards">
+        {projects.map((p) => (
+          <li>
+            <SpotlightCard>
+              <article class="card">
+                <p class="eyebrow">{p.kind}</p>
+                <h3><a class="stretch" href={`/projects/${p.slug}/`}>{p.name}</a></h3>
+                <p>{p.problem}</p>
+                <p class="status"><span class="sr">Status: </span>{p.status}</p>
+                <ul class="ev">{p.evidence.map((e) => <li>{e}</li>)}</ul>
+                <p class="stack">{p.stack}</p>
+                <p class="go" aria-hidden="true">Read the case study &rarr;</p>
+              </article>
+            </SpotlightCard>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="verify" aria-labelledby="verify-h">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">How I verify</p>
+        <h2 id="verify-h">Every result says how it was obtained</h2>
+        <p class="lede">I label each claim so you can tell a test I ran from a number I only recorded. Where something was not done, I say so.</p>
+      </div>
+      <dl class="terms">
+        {verifyTerms.map((t) => (
+          <div>
+            <dt>{t.term}</dt>
+            <dd>{t.body}<br /><span class="ex">{t.example}</span></dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <section class="section" id="capabilities" aria-labelledby="cap-h">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Selected capabilities</p>
+        <h2 id="cap-h">What each project exercised</h2>
+      </div>
+      <div class="caps">
+        {capabilities.map((c) => (
+          <section>
+            <h3>{c.group}</h3>
+            <ul>{c.items.map(([what, where]) => <li>{what} <span class="where">{where}</span></li>)}</ul>
+          </section>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section closing" aria-labelledby="closing-h">
+    <div class="container">
+      <h2 id="closing-h">Talk to me about your system</h2>
+      <p class="lede">Contact links and a resume are being added. Until then the <a href="/contact/">contact page</a> says where things stand.</p>
+    </div>
+  </section>
 </Base>
+
+<style>
+  .hero { padding-block: var(--space-8) var(--space-7); }
+  .hero .grid { display: grid; gap: var(--space-5); }
+  .hero .grid::before { content: ''; display: block; height: 2px; width: 72px; background: var(--color-accent); }
+  .tag { margin: 0; color: var(--color-text-muted); font-size: var(--step--1); letter-spacing: 0.08em; text-transform: uppercase; line-height: 1.8; }
+  .hero h1 { font-size: var(--step-5); }
+  .intro { color: var(--color-text-muted); max-width: var(--measure); font-size: var(--step-1); margin: var(--space-5) 0 0; }
+  .cta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-5); margin: var(--space-6) 0 0; }
+  .btn { display: inline-flex; align-items: center; min-height: 48px; padding: 0 var(--space-6); background: var(--color-accent); color: var(--color-bg); text-decoration: none; font-weight: 600; border-radius: var(--radius-sm); transition: background var(--duration-fast) var(--ease-out); }
+  .btn:hover { background: var(--color-accent-hover); color: var(--color-bg); }
+  .link { display: inline-block; padding: var(--space-3) 0; }
+
+  .lede { color: var(--color-text-muted); max-width: var(--measure); margin: 0; }
+  .services { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-border); }
+  .services li { display: grid; grid-template-columns: 3rem 1fr; gap: var(--space-4); padding-block: var(--space-6); border-bottom: 1px solid var(--color-border); }
+  .services .n { font-family: var(--font-display-stack); font-size: var(--step-3); color: var(--color-accent); line-height: 1; }
+  .services h3 { font-size: var(--step-1); }
+  .services p { margin: var(--space-3) 0 0; max-width: var(--measure); }
+  .services .meta { color: var(--color-text-muted); font-size: var(--step--1); }
+  .more { margin-top: var(--space-5); }
+
+  .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-5); }
+  .card { padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-3); height: 100%; box-sizing: border-box; position: relative; }
+  .card h3 { font-family: var(--font-display-stack); font-weight: 400; font-size: var(--step-3); }
+  .card p { margin: 0; }
+  .stretch { color: var(--color-text); text-decoration: none; }
+  .stretch::after { content: ''; position: absolute; inset: 0; }
+  .stretch:hover { color: var(--color-accent-hover); }
+  .ev li::marker { color: var(--color-accent); }
+  .status { color: var(--color-sage); font-size: var(--step--1); }
+  .ev { list-style: disc; margin: var(--space-2) 0 0; padding-left: var(--space-5); color: var(--color-text-muted); font-size: var(--step--1); display: grid; gap: var(--space-2); }
+  .stack { color: var(--color-text-subtle); font-size: var(--step--1); margin-top: auto !important; padding-top: var(--space-3) !important; }
+  .go { color: var(--color-accent); font-size: var(--step--1); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  .terms { display: grid; gap: var(--space-5); margin: 0; }
+  .terms > div { border-top: 2px solid var(--color-border); padding-top: var(--space-4); }
+  .terms dt { font-family: var(--font-display-stack); font-size: var(--step-2); color: var(--color-sage); }
+  .terms dd { margin: var(--space-2) 0 0; }
+  .ex { color: var(--color-text-muted); font-size: var(--step--1); display: inline-block; margin-top: var(--space-2); }
+
+  .caps { display: grid; gap: var(--space-6); }
+  .caps h3 { font-size: var(--step-0); margin-bottom: var(--space-3); }
+  .caps ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
+  .caps li { color: var(--color-text); border-top: 1px solid var(--color-border); padding-top: var(--space-3); }
+  .where { display: block; color: var(--color-text-muted); font-size: var(--step--1); }
+
+  .closing h2 { font-size: var(--step-4); }
+  .closing .lede { margin-top: var(--space-4); }
+
+  @media (min-width: 48rem) {
+    .terms { grid-template-columns: repeat(3, 1fr); }
+    .caps { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 64rem) {
+    .hero .grid { grid-template-columns: repeat(12, 1fr); column-gap: var(--space-5); }
+    .hero .grid::before { grid-column: 1 / -1; }
+    .tag { grid-column: 1 / span 4; align-self: end; }
+    .main { grid-column: 5 / span 8; }
+    .caps { grid-template-columns: repeat(4, 1fr); }
+    .cards { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
