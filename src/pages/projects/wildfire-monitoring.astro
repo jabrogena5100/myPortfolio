@@ -1,9 +1,170 @@
 ---
-import Base from '../../layouts/Base.astro';
+import CaseStudy from '../../layouts/CaseStudy.astro';
+import Section from '../../components/Section.astro';
+import FactList from '../../components/FactList.astro';
+import Figure from '../../components/Figure.astro';
+import Diagram from '../../components/Diagram.astro';
+import WfArchitecture from '../../components/diagrams/WfArchitecture.astro';
+import level2 from '../../assets/wildfire/fig-level2-matrix.png';
+import external from '../../assets/wildfire/fig-external-datasets.png';
+import level3 from '../../assets/wildfire/fig-level3-summary.png';
+import perScenario from '../../assets/wildfire/fig-level3-per-scenario.png';
+import paths from '../../assets/wildfire/fig-illustrative-paths.png';
+
+const toc: [string, string][] = [
+  ['problem', 'The problem'],
+  ['built', 'What I built'],
+  ['architecture', 'Architecture'],
+  ['challenges', 'Hardest challenges'],
+  ['evidence', 'Evidence'],
+  ['limits', 'Tradeoffs and limits'],
+  ['next', 'What I would improve'],
+  ['links', 'Links'],
+];
 ---
-<Base title="Wildfire monitoring | Joshua Abrogena" description="Case study in progress (Phase 4).">
-  <div class="container" style="padding-block: var(--space-8)">
-    <h1>Wildfire monitoring</h1>
-    <p>Case study in progress (Phase 4).</p>
-  </div>
-</Base>
+<CaseStudy
+  title="Wildfire monitoring: a cross-domain evaluation case study | Joshua Abrogena"
+  description="A university capstone comparing smoke detectors trained on synthetic and real imagery, then flown in an ArduPilot simulation. The story is the audits that narrowed its own claims."
+  kind="Research capstone"
+  name="Wildfire monitoring"
+  status="University research project (ECE 496, Fall 2026). Simulation and public datasets only; no real flights. The analysis is frozen as a local baseline and its results are descriptive, not a performance claim. The code, report and replay are not published."
+  stack="Python, YOLOv8s (Ultralytics), PyTorch, ArduPilot SITL, MAVLink, RunPod GPUs for training"
+  meta={[
+    ['Kind', 'Academic research and simulation. Not a product, and not a production system.'],
+    ['Written with', 'AI assistants (Claude Code, and an AI reviewer used for audits) helped write code and analysis. The About page explains how I work.'],
+  ]}
+  toc={toc}
+>
+  <Section n={1} id="problem" title="The problem">
+    <p>Real aerial footage of wildfire smoke is scarce and expensive to label, so one attractive shortcut is to generate synthetic images and train a detector on them. The question this project asks is narrow: does the <em>training domain</em> of a smoke detector, synthetic or real, change how well it perceives smoke, and does that difference carry into how an autonomous UAV monitors a simulated fire?</p>
+    <p>This is a research question, not a product. The honest answer the project reached is smaller than the question, and I think that is the valuable part.</p>
+  </Section>
+
+  <Section n={2} id="built" title="What I built">
+    <ul>
+      <li>A 2.5D synthetic image generator that projects ground texture and smoke billboards through the same pinhole-camera code the UAV simulation uses, with labels taken from the smoke masks. The frozen dataset has 5,304 images.</li>
+      <li>One evaluation harness: every (model, test set) result goes through the same code path, on frozen, hash-pinned splits, with predictions saved so metrics can be recomputed offline.</li>
+      <li>YOLOv8s detectors trained three times each (three seeds) on synthetic imagery (Model A) and on a real aerial dataset (Model B).</li>
+      <li>A closed loop in ArduPilot SITL: a UAV agent, a fog service that owns the fire simulation and scores every detection at ingest, a placeholder reactive planner, and run manifests that record weight hashes and versions.</li>
+      <li>A paired experiment: 56 simulated runs of 600 s each.</li>
+    </ul>
+    <h3>What is not built</h3>
+    <ul>
+      <li>The probability-map planner the project was designed around. That file is empty. The planner flown is a placeholder that keeps the highest recent confidence per grid cell.</li>
+      <li>Any real flight, and any multi-UAV validation. A four-UAV demo exists as an architecture demonstration only.</li>
+      <li>A working cost-control watchdog for the GPU pods. It was designed with budget gates and stop-only watchdogs but, in my words, it never worked.</li>
+    </ul>
+    <h3>My part, and the AI assistance</h3>
+    <p>I chose the Boreal dataset, examined its limitations (which is why the split had to be redone), and ran the synthetic and external evaluations. The repository shows heavy involvement of AI assistants, including an AI reviewer that performed the audits described below. I treat their findings as audit input that I checked against the data, not as independent third-party review.</p>
+  </Section>
+
+  <Section n={3} id="architecture" title="System architecture">
+    <Diagram id="wf-arch" label="System architecture" description="An ArduPilot simulator exchanges telemetry and velocity commands with a UAV agent. The agent sends only its position to a fog service and receives a rendered image back. The fog service owns the fire simulation, so the true fire state never reaches the agent. The agent runs the YOLO detector on the image, turns boxes into grid cells, and a placeholder planner chooses where to fly. Detections go over a UDP message bus to the fog service, which scores them against the true fire and writes logs.">
+      <WfArchitecture />
+    </Diagram>
+    <p>The design choice that matters most is that <strong>the fog service owns the fire</strong>. The agent sends only its own position and gets back a rendered frame; no endpoint exposes fire state, and tests forbid the agent-side code from importing the fire simulator. Every detection is scored against the true fire at the moment it arrives, because the truth changes over time.</p>
+    <p>The perception loop ran on a 1 vCPU, 1.9 GB virtual machine with CPU-only inference. The detector took about 298 to 312 ms per frame (median, 16 frames per model) and frame rendering about 500 ms.</p>
+  </Section>
+
+  <Section n={4} id="challenges" title="The three hardest problems">
+    <h3>1. Making the synthetic-versus-real comparison trustworthy</h3>
+    <p>The deliverable is a two-by-two table: train on synthetic or real, test on synthetic or real. If one cell is inflated, everything downstream is wrong. An audit found that the real dataset's pre-made split was not video-disjoint: three clips appeared in both train and test, through background frames from the same footage. I built a clip-disjoint split (31 clips), retrained every real-trained model, kept the old results separate, and withdrew a statistical claim I had made that the audit showed to be over-stated.</p>
+    <p>Tradeoff: with only 8 test clips, the uncertainty on the real-test numbers is wide, and some same-site similarity between train and test frames remains (documented, with a sensitivity check of at most 0.001 mAP50).</p>
+
+    <h3>2. A perception-to-flight loop where the truth cannot leak</h3>
+    <p>To avoid grading the detector with information it should not have, the fog service renders and returns images only and scores detections itself, and the experiment runner starts it only after every agent reports ready. The experiment generator refuses any plan whose arms differ in more than five perception settings. Every run writes a manifest with the weight hashes, library versions and an "oracle" flag, which was off in all 58 manifests.</p>
+    <p>Tradeoff: the UAV's downward-looking camera is outside the pitch range the synthetic images were generated for (mostly oblique), so the image-level test does not measure what the flight sees.</p>
+
+    <h3>3. Auditing my own experiment instead of reporting the headline</h3>
+    <p>Fifty-six runs are easy to over-read. Successive audits changed the unit of inference from 8 scenarios to the 4 distinct ignition cells, which makes the smallest possible exact p-value 0.125, so <strong>nothing is claimed significant</strong>. They found a timing confound (the fire advances on the wall clock), 15 of 56 key events that were never observed within the window and are therefore lower bounds, and provenance gaps. No rerun was authorised, so these are documented, not fixed, and the conclusions were cut down to direction-of-effect statements.</p>
+  </Section>
+
+  <Section n={5} id="evidence" title="Evidence">
+    <p>The project's results come from its own reports, recorded as <strong>Documented</strong> below; I quote them and have not re-run them. The figures are the project's own charts, drawn on white, so I show them on a light mat. Models: <strong>A</strong> is trained on synthetic imagery, <strong>B</strong> on the clip-disjoint real dataset. mAP50 is mean average precision at an intersection-over-union of 0.5.</p>
+
+    <h3>Detection: the two-by-two table (Level 2)</h3>
+    <p class="scrollhint">On a narrow screen this table scrolls sideways.</p>
+    <div class="tablewrap" role="region" tabindex="0" aria-label="Table: cross-domain detection results">
+      <table class="num">
+        <caption>Mean over 3 seeds (sample SD) and per-seed mAP50. Real test set: 744 frames from 8 clips. Synthetic test set: 701 images from 6 texture slots. Precision and recall at confidence 0.25. Documented, 2026-10-29. Training: YOLOv8s, 100 epochs, one RTX 4090.</caption>
+        <thead><tr><th scope="col">Train, then test</th><th scope="col">mAP50 mean (SD)</th><th scope="col">Per seed</th><th scope="col">Recall</th><th scope="col">Precision</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Synthetic, then synthetic</th><td>0.995 (0.000)</td><td>0.995, 0.995, 0.995</td><td>1.000</td><td>1.000</td></tr>
+          <tr><th scope="row">Synthetic, then real</th><td>0.512 (0.095)</td><td>0.602, 0.522, 0.413</td><td>0.530</td><td>0.612</td></tr>
+          <tr><th scope="row">Real, then synthetic</th><td>0.612 (0.104)</td><td>0.587, 0.522, 0.726</td><td>0.496</td><td>0.869</td></tr>
+          <tr><th scope="row">Real, then real</th><td>0.899 (0.027)</td><td>0.923, 0.903, 0.870</td><td>0.899</td><td>0.869</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Reading it: each detector is far better on its own domain, and the synthetic-to-synthetic cell is saturated, so it cannot discriminate. Every seed shows the same ordering, but the size of the gap is not tightly estimated: with only 8 real test clips, a clustered bootstrap gave a seed-0 interval of 0.175 to 0.810 for synthetic-to-real.</p>
+    <Figure src={level2} alt="Bar chart of mean average precision at IoU 0.5. On the synthetic test set, the synthetic-trained model scores about 0.995 and the real-trained model about 0.61. On the real test set, the synthetic-trained model scores about 0.51 and the real-trained model about 0.90. Three black dots per bar show the individual seeds." caption="Level 2 cross-domain matrix. Bars are the mean of 3 seeds, dots are the individual seeds. The y-axis is pooled mAP50 with a confidence floor of 0.001, as labelled in the project's figure." label="Report figure" plate />
+
+    <h3>The ranking depends on the dataset</h3>
+    <p class="scrollhint">On a narrow screen this table scrolls sideways.</p>
+    <div class="tablewrap" role="region" tabindex="0" aria-label="Table: external dataset results">
+      <table class="num">
+        <caption>Pooled mAP50 (mean over seeds) from exploratory external evaluation: six frozen checkpoints, evaluation only, confidence 0.25, IoU 0.5. The protocol was not frozen in advance, so the status is provisional. Documented.</caption>
+        <thead><tr><th scope="col">Dataset</th><th scope="col">Model A</th><th scope="col">Model B</th><th scope="col">Note</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">FireMan primary (5 videos, one 2023-08-26 burn, 750 frames)</th><td>0.462 (SD 0.173)</td><td>0.683 (SD 0.177)</td><td>One burn event, about 23 effective frames</td></tr>
+          <tr><th scope="row">FASDD, smoke-positive pooled (2,149 images)</th><td>0.408</td><td>0.224</td><td>Driven by one 720p group of unknown platform</td></tr>
+          <tr><th scope="row">FASDD, UAV nadir (306 images)</th><td>0.437</td><td>0.423</td><td>Equivalence not tested</td></tr>
+          <tr><th scope="row">FASDD, tower (718 images)</th><td>0.011</td><td>0.003</td><td>Uninformative</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <Figure src={external} alt="Grouped bar chart of mean average precision for the synthetic-trained and real-trained models on six test sets: Boreal v2 test, FireMan primary, FASDD pooled, FASDD 720p, FASDD UAV nadir and FASDD tower. The real-trained model leads on the first two sets, the synthetic-trained model leads on FASDD pooled and 720p, and the two are close on UAV nadir." caption="Ranking of the two models across evaluated datasets. Hatched bars are a descriptive-only group; dots are seeds; no inference is drawn. The honest reading is that the ranking varies by dataset and there is no universal winner." label="Report figure" plate />
+
+    <h3>Flying them in simulation (Level 3)</h3>
+    <p class="scrollhint">On a narrow screen this table scrolls sideways.</p>
+    <div class="tablewrap" role="region" tabindex="0" aria-label="Table: simulated flight results">
+      <table class="num">
+        <caption>ArduPilot SITL, one UAV, 10 by 10 grid of about 160 m cells, 600 s window, 8 held-out scenarios on 4 ignition cells, 7 arms (baseline, three seeds of A, three of B). Family value is the mean over 3 seeds, plus or minus the SD across seeds. Times are <strong>capped means</strong>: an event not observed counts as 600 s, so they are lower bounds. 15 of 56 ignition-cell visits were never observed (0 of 8 baseline, 1 of 24 for A, 14 of 24 for B). One 1 vCPU VM; 26 runs sequential on a clean commit, 30 plus 2 repeats in parallel on a dirty infrastructure state. Documented, 2026-11-09.</caption>
+        <thead><tr><th scope="col">Metric</th><th scope="col">Baseline (no detector)</th><th scope="col">Model A</th><th scope="col">Model B</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">First true detection, s</th><td>no detector</td><td>177.1 &plusmn; 7.0</td><td>296.6 &plusmn; 48.0</td></tr>
+          <tr><th scope="row">First visit to ignition cell, s</th><td>221.4</td><td>268.0 &plusmn; 31.1</td><td>487.7 &plusmn; 14.4</td></tr>
+          <tr><th scope="row">Grid coverage at 600 s</th><td>0.209</td><td>0.183 &plusmn; 0.003</td><td>0.147 &plusmn; 0.007</td></tr>
+          <tr><th scope="row">False detection observations per run (repeats, not incidents)</th><td>0</td><td>0.3 &plusmn; 0.2</td><td>55.7 &plusmn; 23.0</td></tr>
+          <tr><th scope="row">Distinct false cells per run</th><td>0</td><td>0.2 &plusmn; 0.2</td><td>6.4 &plusmn; 1.2</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>What this does and does not show.</strong> Neither perception arm reached the ignition cell sooner than the plain patrol on average, and both covered less of the grid. Model A beat Model B on first detection and first ignition-cell visit in all 4 ignition cells. But Model A is tested in its own domain and Model B across domains, with thresholds chosen separately for each, so Level 3 largely restates the Level 2 gap and cannot separate a training-domain effect from it. With 4 clusters no significance is possible. The fire-timing confound, the censoring and a single UAV all apply.</p>
+    <Figure src={level3} alt="Three bar charts comparing the baseline patrol, Model A and Model B. Grid coverage at 600 seconds is 20.9 percent, 18.3 percent and 14.7 percent. First true detection is not applicable for the baseline, 177.1 seconds for Model A and 296.6 seconds for Model B. First ignition-cell visit is 221.4, 268.0 and 487.7 seconds." caption="Level 3 summary. Descriptive means over 8 scenarios per arm; A and B are averages of three seed arms. Unobserved events are assigned 600 s." label="Report figure" plate />
+    <Figure src={perScenario} alt="Four scatter plots across eight scenarios showing, for each run, the time to first visit of the ignition cell, final grid coverage, time spent investigating false targets, and false detection counts. Markers distinguish the baseline, Model A and Model B, sequential and parallel runs, and runs not observed within the 600 second cap." caption="Every individual run, not just the means: eight scenarios on four ignition cells, with hollow markers for events never observed within 600 s. The project's own caption: descriptive only, no inference implied, and parallel runs had a different realised fire than the baseline." label="Report figure" plate />
+    <Figure src={paths} alt="A grid of six small ten-by-ten maps. Rows are scenarios 2001 and 2004; columns are the baseline, Model A seed 0 and Model B seed 0. Each map shows the UAV's path, the ignition cell as a star, cells ignited during the run, and circles for true and false detection records." caption="Illustrative flights. The author picked scenarios 2001 and 2004 after the aggregate analysis, one from each of two ignition cells; this is not a random or effect-based sample. The paths are reconstructed from log lines, not the exact flown track." label="Report figure" plate />
+
+    <h3>Tests, reproducibility and what was not done</h3>
+    <FactList ids={['wfTests', 'wfRepro', 'wfConfound', 'wfNotDone']} />
+  </Section>
+
+  <Section n={6} id="limits" title="Tradeoffs and limits">
+    <ul>
+      <li>Everything is simulation. The smoke in the flight loop is rendered by my own generator: flat billboards with no volume or occlusion, and the plume geometry has no empirical basis.</li>
+      <li>Three seeds, 8 real test clips and 4 ignition cells. The statistics are small-sample throughout, and I report spread, not significance.</li>
+      <li>The two training domains differ in more than "synthetic versus real" (the synthetic boxes touch the image edge far more often than the real ones, 0.76 against 0.30), so an effect cannot be attributed to domain alone.</li>
+      <li>Fresh simulation runs are not bit-reproducible. The analysis from the recorded runs is; the raw runs (2.8 GB) are not in the repository.</li>
+      <li>The external evaluation is exploratory and provisional. Two owner reviews (annotation quality and dataset overlap) were still open when the evidence was exported.</li>
+      <li>I do not claim that AI improves autonomous firefighting, and I do not claim that synthetic data beats real data. The evidence supports neither.</li>
+    </ul>
+  </Section>
+
+  <Section n={7} id="next" title="What I would improve next">
+    <p>These are planned, not done.</p>
+    <ol>
+      <li>Step the fire from the run clock, or run sequentially, then rerun Level 3 so the arms see the same fire.</li>
+      <li>Build and calibrate the probability map from the Level 2 sensitivity and specificity, which is what the project was designed around.</li>
+      <li>Generate a second synthetic version that matches the real data's edge-touching behaviour.</li>
+      <li>Freeze the external-evaluation protocol before running any inference, and use more seeds.</li>
+    </ol>
+  </Section>
+
+  <Section n={8} id="links" title="Links and credits">
+    <ul>
+      <li><strong>Code and report:</strong> not published. The case study is the public record.</li>
+      <li><strong>Datasets:</strong> the real imagery comes from public datasets (Boreal Forest Fire, FireMan-UAV-RGBT and FASDD UAV). Their licences require attribution, so no dataset image appears on this site; every figure above is my own chart.</li>
+      <li><a href="/projects/">All projects</a></li>
+    </ul>
+  </Section>
+</CaseStudy>

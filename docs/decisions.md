@@ -108,3 +108,18 @@ Full-stack work is a capability, not a headline service (no deployed frontend an
 | Cards layout | Stacked below 1024 px, three columns from 1024 px | Tablet cards are wide and long; narrow columns looked worse |
 | Placeholders | Projects, Services, About and Contact pages are minimal "in progress" pages so that nothing links to a 404 | They are indexable placeholders until Phases 4 and 5 replace them |
 | Home copy source | All factual copy lives in `src/data/site.ts` beside its evidence reference | Case-study pages will import from the same data so numbers cannot drift |
+
+## D9. Phase 4 choices (2026-11-17)
+
+| Decision | Choice | Tradeoff |
+| --- | --- | --- |
+| Where numbers live | `src/data/facts.ts`: every quoted result has `short`, `claim`, `context`, `status` and `date`. Home cards and case studies read it | Prose in tables (the wildfire matrices) is still typed by hand, so no test compares it to the evidence automatically; I checked it by hand |
+| Status vocabulary | Run, User-reported, **Documented**, Not run. "Documented" was added for results I quote from a project document and did not re-run | A fourth label; the home page "How I verify" band and the projects index now show four |
+| Wildfire figures | The author's own report figures (five of six), shown on a light mat (new token `--color-plate`) with a "Report figure" label. Figure 07 left out | They are blue and orange on white. Redrawing in the site palette from the recorded numbers was the alternative; I did not alter the charts |
+| StoreFront screenshots | Four images, each labelled "Real API data" or "Fixture data". The "live" listing shows 100 products, so it is not described as 49,507 | They are placeholder-picture screenshots (typographic initials), so they show layout, not photography |
+| Image handling | Source PNGs in `src/assets`, optimised to WebP at 480 to 1600 px by `astro:assets` at build time | Source PNGs stay in the repository (about 2 MB) |
+| Diagrams | Hand-written inline SVG, five of them, each with a title, description and visible caption. They scroll sideways on narrow screens with a hint, rather than reflow | Phone readers scroll; a vertical phone layout per diagram was the alternative |
+| Tables | Prose tables are keyboard-focusable named regions; numeric tables keep a minimum width and scroll on phones with a sticky caption | More horizontal scrolling on phones, but numbers never wrap |
+| Role and AI statement | Each case study states the AI assistance in its meta block. The wildfire page also states my part (chose Boreal, examined its limitations, ran the synthetic and external evaluations) and calls the AI audit "audit input I checked", not independent review. A fuller "How I work" goes on the About page in Phase 5 | The wording rests on the owner's short written answer; the owner should confirm it |
+| Links | No repository links on any page (placeholders). `ryustorefront.net` and `ryucloud.link` are named only as "currently down". Nothing links to the unpublished wildfire code, report or replay | Visitors cannot reach any code yet |
+| Page length | Full 8-section template, not shortened, no collapsed sections | Long pages (10,000 to 15,000 px). Collapsing evidence is an option for the owner |

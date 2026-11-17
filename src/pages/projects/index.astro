@@ -1,9 +1,81 @@
 ---
 import Base from '../../layouts/Base.astro';
+import SpotlightCard from '../../components/SpotlightCard.astro';
+import StatusBadge from '../../components/StatusBadge.astro';
+import { projects } from '../../data/site';
+
+const proves = {
+  ryustorefront: 'Money and stock stay correct under retries, races and a killed worker.',
+  ryucloud: 'Job state stays correct under crashes, duplicates and retries, and private video can be served from a destroyable AWS stack.',
+  'wildfire-monitoring': 'A comparison can be made trustworthy by auditing it, and conclusions can be cut down to what the data supports.',
+} as const;
+const doesNot = {
+  ryustorefront: 'It does not show scale, load handling or a running service. The cloud run had no worker and no frontend.',
+  ryucloud: 'It does not show performance, cost or operation. The cloud evidence is owner-recorded, with no raw output kept.',
+  'wildfire-monitoring': 'It does not show a better planner, a real flight or a significant effect. It is simulation, and the results are descriptive.',
+} as const;
 ---
-<Base title="Projects | Joshua Abrogena" description="Project index in progress.">
-  <div class="container" style="padding-block: var(--space-8)">
-    <h1>Projects</h1>
-    <p>Project index in progress.</p>
+<Base title="Projects | Joshua Abrogena" description="Three projects, each with what it proves, what it does not, and the status of every result.">
+  <div class="container wrap">
+    <p class="eyebrow">Projects</p>
+    <h1>Three projects, and what each one proves</h1>
+    <p class="lede">None of these has users or clients. Each has a case study with a true status line, diagrams, and every result labelled by how it was obtained.</p>
+
+    <ul class="list">
+      {projects.map((p) => (
+        <li>
+          <SpotlightCard>
+            <article class="card">
+              <p class="eyebrow">{p.kind}</p>
+              <h2><a class="stretch" href={`/projects/${p.slug}/`}>{p.name}</a></h2>
+              <p>{p.problem}</p>
+              <p class="status"><strong>Status today:</strong> {p.status}</p>
+              <dl>
+                <div><dt>What it shows</dt><dd>{proves[p.slug as keyof typeof proves]}</dd></div>
+                <div><dt>What it does not show</dt><dd>{doesNot[p.slug as keyof typeof doesNot]}</dd></div>
+              </dl>
+              <p class="stack">{p.stack}</p>
+              <p class="go" aria-hidden="true">Read the case study &rarr;</p>
+            </article>
+          </SpotlightCard>
+        </li>
+      ))}
+    </ul>
+
+    <section class="legend" aria-labelledby="legend-h">
+      <h2 id="legend-h">How results are labelled</h2>
+      <dl>
+        <div><dt><StatusBadge status="run" /></dt><dd>Executed and the output was seen.</dd></div>
+        <div><dt><StatusBadge status="user-reported" /></dt><dd>I ran it and recorded the result; the raw output was not kept.</dd></div>
+        <div><dt><StatusBadge status="documented" /></dt><dd>A project document states it; I could not re-check it.</dd></div>
+        <div><dt><StatusBadge status="not-run" /></dt><dd>No evidence exists, so no claim is made.</dd></div>
+      </dl>
+    </section>
   </div>
 </Base>
+
+<style>
+  .wrap { padding-block: var(--space-8) 0; }
+  h1 { font-size: var(--step-4); margin-top: var(--space-3); max-width: 18ch; }
+  .lede { color: var(--color-text-muted); max-width: var(--measure); margin: var(--space-4) 0 var(--space-7); }
+  .list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-5); }
+  .card { padding: var(--space-6); display: grid; gap: var(--space-3); position: relative; }
+  .card h2 { font-size: var(--step-3); }
+  .card p { margin: 0; max-width: var(--measure); }
+  .stretch { color: var(--color-text); text-decoration: none; }
+  .stretch::after { content: ''; position: absolute; inset: 0; }
+  .stretch:hover { color: var(--color-accent-hover); }
+  .status { color: var(--color-sage); }
+  .status strong { color: var(--color-text); font-weight: 600; }
+  dl { margin: var(--space-3) 0 0; display: grid; gap: var(--space-4); }
+  dl div { border-top: 1px solid var(--color-border); padding-top: var(--space-3); }
+  dt { color: var(--color-text-muted); font-size: var(--step--1); letter-spacing: 0.06em; text-transform: uppercase; }
+  dd { margin: var(--space-1) 0 0; max-width: var(--measure); }
+  .stack { color: var(--color-text-subtle); font-size: var(--step--1); }
+  .go { color: var(--color-accent); font-size: var(--step--1); }
+  .legend { margin-top: var(--space-8); }
+  .legend h2 { font-size: var(--step-2); margin-bottom: var(--space-4); }
+  .legend dl div { display: grid; grid-template-columns: 11rem 1fr; gap: var(--space-4); align-items: baseline; }
+  .legend dt { text-transform: none; letter-spacing: 0; }
+  @media (min-width: 64rem) { .card dl { grid-template-columns: 1fr 1fr; } }
+</style>

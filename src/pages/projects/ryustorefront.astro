@@ -1,9 +1,167 @@
 ---
-import Base from '../../layouts/Base.astro';
+import CaseStudy from '../../layouts/CaseStudy.astro';
+import Section from '../../components/Section.astro';
+import FactList from '../../components/FactList.astro';
+import Figure from '../../components/Figure.astro';
+import Diagram from '../../components/Diagram.astro';
+import SsfArchitecture from '../../components/diagrams/SsfArchitecture.astro';
+import SsfOrderStates from '../../components/diagrams/SsfOrderStates.astro';
+import listing from '../../assets/ryustorefront/listing-live-desktop.png';
+import pdp from '../../assets/ryustorefront/pdp-live-desktop.png';
+import pdpPhone from '../../assets/ryustorefront/pdp-live-phone.png';
+import checkout from '../../assets/ryustorefront/checkout-fixture-desktop.png';
+
+const toc: [string, string][] = [
+  ['problem', 'The problem'],
+  ['built', 'What I built'],
+  ['architecture', 'Architecture'],
+  ['challenges', 'Hardest challenges'],
+  ['evidence', 'Evidence'],
+  ['limits', 'Tradeoffs and limits'],
+  ['next', 'What I would improve'],
+  ['links', 'Links'],
+];
 ---
-<Base title="RyuStoreFront | Joshua Abrogena" description="Case study in progress (Phase 4).">
-  <div class="container" style="padding-block: var(--space-8)">
-    <h1>RyuStoreFront</h1>
-    <p>Case study in progress (Phase 4).</p>
-  </div>
-</Base>
+<CaseStudy
+  title="RyuStoreFront: payments and inventory case study | Joshua Abrogena"
+  description="A Java and Spring Boot shoe store built around idempotent Stripe webhooks, stock reservations, an order state machine and a transactional outbox, with one real AWS checkout in test mode."
+  kind="Backend and payments"
+  name="RyuStoreFront"
+  status="Backend and storefront built and tested locally. One real AWS checkout in Stripe test mode on 2026-11-15, then everything was destroyed. Order history and the admin API are still being built. Not running now."
+  stack="Java 25, Spring Boot 4, PostgreSQL 18, Next.js 16, Stripe (test mode), Terraform, AWS"
+  meta={[
+    ['Kind', 'Solo portfolio project. No users, no real payments, no revenue.'],
+    ['Written with', 'Claude Code as a coding assistant; see the About page for how I work.'],
+  ]}
+  toc={toc}
+>
+  <Section n={1} id="problem" title="The problem">
+    <p>Online stores fail in the same few places. A payment arrives twice, or late, or after the cart expired. Two shoppers take the last pair. A background job dies halfway through. Most store demos show a catalogue and a cart and skip all of that.</p>
+    <p>I wanted a small shoe store where those cases are designed, tested and written down. The scope is deliberately narrow: Stripe test mode only, flat $8 shipping, one currency, no tax engine, no multi-vendor features. Nothing here ships a real shoe.</p>
+  </Section>
+
+  <Section n={2} id="built" title="What I built">
+    <p>What exists, and what does not. Nothing in the second column is claimed as done.</p>
+    <div class="twocol">
+      <div><h3>Built and tested</h3>
+<ul>
+                <li>Catalogue API with Postgres full-text search, filters, sort and pagination</li>
+                <li>Sign-in with server-side sessions and CSRF tokens; a guest cart that merges on sign-in</li>
+                <li>Checkout with atomic stock reservation, an idempotency key and an expiring hold</li>
+                <li>Stripe Checkout (hosted page), a signed webhook, refunds when the money cannot be honoured</li>
+                <li>Order state machine, and a transactional outbox with a background worker for email, cart clearing and expiry</li>
+                <li>Next.js storefront wired to the API, built from a token design system</li>
+                <li>Terraform for a persistent foundation stage and a destroyable per-session stage</li>
+              </ul></div>
+      <div><h3>Not built yet</h3>
+<ul>
+                <li>Order history and the admin API (the admin screens exist only as designs on fixtures)</li>
+                <li>Login rate limiting, password reset, email verification</li>
+                <li>Load testing, security headers, dependency scanning</li>
+                <li>A full AWS session that includes the worker and the frontend</li>
+                <li>Real product photography (images are typographic placeholders)</li>
+                <li>SQS, S3 and CloudFront images, SES: planned at the start, replaced or not built</li>
+              </ul></div>
+    </div>
+  </Section>
+
+  <Section n={3} id="architecture" title="System architecture">
+    <Diagram id="ssf-arch" label="System architecture" description="The shopper's browser talks to a Next.js app, which proxies API calls to a Spring Boot API. The API and a worker share one PostgreSQL database. Stripe's hosted page takes the payment and sends a signed webhook to the API. The worker sends email.">
+      <SsfArchitecture />
+    </Diagram>
+    <p>It is a modular monolith: packages for auth, cart, catalogue, checkout, inventory, orders, outbox, payments, notifications and a worker, with a Spring Modulith test that fails the build if a module reaches into another's internals. One jar runs as the API or, with a different profile, as the worker. PostgreSQL is the only store, so there is no cache or queue to keep consistent with it.</p>
+    <Diagram id="ssf-states" label="Order state machine" description="Pending moves to paid (on Stripe's webhook) or cancelled. Paid moves to fulfilled or refunded. Fulfilled moves to shipped or refunded. Shipped moves to refunded. Cancelled and refunded are final.">
+      <SsfOrderStates />
+    </Diagram>
+    <p>Every status change goes through one function that locks the order row, checks this table and records history. Asking for the status an order already has is a no-op, which is exactly what a replayed webhook looks like.</p>
+
+    <h3>Decisions and what each cost</h3>
+    <div class="tablewrap" role="region" tabindex="0" aria-label="Table: From the project's decision log">
+      <table>
+        <caption>From the project's decision log.</caption>
+        <thead><tr><th scope="col">Decision</th><th scope="col">Choice</th><th scope="col">Tradeoff accepted</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Stock reservation</th><td>Atomic <code>UPDATE ... WHERE stock &gt;= n</code> plus a reservation row with an expiry</td><td>A worker must release expired holds. No row locks to reason about, and a <code>CHECK (stock &gt;= 0)</code> backstops it.</td></tr>
+          <tr><th scope="row">Background work</th><td>An outbox table in Postgres, drained by the worker (SQS was the original plan)</td><td>At-least-once delivery, so handlers must be idempotent. One event per transaction: fine for a shop, not a stream.</td></tr>
+          <tr><th scope="row">Authentication</th><td>Server-side sessions in the database, CSRF token on every write</td><td>The Next.js client must fetch a token first and forward cookies; an in-app proxy keeps them first-party.</td></tr>
+          <tr><th scope="row">Packaging</th><td>One jar, two profiles, two ECS services</td><td>A looser dependency graph than separate modules. Split only if it hurts.</td></tr>
+          <tr><th scope="row">Cloud networking</th><td>Fargate tasks in public subnets, no NAT gateway</td><td>Saves the NAT charge (not measured). The security group is then the only barrier, so I do not call it a private network.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </Section>
+
+  <Section n={4} id="challenges" title="The three hardest problems">
+    <h3>1. A payment webhook that must be safe to receive twice, late, or out of order</h3>
+    <p>Stripe retries and reorders events, and a customer can pay after the order has expired. The order becomes paid only through the signed webhook, which does this:</p>
+    <ol>
+      <li>Verify the signature over the <em>raw</em> request bytes with a five-minute tolerance. A re-serialised body would not match. Bad, missing or stale signatures get a 400.</li>
+      <li>In one transaction, insert the event ID with <code>ON CONFLICT DO NOTHING</code>. If nothing was inserted it is a repeat: answer 200 and stop.</li>
+      <li>Lock the order row, check that the amount and currency match, move it to paid, record the payment, and commit the stock hold.</li>
+      <li>If anything throws, roll back everything, including the event ID, and answer 500 so Stripe retries.</li>
+    </ol>
+    <p>The hard cases are the ones where the money cannot be honoured: a payment on an order that already expired, a wrong amount, or a stock hold that vanished. Those record the payment, queue a refund through the outbox, and issue it with a Stripe idempotency key. The order stays cancelled; I did not add a cancelled-to-refunded move, because a paid order is never cancelled.</p>
+    <p>Tradeoff: the refund runs after commit, so for a short window (about one worker poll) the shopper is charged and not yet refunded.</p>
+
+    <h3>2. Not overselling, without a deadlock</h3>
+    <p>Reservation is one conditional <code>UPDATE ... WHERE stock &gt;= n</code> inside the checkout transaction, so a failure anywhere leaves no order and no hold. A per-customer advisory lock serialises one customer's checkouts and removes a duplicate-key race on the idempotency key.</p>
+    <p>While adding the state machine I found that checkout's "cancel the old pending order" step released stock before cancelling, while a webhook paying the same order locked in the opposite order. That is a possible deadlock. I fixed it by fixing one lock order everywhere: the order row, then its reservations, then variant rows, and by cancelling before releasing stock.</p>
+
+    <h3>3. A worker that can be killed at any moment</h3>
+    <p>Events are written in the same transaction as the change that caused them, and the publish call refuses to run outside a transaction, so an event exists if and only if its change committed. The worker claims one event at a time with <code>FOR UPDATE SKIP LOCKED</code>, runs its handlers and marks it processed in one transaction. Kill the process and nothing commits, so the event is simply delivered again.</p>
+    <p>A recorded limit: a kill is not counted as an attempt, so an event that crashes the whole JVM every time would retry forever. Nothing does that today; alarms on the age of the oldest pending event are the planned guard.</p>
+  </Section>
+
+  <Section n={5} id="evidence" title="Evidence">
+    <p>Each result carries a status. <strong>Run</strong> means the output was seen. <strong>User-reported</strong> means I ran it and recorded the result, but the raw output was not kept. <strong>Documented</strong> means a project document states it. I ran none of these tests again while writing this page.</p>
+
+    <h3>Correctness under failure</h3>
+    <FactList ids={['ssfWebhookDupes', 'ssfWebhookOrder', 'ssfStockRace', 'ssfWorkerKill', 'ssfStateMachine', 'ssfSuite']} />
+
+    <h3>The real cloud run</h3>
+    <FactList ids={['ssfCloudCheckout', 'ssfTeardown', 'ssfStartup']} />
+
+    <h3>Queries and accessibility</h3>
+    <FactList ids={['ssfExplain', 'ssfAxe']} />
+
+    <h3>Not done</h3>
+    <FactList ids={['ssfNotRun']} />
+
+    <h3>Screenshots</h3>
+    <p>Each image says what it was captured from. None shows real products or customers: the brands are invented and the pictures are typographic placeholders.</p>
+    <Figure src={listing} alt="Product listing page with a filter sidebar showing counts for occasion, gender, price and size, and a grid of shoe cards with large tone-on-tone letters as placeholder pictures." caption="Listing page against the real API running locally with a seeded demo catalogue (100 products visible in this capture). Filter counts come from the API." label="Real API data" crop="top" ratio="16 / 11" />
+    <Figure src={pdp} alt="Product page for the Kestrel Stiletto Pump with colour choices Black, Burgundy and Ivory, a row of US sizes with two sold-out sizes struck through, and an Add to cart button." caption="Product page against the real API. Variants are size by colour; sold-out sizes are struck through." label="Real API data" crop="top" ratio="16 / 11" />
+    <Figure src={checkout} alt="Checkout page with a contact email field, a shipping address form, and an order summary card with three items, a $953 total and a Place order button." caption="Checkout screen. This capture is a design-review state on fixture data; the sample email is a placeholder. The live checkout flow was wired afterwards and its run is user-reported, not shown here." label="Fixture data" crop="top" ratio="16 / 11" />
+    <Figure src={pdpPhone} alt="Phone-width product page with a full-width placeholder picture, colour and size choices, and an Add to cart button." caption="The same product page at phone width (390 px), real API data." label="Real API data" narrow crop="top" ratio="9 / 14" />
+  </Section>
+
+  <Section n={6} id="limits" title="Tradeoffs and limits">
+    <ul>
+      <li>The cloud run had no worker and no frontend, so email and cart clearing never ran on AWS, and the database rows were not inspected there.</li>
+      <li>No load test, no Lighthouse run and no measured cost per session. I make no claim about scale, throughput or latency under load.</li>
+      <li>Tasks have public IP addresses; the security group is the only barrier. The database connection encrypts but does not verify the server certificate.</li>
+      <li>The database on AWS was Postgres 18.6 while tests ran on 18.7; the application's tests were not run against RDS.</li>
+      <li>Sign-in has no rate limiting, password reset or email verification.</li>
+      <li>Accessibility was checked with axe in Chromium only, on a mock API; no screen-reader or keyboard-only walkthrough yet.</li>
+      <li>All test results are my own records. Nobody else has reviewed them.</li>
+    </ul>
+  </Section>
+
+  <Section n={7} id="next" title="What I would improve next">
+    <p>All of this is planned, not done.</p>
+    <ol>
+      <li>Finish order history and the admin API, then wire the admin screens.</li>
+      <li>Hardening: login rate limits, security headers, a dependency scan, and a load test whose setup is written down.</li>
+      <li>A full AWS session with the worker and the frontend running, capturing logs and cost as it happens.</li>
+      <li>An alarm on the age of the oldest pending outbox event, and a metric for dead events.</li>
+    </ol>
+  </Section>
+
+  <Section n={8} id="links" title="Links">
+    <ul>
+      <li><strong>Repository:</strong> link to be added.</li>
+      <li><strong>Live demo:</strong> none. ryustorefront.net is currently down; the AWS stack was destroyed after testing.</li>
+      <li><a href="/projects/">All projects</a></li>
+    </ul>
+  </Section>
+</CaseStudy>

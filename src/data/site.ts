@@ -1,3 +1,5 @@
+import { facts } from './facts';
+
 // All site copy that states a fact lives here, next to its evidence source.
 // Rule: if a sentence is not backed by content/evidence/* it does not go here.
 
@@ -53,9 +55,9 @@ export const projects = [
     status: 'Built and tested locally. One real AWS checkout in test mode, then destroyed. Not running now.',
     stack: 'Java 25, Spring Boot, PostgreSQL, Next.js, Terraform',
     evidence: [
-      'Six simultaneous duplicate Stripe webhooks leave one paid order (test suite).',
-      '50 concurrent buyers, 10 units in stock, exactly 10 reservations (single-JVM test).',
-      'One real checkout on AWS in Stripe test mode, destroyed and audited (user-reported).',
+      facts.ssfWebhookDupes.short,
+      facts.ssfStockRace.short,
+      facts.ssfCloudCheckout.short,
     ],
   },
   {
@@ -66,9 +68,9 @@ export const projects = [
     status: 'Locally complete. Deployed to AWS once and destroyed. Not production-ready. Currently down.',
     stack: 'Go, PostgreSQL, FFmpeg, Next.js, Terraform',
     evidence: [
-      'Worker killed mid-encode; a second attempt finished the job (43-check crash test).',
-      'A CloudFront signed-cookie bug that only appeared on AWS, found and fixed with a regression test.',
-      'One AWS session, 94 resources destroyed (owner-reported; no raw output kept).',
+      facts.rcCrash.short,
+      facts.rcBug.short,
+      facts.rcCloud.short,
     ],
   },
   {
@@ -79,9 +81,9 @@ export const projects = [
     status: 'University research (ECE 496). Simulation and public datasets. Results are descriptive.',
     stack: 'Python, YOLOv8, ArduPilot SITL, PyTorch',
     evidence: [
-      'An audit found a leaky train/test split; a clip-disjoint split was built and models retrained.',
-      'Three seeds per model, every metric through one code path.',
-      'In 56 simulated runs, neither detector reached the ignition cell sooner than a plain patrol, on average.',
+      facts.wfSplit.short,
+      facts.wfOnePath.short,
+      facts.wfLevel3Headline.short,
     ],
   },
 ];
@@ -96,6 +98,11 @@ export const verifyTerms = [
     term: 'User-reported',
     body: 'I ran it and recorded the result; the raw output was not stored.',
     example: 'RyuCloud AWS session, 2026-11-14: stack destroyed, audit clean.',
+  },
+  {
+    term: 'Documented',
+    body: 'A project document states it; I could not re-check it.',
+    example: 'Wildfire study: 385 tests reported passing in the project log.',
   },
   {
     term: 'Not run',

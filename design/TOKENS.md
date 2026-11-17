@@ -21,6 +21,7 @@ Contrast ratios were **computed** (WCAG 2.x relative luminance) on 2026-11-17, n
 | `--accent-hover` | `#e5a070` | Hover on accent | 8.47 | 7.92 | 7.22 |
 | `--sage` | `#9fb596` | Quiet "verified" status text | 8.41 | 7.86 | 7.17 |
 | `--danger` | `#e0786a` | Errors (used rarely) | 6.24 | 5.83 | 5.32 |
+| `--plate` | `#ece6d6` | Light mat behind report figures drawn on white (added in Phase 4). Never used for text | n/a | n/a | n/a |
 
 Rules derived from the numbers:
 - `--text-subtle` is allowed only on `--bg` and `--surface-1` and only at 14 px or larger; **never** on `--surface-2`.

@@ -1,0 +1,36 @@
+---
+interface Props { n: number; id: string; title: string }
+const { n, id, title } = Astro.props;
+---
+<section class="cs-section" id={id} aria-labelledby={`${id}-h`}>
+  <h2 id={`${id}-h`}><span class="n" aria-hidden="true">{n}</span> {title}</h2>
+  <div class="body"><slot /></div>
+</section>
+
+<style>
+  .cs-section { padding-block: var(--space-7); border-top: 1px solid var(--color-border); scroll-margin-top: var(--space-5); }
+  h2 { font-size: var(--step-3); display: flex; gap: var(--space-4); align-items: baseline; margin-bottom: var(--space-5); }
+  .n { color: var(--color-accent); font-size: var(--step-2); min-width: 1.5ch; }
+  .body :global(p) { max-width: var(--measure); margin: 0 0 var(--space-4); }
+  .body :global(h3) { margin: var(--space-6) 0 var(--space-3); font-size: var(--step-1); }
+  .body :global(ul) { list-style: disc; }
+  .body :global(ol) { list-style: decimal; }
+  .body :global(li::marker) { color: var(--color-accent); }
+  .body :global(ul), .body :global(ol) { max-width: var(--measure); padding-left: var(--space-5); }
+  .body :global(.twocol) { display: grid; gap: var(--space-5); }
+  .body :global(.twocol h3) { margin-top: 0; }
+  @media (min-width: 48rem) { .body :global(.twocol) { grid-template-columns: 1fr 1fr; gap: var(--space-7); } }
+  .body :global(li) { margin-bottom: var(--space-2); }
+  .body :global(table) { border-collapse: collapse; width: 100%; font-size: var(--step--1); }
+  .body :global(caption) { text-align: left; color: var(--color-text-muted); padding-bottom: var(--space-3); max-width: min(78ch, calc(100vw - 2 * var(--gutter))); position: sticky; left: 0; box-sizing: border-box; }
+  .body :global(.scrollhint) { display: none; color: var(--color-text-muted); font-size: var(--step--1); margin-bottom: var(--space-2) !important; }
+  @media (max-width: 47.99rem) { .body :global(.scrollhint) { display: block; } }
+  .body :global(table.num) { min-width: 38rem; }
+  .body :global(table.num td) { white-space: nowrap; }
+  .body :global(th), .body :global(td) { text-align: left; vertical-align: top; padding: var(--space-3) var(--space-4) var(--space-3) 0; border-bottom: 1px solid var(--color-border); }
+  .body :global(th) { color: var(--color-text-muted); font-weight: 600; }
+  .body :global(.tablewrap) { overflow-x: auto; }
+  .body :global(code) { font-family: var(--font-mono-stack); font-size: 0.9em; color: var(--color-text); background: var(--color-surface-2); padding: 0 var(--space-1); border-radius: var(--radius-sm); }
+  .body :global(pre) { overflow-x: auto; background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4); font-family: var(--font-mono-stack); font-size: var(--step--1); max-width: 78ch; }
+  .body :global(pre code) { background: none; padding: 0; }
+</style>

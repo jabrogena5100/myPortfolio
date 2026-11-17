@@ -18,6 +18,7 @@
   --color-accent-hover: #e5a070;
   --color-sage: #9fb596;
   --color-danger: #e0786a;
+  --color-plate: #ece6d6; /* light mat behind report figures that were drawn on white */
 
   --breakpoint-*: initial;
   --breakpoint-sm: 30rem;  /* 480px */
