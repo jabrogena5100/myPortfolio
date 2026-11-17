@@ -4,6 +4,7 @@
   "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
   "throttling": "simulate",
   "formFactor": "mobile",
+  "target": "local astro preview",
   "note": "Local run against `astro preview` (no CDN, no HTTP compression). Mobile preset uses simulated slow-4G and 4x CPU slowdown; desktop preset uses the desktop config. Chromium only. One run per page and preset, except the home page on mobile (3 runs).",
   "results": [
     {
@@ -17,12 +18,12 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 918,
-        "lcp_ms": 918,
+        "fcp_ms": 938,
+        "lcp_ms": 938,
         "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 918,
-        "transfer_bytes": 156582
+        "speed_index_ms": 938,
+        "transfer_bytes": 157618
       },
       "failing": [
         "network-dependency-tree-insight=0",
@@ -40,15 +41,14 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 762,
-        "lcp_ms": 762,
-        "tbt_ms": 11,
+        "fcp_ms": 1041,
+        "lcp_ms": 1041,
+        "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 762,
-        "transfer_bytes": 154038
+        "speed_index_ms": 1041,
+        "transfer_bytes": 156206
       },
       "failing": [
-        "max-potential-fid=0.82",
         "mainthread-work-breakdown=0.5",
         "bootup-time=0.5",
         "network-dependency-tree-insight=0",
@@ -66,15 +66,15 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 764,
-        "lcp_ms": 764,
-        "tbt_ms": 19,
+        "fcp_ms": 921,
+        "lcp_ms": 921,
+        "tbt_ms": 31,
         "cls": 0,
-        "speed_index_ms": 764,
-        "transfer_bytes": 161780
+        "speed_index_ms": 921,
+        "transfer_bytes": 165663
       },
       "failing": [
-        "max-potential-fid=0.97",
+        "max-potential-fid=0.99",
         "network-dependency-tree-insight=0",
         "render-blocking-insight=0"
       ]
@@ -84,22 +84,21 @@
       "preset": "mobile",
       "repeat": 1,
       "scores": {
-        "performance": 99,
+        "performance": 100,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 763,
-        "lcp_ms": 763,
-        "tbt_ms": 135,
+        "fcp_ms": 936,
+        "lcp_ms": 936,
+        "tbt_ms": 32,
         "cls": 0,
-        "speed_index_ms": 763,
-        "transfer_bytes": 161318
+        "speed_index_ms": 936,
+        "transfer_bytes": 164618
       },
       "failing": [
-        "total-blocking-time=0.96",
-        "max-potential-fid=0.66",
+        "max-potential-fid=0.98",
         "network-dependency-tree-insight=0",
         "render-blocking-insight=0"
       ]
@@ -115,15 +114,15 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 762,
-        "lcp_ms": 762,
-        "tbt_ms": 53,
+        "fcp_ms": 919,
+        "lcp_ms": 919,
+        "tbt_ms": 62,
         "cls": 0,
-        "speed_index_ms": 762,
-        "transfer_bytes": 162146
+        "speed_index_ms": 919,
+        "transfer_bytes": 166045
       },
       "failing": [
-        "max-potential-fid=0.84",
+        "max-potential-fid=0.94",
         "network-dependency-tree-insight=0",
         "render-blocking-insight=0"
       ]
@@ -139,15 +138,15 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 762,
-        "lcp_ms": 762,
-        "tbt_ms": 21,
+        "fcp_ms": 919,
+        "lcp_ms": 919,
+        "tbt_ms": 51,
         "cls": 0,
-        "speed_index_ms": 762,
-        "transfer_bytes": 156099
+        "speed_index_ms": 919,
+        "transfer_bytes": 159516
       },
       "failing": [
-        "max-potential-fid=0.94",
+        "max-potential-fid=0.96",
         "network-dependency-tree-insight=0",
         "render-blocking-insight=0"
       ]
@@ -163,12 +162,12 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 755,
-        "lcp_ms": 755,
+        "fcp_ms": 924,
+        "lcp_ms": 924,
         "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 755,
-        "transfer_bytes": 154475
+        "speed_index_ms": 924,
+        "transfer_bytes": 156265
       },
       "failing": [
         "network-dependency-tree-insight=0",
@@ -186,15 +185,14 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 757,
-        "lcp_ms": 757,
-        "tbt_ms": 13,
+        "fcp_ms": 920,
+        "lcp_ms": 920,
+        "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 757,
-        "transfer_bytes": 152567
+        "speed_index_ms": 920,
+        "transfer_bytes": 153761
       },
       "failing": [
-        "max-potential-fid=0.99",
         "network-dependency-tree-insight=0",
         "render-blocking-insight=0"
       ]
@@ -210,12 +208,12 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 250,
-        "lcp_ms": 250,
+        "fcp_ms": 267,
+        "lcp_ms": 267,
         "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 250,
-        "transfer_bytes": 156582
+        "speed_index_ms": 267,
+        "transfer_bytes": 157618
       },
       "failing": [
         "network-dependency-tree-insight=0",
@@ -233,16 +231,16 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 208,
-        "lcp_ms": 208,
+        "fcp_ms": 296,
+        "lcp_ms": 296,
         "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 215,
-        "transfer_bytes": 154038
+        "speed_index_ms": 296,
+        "transfer_bytes": 156206
       },
       "failing": [
         "network-dependency-tree-insight=0",
-        "render-blocking-insight=0.5"
+        "render-blocking-insight=0"
       ]
     },
     {
@@ -256,16 +254,16 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 211,
-        "lcp_ms": 211,
+        "fcp_ms": 304,
+        "lcp_ms": 304,
         "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 225,
-        "transfer_bytes": 161780
+        "speed_index_ms": 304,
+        "transfer_bytes": 165663
       },
       "failing": [
         "network-dependency-tree-insight=0",
-        "render-blocking-insight=0.5"
+        "render-blocking-insight=0"
       ]
     },
     {
@@ -279,16 +277,16 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 212,
-        "lcp_ms": 212,
+        "fcp_ms": 257,
+        "lcp_ms": 257,
         "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 250,
-        "transfer_bytes": 161318
+        "speed_index_ms": 259,
+        "transfer_bytes": 164618
       },
       "failing": [
         "network-dependency-tree-insight=0",
-        "render-blocking-insight=0.5"
+        "render-blocking-insight=0"
       ]
     },
     {
@@ -302,17 +300,16 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 214,
-        "lcp_ms": 214,
-        "tbt_ms": 8,
+        "fcp_ms": 279,
+        "lcp_ms": 279,
+        "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 277,
-        "transfer_bytes": 162146
+        "speed_index_ms": 279,
+        "transfer_bytes": 166045
       },
       "failing": [
-        "max-potential-fid=0.99",
         "network-dependency-tree-insight=0",
-        "render-blocking-insight=0.5"
+        "render-blocking-insight=0"
       ]
     },
     {
@@ -326,16 +323,16 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 212,
-        "lcp_ms": 212,
+        "fcp_ms": 274,
+        "lcp_ms": 274,
         "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 226,
-        "transfer_bytes": 156099
+        "speed_index_ms": 274,
+        "transfer_bytes": 159516
       },
       "failing": [
         "network-dependency-tree-insight=0",
-        "render-blocking-insight=0.5"
+        "render-blocking-insight=0"
       ]
     },
     {
@@ -349,16 +346,16 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 209,
-        "lcp_ms": 209,
+        "fcp_ms": 294,
+        "lcp_ms": 294,
         "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 209,
-        "transfer_bytes": 154475
+        "speed_index_ms": 294,
+        "transfer_bytes": 156265
       },
       "failing": [
         "network-dependency-tree-insight=0",
-        "render-blocking-insight=0.5"
+        "render-blocking-insight=0"
       ]
     },
     {
@@ -372,16 +369,16 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 208,
-        "lcp_ms": 208,
+        "fcp_ms": 283,
+        "lcp_ms": 283,
         "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 208,
-        "transfer_bytes": 152567
+        "speed_index_ms": 283,
+        "transfer_bytes": 153761
       },
       "failing": [
         "network-dependency-tree-insight=0",
-        "render-blocking-insight=0.5"
+        "render-blocking-insight=0"
       ]
     },
     {
@@ -395,12 +392,12 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 912,
-        "lcp_ms": 912,
+        "fcp_ms": 913,
+        "lcp_ms": 913,
         "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 912,
-        "transfer_bytes": 156582
+        "speed_index_ms": 913,
+        "transfer_bytes": 157618
       },
       "failing": [
         "network-dependency-tree-insight=0",
@@ -418,12 +415,12 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 908,
-        "lcp_ms": 908,
+        "fcp_ms": 916,
+        "lcp_ms": 916,
         "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 908,
-        "transfer_bytes": 156582
+        "speed_index_ms": 916,
+        "transfer_bytes": 157618
       },
       "failing": [
         "network-dependency-tree-insight=0",

@@ -13,16 +13,3 @@
   }
   @media (prefers-reduced-motion: reduce) { .spot:hover, .spot:focus-within { transform: none; } }
 </style>
-
-<script>
-  // One delegated listener for every card, only on hover-capable pointers.
-  if (matchMedia('(hover: hover)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    document.addEventListener('pointermove', (e) => {
-      const card = (e.target as Element | null)?.closest<HTMLElement>('.spot');
-      if (!card) return;
-      const r = card.getBoundingClientRect();
-      card.style.setProperty('--mx', `${e.clientX - r.left}px`);
-      card.style.setProperty('--my', `${e.clientY - r.top}px`);
-    }, { passive: true });
-  }
-</script>

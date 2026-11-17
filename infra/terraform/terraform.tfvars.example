@@ -1,0 +1,11 @@
+# Copy to terraform.tfvars (git-ignored) and edit. Nothing here is applied until you run it yourself.
+
+bucket_name = "REPLACE-with-a-globally-unique-lowercase-name"
+
+# Optional custom domain (needs a Route 53 hosted zone you control):
+# domain_name    = "www.example.com"
+# hosted_zone_id = "ZXXXXXXXXXXXXX"
+
+# Optional account-wide monthly cost alert:
+# budget_amount_usd = 5
+# budget_email      = "you@example.com"

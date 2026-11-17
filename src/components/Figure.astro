@@ -14,7 +14,7 @@ interface Props {
 const { src, alt, caption, label, plate = false, crop, ratio = '16 / 10', narrow = false } = Astro.props;
 ---
 <figure class:list={['fig', { narrow }]}>
-  <div class:list={['frame', { plate, crop }]} style={crop ? `aspect-ratio: ${ratio}` : undefined}>
+  <div class:list={['frame', { plate, crop }, crop ? `r-${ratio.replace(/[^0-9]+/g, '-')}` : null]}>
     <Image src={src} alt={alt} widths={[480, 800, 1200, 1600]} sizes="(min-width: 64rem) 960px, 100vw" format="webp" quality={82} loading="lazy" decoding="async" />
   </div>
   <figcaption><span class="label">{label}</span> {caption}</figcaption>
@@ -27,6 +27,10 @@ const { src, alt, caption, label, plate = false, crop, ratio = '16 / 10', narrow
   .frame.plate { background: var(--color-plate); padding: var(--space-3); }
   .frame :global(img) { display: block; width: 100%; height: auto; }
   .frame.crop :global(img) { height: 100%; object-fit: cover; object-position: top; }
+  /* Aspect ratios as classes (no inline styles, so the CSP can forbid them). */
+  .r-16-10 { aspect-ratio: 16 / 10; }
+  .r-16-11 { aspect-ratio: 16 / 11; }
+  .r-9-14 { aspect-ratio: 9 / 14; }
   figcaption { margin-top: var(--space-3); color: var(--color-text-muted); font-size: var(--step--1); max-width: 78ch; }
   .label { display: inline-block; color: var(--color-bg); background: var(--color-text-muted); border-radius: var(--radius-sm); padding: 0 var(--space-2); margin-right: var(--space-2); font-size: var(--step--1); letter-spacing: 0.04em; text-transform: uppercase; }
 </style>

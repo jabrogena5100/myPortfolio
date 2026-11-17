@@ -45,17 +45,3 @@ const isCurrent = (href: string) => path === href || (href !== '/' && path.start
     .mobile { display: none; }
   }
 </style>
-
-<script>
-  // Mobile menu: Escape closes it and returns focus to the button; clicking elsewhere closes it.
-  const menu = document.querySelector<HTMLDetailsElement>('[data-menu]');
-  if (menu) {
-    const summary = menu.querySelector('summary');
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && menu.open) { menu.open = false; summary?.focus(); }
-    });
-    document.addEventListener('click', (e) => {
-      if (menu.open && !menu.contains(e.target as Node)) menu.open = false;
-    });
-  }
-</script>

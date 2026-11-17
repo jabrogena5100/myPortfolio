@@ -44,7 +44,7 @@ test('only first-party requests, fonts load, no console errors', async ({ page }
   page.on('pageerror', (e) => errors.push(String(e)));
   await page.goto('/');
   await page.evaluate(() => document.fonts.ready);
-  expect([...hosts]).toEqual(['127.0.0.1:4321']);
+  expect([...hosts]).toEqual([new URL(test.info().project.use.baseURL as string).host]);
   expect(errors).toEqual([]);
   const loaded = await page.evaluate(() => [...document.fonts].filter((f) => f.status === 'loaded').map((f) => f.family.replace(/"/g, '')));
   expect(loaded).toContain('Hanken Grotesk');
@@ -357,7 +357,7 @@ test.describe('services, about and contact', () => {
       const state = await page.evaluate(() => ({ cookie: document.cookie, ls: localStorage.length, ss: sessionStorage.length }));
       expect(state, `storage on ${path}`).toEqual({ cookie: '', ls: 0, ss: 0 });
     }
-    expect([...hosts]).toEqual(['127.0.0.1:4321']);
+    expect([...hosts]).toEqual([new URL(test.info().project.use.baseURL as string).host]);
   });
 
   for (const path of PHASE5) {
@@ -559,4 +559,110 @@ test('phase 6 review screenshots: 320 px first screens, 320 px menu, 200% zoom f
   await page.setViewportSize({ width: 640, height: 800 });
   await page.goto('/projects/wildfire-monitoring/');
   await page.screenshot({ path: 'design/screenshots/phase6/zoom200-wildfire.png' });
+});
+
+// ---------------------------------------------------------------- Phase 7: deployment readiness
+
+import { readFileSync } from 'node:fs';
+const CSP = readFileSync('infra/terraform/csp.txt', 'utf8').trim();
+
+test.describe('phase 7: deployment readiness', () => {
+  test('the Content-Security-Policy file is strict', () => {
+    for (const d of ["default-src 'self'", "script-src 'self'", "style-src 'self'", "object-src 'none'", "base-uri 'self'", "form-action 'none'", "frame-ancestors 'none'"]) expect(CSP, d).toContain(d);
+    expect(CSP).not.toMatch(/unsafe-inline|unsafe-eval|unsafe-hashes/);
+    expect(CSP).not.toMatch(/(^|[\s;])\*(\s|;|$)/);   // no bare wildcard source
+    expect(CSP).not.toMatch(/\bhttp:/);              // no plain-http sources
+    expect(CSP).not.toContain('\n');                 // one header value
+  });
+
+  test('no inline scripts and no inline style attributes in any built page', async ({ page }) => {
+    for (const path of [...PAGES, '/404.html']) {
+      await page.goto(path);
+      const n = await page.evaluate(() => ({
+        inlineScripts: document.querySelectorAll('script:not([src])').length,
+        styleAttrs: document.querySelectorAll('[style]').length,
+        styleTags: document.querySelectorAll('style').length,
+        handlers: [...document.querySelectorAll('*')].filter((e) => e.getAttributeNames().some((a) => a.startsWith('on'))).length,
+      }));
+      expect(n, path).toEqual({ inlineScripts: 0, styleAttrs: 0, styleTags: 0, handlers: 0 });
+    }
+  });
+
+  test('every page works under the exact production CSP, with zero violations', async ({ page }) => {
+    await page.route('**/*', async (route) => {
+      const response = await route.fetch();
+      const headers = { ...response.headers() };
+      if (route.request().resourceType() === 'document') headers['content-security-policy'] = CSP;
+      await route.fulfill({ response, headers });
+    });
+    await page.addInitScript(() => {
+      (window as unknown as { __v: string[] }).__v = [];
+      document.addEventListener('securitypolicyviolation', (e) => (window as unknown as { __v: string[] }).__v.push(`${e.violatedDirective} ${e.blockedURI}`));
+    });
+    const consoleErrors: string[] = [];
+    page.on('console', (m) => { if (m.type() === 'error') consoleErrors.push(m.text()); });
+    const violations = () => page.evaluate(() => (window as unknown as { __v: string[] }).__v);
+
+    for (const path of [...PAGES, '/404.html']) {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto(path);
+      await page.evaluate(async () => {
+        await document.fonts.ready;
+        document.querySelectorAll('img').forEach((i) => (i.loading = 'eager'));
+        await Promise.all([...document.images].map((i) => i.decode().catch(() => {})));
+      });
+      // exercise the two scripts: the pointer spotlight and the mobile menu
+      const card = page.locator('.spot').first();
+      if (await card.count()) { await card.scrollIntoViewIfNeeded(); const b = (await card.boundingBox())!; await page.mouse.move(b.x + 20, b.y + 20); await page.mouse.move(b.x + 60, b.y + 60); }
+      await page.setViewportSize({ width: 390, height: 800 });
+      await page.locator('summary', { hasText: 'Menu' }).click();
+      await expect(page.locator('details[data-menu]')).toHaveAttribute('open', '');
+      await page.keyboard.press('Escape');
+      expect(await violations(), `CSP violations on ${path}`).toEqual([]);
+    }
+    expect(consoleErrors, 'console errors under CSP').toEqual([]);
+
+    // the policy must actually enforce: an injected inline script is blocked and recorded
+    await page.goto('/');
+    const ran = await page.evaluate(() => {
+      (window as unknown as { __injected?: boolean }).__injected = false;
+      const s = document.createElement('script'); s.textContent = 'window.__injected = true';
+      document.head.appendChild(s);
+      return (window as unknown as { __injected?: boolean }).__injected;
+    });
+    expect(ran, 'inline script must not run under the policy').toBe(false);
+    expect((await violations()).some((v) => v.startsWith('script-src'))).toBe(true);
+  });
+
+  test('a missing page returns a real 404 with the site 404 page and is not indexable', async ({ page, request }) => {
+    const res = await request.get('/no-such-page/');
+    expect(res.status()).toBe(404);
+    expect(await res.text()).toContain('That page does not exist');
+    await page.goto('/404.html');
+    expect(await page.locator('h1').count()).toBe(1);
+    expect(await page.locator('meta[name="robots"]').getAttribute('content')).toBe('noindex');
+    expect(await page.locator('link[rel="canonical"]').count()).toBe(0);
+    for (const w of [390, 1440]) {
+      await page.setViewportSize({ width: w, height: 800 });
+      const results = await new AxeBuilder({ page }).withTags(AXE_TAGS).analyze();
+      expect(results.violations.map((v) => v.id)).toEqual([]);
+      expect(await overflowOf(page)).toBeLessThanOrEqual(0);
+    }
+  });
+
+  test('without SITE_URL: no canonical links, no sitemap line, no sitemap file', async ({ page, request }) => {
+    test.skip(!!process.env.E2E_BASE_URL, 'only meaningful against the local build');
+    for (const path of PAGES) { await page.goto(path); expect(await page.locator('link[rel="canonical"]').count(), path).toBe(0); }
+    expect(await (await request.get('/robots.txt')).text()).toBe('User-agent: *\nAllow: /\n');
+    expect((await request.get('/sitemap-index.xml')).status()).toBe(404);
+  });
+});
+
+test('phase 7 review screenshots: the 404 page', async ({ page }) => {
+  for (const [name, w, h] of [['desktop', 1440, 900], ['phone', 390, 800]] as const) {
+    await page.setViewportSize({ width: w, height: h });
+    await page.goto('/404.html');
+    await page.evaluate(() => document.fonts.ready);
+    await page.screenshot({ path: `design/screenshots/phase7/404-${name}.png` });
+  }
 });

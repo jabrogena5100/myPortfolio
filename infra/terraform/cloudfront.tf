@@ -1,0 +1,84 @@
+locals {
+  use_domain = var.domain_name != null
+}
+
+resource "aws_cloudfront_origin_access_control" "site" {
+  name                              = "${var.bucket_name}-oac"
+  description                       = "Signed (SigV4) access from CloudFront to the private site bucket"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
+# AWS-managed policy: gzip and Brotli, honours the Cache-Control headers set by scripts/site-sync.sh.
+data "aws_cloudfront_cache_policy" "optimized" {
+  name = "Managed-CachingOptimized"
+}
+
+resource "aws_cloudfront_function" "rewrite" {
+  name    = "${var.bucket_name}-rewrite"
+  runtime = "cloudfront-js-2.0"
+  comment = "Directory URLs to index.html; extension-less paths to the trailing-slash form"
+  publish = true
+  code    = file("${path.module}/rewrite.js")
+}
+
+resource "aws_cloudfront_distribution" "site" {
+  enabled             = true
+  is_ipv6_enabled     = true
+  http_version        = "http2and3"
+  comment             = "myPortfolio static site"
+  default_root_object = "index.html"
+  price_class         = var.price_class
+  aliases             = local.use_domain ? [var.domain_name] : []
+
+  origin {
+    domain_name              = aws_s3_bucket.site.bucket_regional_domain_name
+    origin_id                = "site-bucket"
+    origin_access_control_id = aws_cloudfront_origin_access_control.site.id
+  }
+
+  default_cache_behavior {
+    target_origin_id           = "site-bucket"
+    viewer_protocol_policy     = "redirect-to-https"
+    allowed_methods            = ["GET", "HEAD"]
+    cached_methods             = ["GET", "HEAD"]
+    compress                   = true
+    cache_policy_id            = data.aws_cloudfront_cache_policy.optimized.id
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.security.id
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.rewrite.arn
+    }
+  }
+
+  # With least-privilege S3 access (no ListBucket), a missing key returns 403, so both map to the 404 page.
+  custom_error_response {
+    error_code            = 403
+    response_code         = 404
+    response_page_path    = "/404.html"
+    error_caching_min_ttl = 60
+  }
+
+  custom_error_response {
+    error_code            = 404
+    response_code         = 404
+    response_page_path    = "/404.html"
+    error_caching_min_ttl = 60
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  # The default *.cloudfront.net certificate cannot enforce TLS 1.2 or later; a custom domain can.
+  viewer_certificate {
+    cloudfront_default_certificate = local.use_domain ? null : true
+    acm_certificate_arn            = local.use_domain ? aws_acm_certificate_validation.site[0].certificate_arn : null
+    ssl_support_method             = local.use_domain ? "sni-only" : null
+    minimum_protocol_version       = local.use_domain ? "TLSv1.2_2021" : null
+  }
+}
