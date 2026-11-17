@@ -1,0 +1,25 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base noindex title="Page not found | Joshua Abrogena" description="That page does not exist. Go back to the projects, services, about or contact pages.">
+  <div class="container wrap">
+    <p class="eyebrow">404</p>
+    <h1>That page does not exist</h1>
+    <p class="lede">The address may be mistyped or the page may have moved. These pages exist:</p>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/projects/">Projects</a></li>
+      <li><a href="/services/">Services</a></li>
+      <li><a href="/about/">About</a></li>
+      <li><a href="/contact/">Contact</a></li>
+    </ul>
+  </div>
+</Base>
+
+<style>
+  .wrap { padding-block: var(--space-8); }
+  h1 { font-size: var(--step-4); margin-top: var(--space-3); }
+  .lede { color: var(--color-text-muted); max-width: var(--measure); margin: var(--space-4) 0; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li a { display: inline-block; padding: var(--space-2) 0; min-height: 44px; box-sizing: border-box; }
+</style>

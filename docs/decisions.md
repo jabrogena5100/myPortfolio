@@ -149,3 +149,29 @@ Full-stack work is a capability, not a headline service (no deployed frontend an
 | Zoom and spacing | Tests assert 320 px reflow, 200% zoom, 200% text size and WCAG 1.4.12 spacing overrides on every page | Wide tables, code and diagrams scroll inside focusable regions rather than reflow |
 | Deferred to Phase 7 | Canonical URLs, Open Graph URL and image, sitemap (all need the final domain), HTTP compression and security headers (CloudFront), Lighthouse on the deployed site | Social previews have no image until then |
 | Owner AI-assistance corrections | About and the wildfire page now say Claude Code launched the RunPod sessions through the MCP server within a written budget, with the owner approving each next step, and that the "I run Git, AWS and Terraform" line applies to RyuCloud, RyuStoreFront and this portfolio only | Based on the owner's written answer; no separate evidence |
+
+## D12. Phase 7 choices: deployment preparation (2026-11-17)
+
+Nothing in this phase was applied. See `docs/deploy/runbook.md` for the steps the owner runs.
+
+| Decision | Choice | Tradeoff |
+| --- | --- | --- |
+| Hosting target | **S3 + CloudFront + Terraform** as primary; **GitHub Pages** documented as the fallback (`docs/deploy/github-pages.md`). The owner left both questions open ("proceed"), so I used the defaults from D2 | Pages is free and simpler but cannot send custom security headers and needs root-path hosting |
+| Domain | Optional. The site works on the default `*.cloudfront.net` address; `domain_name` and `hosted_zone_id` (set together) add an ACM certificate in us-east-1, DNS validation and alias records. Nothing registers a domain or edits DNS | The default certificate cannot enforce TLS 1.2 or later; a custom domain can. A domain outside Route 53 is not supported by this configuration |
+| Access to the bucket | Private bucket, all public-access blocks on, CloudFront origin access control (SigV4), bucket policy limited to this distribution's ARN, deny non-TLS, SSE-S3, versioning with 30-day expiry of old versions | No `s3:ListBucket` for CloudFront, so a missing page is a 403 that the distribution maps to the 404 page |
+| Directory URLs | A CloudFront Function maps `/dir/` to `/dir/index.html` and redirects extension-less paths to the trailing-slash form | One more moving part; tested in Node (7 tests, including that every link in the built HTML resolves), not in CloudFront's runtime |
+| Caching and compression | AWS-managed CachingOptimized policy (gzip and Brotli); `Cache-Control` set by `scripts/site-sync.sh`: assets under `_astro/` immutable for a year, fonts 30 days, HTML revalidated every time | Unhashed fonts and favicon cannot be immutable; HTML is revalidated on every request |
+| Security headers | A CloudFront response-headers policy: CSP from `infra/terraform/csp.txt` (the same file the tests inject), HSTS for one year without `includeSubDomains` or `preload`, `nosniff`, `X-Frame-Options: DENY`, referrer, permissions and COOP policies | A strict CSP means no inline script or style can ever be added without changing the policy |
+| **Strict CSP vs. page speed** | **Accepted the cost.** The site now ships zero inline scripts and styles (one external script, CSS classes instead of `style=`), so `script-src 'self'` and `style-src 'self'` hold | Simulated slow-4G mobile LCP rose from a median of 762 ms to about 922 ms (desktop 211 to about 281 ms). I tried two modules, one module and one classic `defer` script; all cost the same. Scores stayed at or near 100. The alternative is to drop the script entirely (the menu's Escape handling and the card spotlight are enhancements) and use `script-src 'none'`. Owner's call |
+| Script count | One external TypeScript module, `src/scripts/enhance.ts`, hashed by the build | One request for two small enhancements |
+| Why not CSP hashes | Rejected: the hashes would have to be regenerated and re-applied to Terraform whenever a script changed, and a stale hash silently breaks the menu | External scripts cannot go stale |
+| Canonical URLs and sitemap | Driven by the `SITE_URL` environment variable at build time. Unset (default): no canonical, no sitemap, no `Sitemap:` line | The owner must build with the final URL; the runbook does this after apply because the CloudFront address is only known then |
+| 404 page | `src/pages/404.astro`, `noindex`, no canonical | None |
+| Open Graph image | Not made. There is no designed image and I will not invent one | Link previews have a title and description only |
+| State | S3 backend, partial configuration (`backend.hcl`, git-ignored), native lockfile, no DynamoDB; the state bucket is created by CLI and not managed by Terraform | Losing that bucket loses the state history |
+| Wrapper | `scripts/aws-terraform.sh` (Docker, pinned 1.17.2, credentials exported from `aws login` to a mode-600 temp file) refuses `-auto-approve` | The same 15-minute credential limit as the other projects; the runbook has the `ExpiredToken` recovery |
+| Upload script | `scripts/site-sync.sh`: dry run by default, explicit `Content-Type` per file type, assets before HTML, refuses unknown file types, invalidates `/*` on `--apply` | Written, never run against AWS |
+| Audit script | `scripts/aws-site-audit.sh`: read-only, direct service calls, `ok` or `LEFT` per item, for use after teardown | Never run |
+| Workflow templates | `ci.yml` and `pages.yml` live in `docs/deploy/templates/`, not `.github/workflows/`, with actions pinned by commit SHA; `actionlint` clean | Nothing runs on GitHub until the owner copies one |
+| Cost | No estimate. The runbook lists what is billable, tells the owner to check current pricing, and offers an optional account-wide budget alert | The owner decides with real prices |
+| Deployed checks | `E2E_BASE_URL` and `LH_BASE_URL` point the same Playwright and Lighthouse checks at a live address | Not run: nothing is deployed |

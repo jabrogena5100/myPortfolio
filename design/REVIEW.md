@@ -128,3 +128,23 @@ Inlining the stylesheet (`inlineStylesheets: 'always'`) removed Lighthouse's "re
 ### Not checked
 
 Real devices; Firefox and WebKit; a screen-reader walkthrough; an HTML validator; Lighthouse on the deployed site; behaviour under a real CDN with compression.
+
+## Phase 7: deployment preparation (2026-11-17)
+
+Mostly not visual. The new page is the 404: [desktop](screenshots/phase7/404-desktop.png), [phone](screenshots/phase7/404-phone.png). It matches the rest of the site (one heading, five links, 44 px targets) and is not indexable.
+
+### Defects found, and fixed
+
+1. **A stray `.gitkeep` and an unmapped `.md` file in the build** would have made the upload script refuse to deploy. Removed the placeholder; mapped the font licence text (the OFL requires it to ship with the fonts).
+2. **Inline style attributes** on four figures meant the CSP could not forbid inline styles. Replaced by CSS classes.
+3. **Inline scripts** meant the CSP could not forbid inline scripts. Moved into one external file.
+
+### Look at these (judgement calls for the owner)
+
+- **The strict CSP costs about 160 ms of mobile LCP on Lighthouse's simulated slow 4G** (median 762 ms before, about 922 ms after; desktop 211 to about 281 ms). Scores are unaffected. If you would rather have the speed, the menu's Escape handling and the card spotlight are the only things the script does; dropping them allows `script-src 'none'`. See D12 and `design/lighthouse/`.
+- **No Open Graph image.** Shared links will show a title and description only.
+- **The default CloudFront address cannot enforce TLS 1.2 or later**; a custom domain can.
+
+### Not checked
+
+Everything that needs a real deployment: `terraform plan` and `apply`, the CloudFront Function in CloudFront's runtime, headers, compression and caching on a real distribution, cost, and Lighthouse against the live site. No security scanner was run on the Terraform.

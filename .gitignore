@@ -9,3 +9,13 @@ playwright-report/
 .env.*
 !.env.example
 *.log
+
+# Terraform
+infra/terraform/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+crash.log
+infra/terraform/terraform.tfvars
+infra/terraform/backend.hcl

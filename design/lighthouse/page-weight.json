@@ -7,8 +7,8 @@
       "images_kb": 0
     },
     "/projects/": {
-      "initial_kb": 13,
-      "full_kb": 13,
+      "initial_kb": 11,
+      "full_kb": 11,
       "images_kb": 0
     },
     "/projects/ryustorefront/": {
@@ -17,23 +17,23 @@
       "images_kb": 248
     },
     "/projects/ryucloud/": {
-      "initial_kb": 38,
-      "full_kb": 38,
+      "initial_kb": 32,
+      "full_kb": 32,
       "images_kb": 0
     },
     "/projects/wildfire-monitoring/": {
-      "initial_kb": 41,
-      "full_kb": 276,
+      "initial_kb": 34,
+      "full_kb": 269,
       "images_kb": 235
     },
     "/services/": {
-      "initial_kb": 21,
-      "full_kb": 21,
+      "initial_kb": 17,
+      "full_kb": 17,
       "images_kb": 0
     },
     "/about/": {
-      "initial_kb": 13,
-      "full_kb": 13,
+      "initial_kb": 10,
+      "full_kb": 10,
       "images_kb": 0
     },
     "/contact/": {

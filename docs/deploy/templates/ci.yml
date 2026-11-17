@@ -1,0 +1,25 @@
+# Template. Copy to .github/workflows/ci.yml to run the checks on every pull request and push to main.
+# Not active while it lives in docs/. Pinned by commit SHA; re-check versions before use.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.65.1-noble
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: npm ci
+      - run: npm run check
+      - run: npm run build
+      - run: npm run test:unit
+      - run: npx playwright test
+        env:
+          HOME: /root

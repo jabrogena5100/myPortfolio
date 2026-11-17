@@ -8,12 +8,14 @@ import { launch } from 'chrome-launcher';
 import { chromium } from '@playwright/test';
 
 const PORT = 4322;
-const BASE = `http://127.0.0.1:${PORT}`;
+// LH_BASE_URL points the run at a deployed site (for example https://xxxx.cloudfront.net) instead of the local preview.
+const EXTERNAL = process.env.LH_BASE_URL?.replace(/\/$/, '');
+const BASE = EXTERNAL || `http://127.0.0.1:${PORT}`;
 const PAGES = ['/', '/projects/', '/projects/ryustorefront/', '/projects/ryucloud/', '/projects/wildfire-monitoring/', '/services/', '/about/', '/contact/'];
 const REPEAT_HOME = 3; // home page mobile is repeated to show run-to-run variance
 const CATEGORIES = ['performance', 'accessibility', 'best-practices', 'seo'];
 
-const server = spawn('npx', ['astro', 'preview', '--port', String(PORT), '--host', '127.0.0.1'], { stdio: 'ignore' });
+const server = EXTERNAL ? null : spawn('npx', ['astro', 'preview', '--port', String(PORT), '--host', '127.0.0.1'], { stdio: 'ignore' });
 for (let i = 0; i < 60; i++) { try { if ((await fetch(BASE + '/')).ok) break; } catch {} await new Promise((r) => setTimeout(r, 500)); }
 
 const chrome = await launch({ chromePath: chromium.executablePath(), chromeFlags: ['--headless=new', '--no-sandbox', '--disable-gpu'] });
@@ -51,11 +53,12 @@ for (const preset of ['mobile', 'desktop']) {
 for (let i = 2; i <= REPEAT_HOME; i++) await run('/', 'mobile', i);
 
 await chrome.kill();
-server.kill();
+server?.kill();
 mkdirSync('design/lighthouse', { recursive: true });
 writeFileSync(process.env.LH_OUT || 'design/lighthouse/summary.json', JSON.stringify({
   date: new Date().toISOString().slice(0, 10),
   ...env,
-  note: 'Local run against `astro preview` (no CDN, no HTTP compression). Mobile preset uses simulated slow-4G and 4x CPU slowdown; desktop preset uses the desktop config. Chromium only. One run per page and preset, except the home page on mobile (3 runs).',
+  target: EXTERNAL || 'local astro preview',
+  note: EXTERNAL ? 'Run against the deployed site; real network, CDN and compression, from this machine.' : 'Local run against `astro preview` (no CDN, no HTTP compression). Mobile preset uses simulated slow-4G and 4x CPU slowdown; desktop preset uses the desktop config. Chromium only. One run per page and preset, except the home page on mobile (3 runs).',
   results,
 }, null, 2));
