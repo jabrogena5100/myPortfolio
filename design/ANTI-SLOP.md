@@ -18,13 +18,13 @@ Written before any component, as required. Every component and page is reviewed 
 
 - [ ] Palette from `design/TOKENS.md` only. No colour literal outside the token file. No default Tailwind palette.
 - [ ] No dominant navy or blue; no neon blue or purple gradient; no gradient text.
-- [ ] One accent (copper). Sage only as a quiet secondary for "verified" or status text.
+- [ ] One primary accent (muted sage). Amber only as the secondary: motion in diagrams, "User-reported" status and small labels.
 - [ ] No glassmorphism, blur panels, glowing orbs or particle backgrounds.
-- [ ] No fake terminal windows, fake code editors or window chrome used as decoration.
+- [ ] No fake terminal windows, fake code editors or window chrome used as decoration. Monospace is for labels, metrics and code. A "terminal-style" panel is allowed only when every line is a real recorded result with a status and a date (the home page's "this site's own checks").
 - [ ] No stock photos, abstract 3D renders or AI-generated art.
 - [ ] No emoji as icons. One icon set, used sparingly; text labels preferred.
 - [ ] Spacing from the spacing scale, not ad hoc values.
-- [ ] Type: two families at most; a scale of 7 sizes or fewer; line length 60 to 75 characters for reading text.
+- [ ] Type: two families at most (Geist and Geist Mono); a scale of 7 sizes or fewer; line length 60 to 75 characters for reading text. No serif.
 - [ ] Cards are used only where an item is a clickable unit (project cards). Lists are lists. Not every block is a rounded box.
 - [ ] No three-icon feature row, no centred-hero-with-two-buttons template.
 - [ ] Diagrams are legible at 360 px width or are scrollable with a visible hint; text in diagrams is at least 14 px equivalent.
@@ -38,6 +38,8 @@ Written before any component, as required. Every component and page is reviewed 
 - [ ] Nothing animates on page load that delays reading or layout (no loading spinners, no skeletons for static content, no blocking intro).
 - [ ] No parallax, no scroll-jacking, no scroll-triggered 3D tilt.
 - [ ] Pointer spotlight runs only on `(hover: hover)` devices and never carries information.
+- [ ] Diagram flow animation is decorative, slow (1.4 s), limited to key request paths, CSS only, and absent under `prefers-reduced-motion: reduce`. A test asserts both states.
+- [ ] No entrance animation on anything that can be the largest contentful paint.
 - [ ] Hover and focus states are equivalent: anything a hover reveals is also reachable by keyboard focus.
 
 ## D. Accessibility

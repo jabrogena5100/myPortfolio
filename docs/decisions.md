@@ -175,3 +175,19 @@ Nothing in this phase was applied. See `docs/deploy/runbook.md` for the steps th
 | Workflow templates | `ci.yml` and `pages.yml` live in `docs/deploy/templates/`, not `.github/workflows/`, with actions pinned by commit SHA; `actionlint` clean | Nothing runs on GitHub until the owner copies one |
 | Cost | No estimate. The runbook lists what is billable, tells the owner to check current pricing, and offers an optional account-wide budget alert | The owner decides with real prices |
 | Deployed checks | `E2E_BASE_URL` and `LH_BASE_URL` point the same Playwright and Lighthouse checks at a live address | Not run: nothing is deployed |
+
+## D13. Redesign: from editorial to developer tooling (2026-11-17)
+
+Trigger: the owner said the site "looks like a site for books", and supplied a design brief (Vercel typography, Linear detail, Geist fonts, a new palette). The brief's palette and fonts were adopted; parts of its stack were not (see `design/COMPONENT-NOTES.md`).
+
+| Decision | Choice | Tradeoff |
+| --- | --- | --- |
+| Architecture | **Astro kept.** No Next.js, no shadcn/ui, no Motion library | Not what the brief literally listed. Reason: static output, a tiny script, a strict CSP, and nothing in the look depends on React. Reversible if the owner wants a rewrite |
+| Palette | `#141414` background, `#20201F` surfaces, `#2C2C2A` elevated, `#ECEAE4` text, `#B2AEA6` secondary, **sage `#A3B18A` primary**, **amber `#D4A65A` secondary**; computed contrast in `design/TOKENS.md`; no blue tint | The previous copper accent is gone. `--color-accent` now means sage |
+| Type | Geist for headings and body (600 with -0.035em tracking for headings), Geist Mono for labels, metrics, badges and code | Replaces Source Serif 4 and Hanken Grotesk. Same 141 KB |
+| Homepage | Status chip, large Geist headline, sage primary and ghost buttons, a spec strip of facts that are all true (3 projects, 2 AWS stacks destroyed after testing, no live demos, no client work), icon-led service cards, restyled project cards, and a panel of **this site's own recorded checks** | The "terminal" element is a table of real results with dates and statuses, not a fake terminal |
+| Own-checks panel | `src/data/checks.ts`, updated by hand | It can go stale; each line carries its date, and the numbers must be updated when the checks are rerun |
+| Icons | Lucide via `lucide-static` (ISC), ten icons, inlined at build, decorative | None |
+| Motion | CSS only. Hover and focus transitions, CSS View Transitions, and an amber dashed "flow" on key diagram edges (`.d-flow`), static under reduced motion | The brief's "subtle animated request/data flows" are on 6 edges across 3 diagrams, not all |
+| Existing guardrails | Unchanged: evidence rules, status labels, no invented metrics, CSP, accessibility | |
+| **Performance cost, unresolved** | After the redesign, mobile Lighthouse performance was 90 to 100 (before: 99 to 100) and total blocking time under 4x CPU throttling reached 423 ms (before: 62 ms); desktop and the other three categories stayed at 100. Two full runs: 7 of 18 below 100 each time. **The cause was not isolated.** The spread between repeats of the same page (91, 100, 100) is as large as the effect, a test removing `text-wrap: pretty` was inconclusive (reverted), and the VM was visibly slower during these runs (identical checks took 3 to 5 times longer), so the comparison is unreliable | Needs a controlled before/after on a quiet machine and a real-network run after deployment. Suspects, none confirmed: font shaping for two variable fonts, `tabular-nums`, `text-wrap` |

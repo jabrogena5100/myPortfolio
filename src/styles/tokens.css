@@ -7,18 +7,21 @@
 /* Tailwind v4: switch off the default palette so only these colours exist. */
 @theme {
   --color-*: initial;
-  --color-bg: #151310;
-  --color-surface-1: #1d1a16;
-  --color-surface-2: #26221c;
-  --color-border: #3b352c;
-  --color-text: #ece6d9;
-  --color-text-muted: #a69e90;
-  --color-text-subtle: #8a8275; /* only on bg / surface-1, 14px or larger */
-  --color-accent: #d98b55;
-  --color-accent-hover: #e5a070;
-  --color-sage: #9fb596;
+  --color-bg: #141414;
+  --color-surface-1: #20201F;
+  --color-surface-2: #2C2C2A;
+  --color-border: #3A3A37;
+  --color-text: #ECEAE4;
+  --color-text-muted: #B2AEA6;
+  --color-text-subtle: #8F8C84; /* only on bg / surface-1, 14px or larger */
+  --color-accent: #A3B18A; /* muted sage: the primary accent */
+  --color-accent-hover: #B7C4A0;
+  --color-sage: #A3B18A;
+  --color-amber: #D4A65A; /* secondary accent: motion and emphasis */
+  --color-amber-hover: #E2BA78;
+  --color-border-strong: #5A5955;
   --color-danger: #e0786a;
-  --color-plate: #ece6d6; /* light mat behind report figures that were drawn on white */
+  --color-plate: #E9E7E1; /* light mat behind report figures that were drawn on white */
 
   --breakpoint-*: initial;
   --breakpoint-sm: 30rem;  /* 480px */
@@ -39,10 +42,10 @@
 :root {
   color-scheme: dark;
 
-  /* Font stacks. Self-hosted faces (docs/fonts.md); system fallbacks while loading. */
-  --font-display-stack: 'Source Serif 4 Display', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
-  --font-body-stack: 'Hanken Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-mono-stack: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  /* Font stacks: Geist Sans for text, Geist Mono for labels, metrics and code (docs/fonts.md); system fallbacks while loading. */
+  --font-display-stack: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-body-stack: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono-stack: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
 
   /* Type scale (7 steps; display steps are fluid). */
   --step--1: 0.875rem;

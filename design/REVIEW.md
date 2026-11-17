@@ -148,3 +148,26 @@ Mostly not visual. The new page is the 404: [desktop](screenshots/phase7/404-des
 ### Not checked
 
 Everything that needs a real deployment: `terraform plan` and `apply`, the CloudFront Function in CloudFront's runtime, headers, compression and caching on a real distribution, cost, and Lighthouse against the live site. No security scanner was run on the Terraform.
+
+## Redesign: editorial to developer tooling (2026-11-17)
+
+You said the site looked like a site for books. It did: serif headlines, cream-on-brown, a copper accent. The redesign changes the type, the palette and the homepage; the content and the evidence rules are unchanged. Updated captures (same paths as before): [home, desktop](screenshots/phase3/home-desktop.png), [home, phone hero](screenshots/phase3/home-phone-hero.png), [home, verify section on a phone](screenshots/phase3/home-phone-verify.png), [StoreFront diagram](screenshots/phase4/crops/ryustorefront-desktop-diagram1.png), [RyuCloud diagram](screenshots/phase4/crops/ryucloud-desktop-diagram1.png), [RyuCloud header](screenshots/phase4/crops/ryucloud-desktop-header.png).
+
+What changed: Geist Sans and Geist Mono replace the serif and sans pairing; your palette (sage primary, amber secondary, no blue tint) replaces copper; the homepage has a status chip, a large headline, a sage primary button, a spec strip of true facts, icon-led service cards, restyled project cards, and a panel of this site's own recorded checks; status badges have Lucide icons; the diagrams have an amber dashed flow on key request paths (static under reduced motion).
+
+### Defects found, and fixed
+
+1. The "signed webhook" label collided with the animated dashed line. Moved below the arrow.
+2. The Lighthouse result wrapped onto two lines in the checks panel. Column widened, text kept on one line.
+
+### Look at these (judgement calls for the owner)
+
+- **Mobile performance is worse after the redesign and I do not know why.** Scores went from 99 to 100 to a range of 90 to 100 on mobile (desktop is still 100). The VM was visibly slower during these runs, so it may be the machine, but I could not prove it. Decision D13 and `docs/verification.md` have the numbers. A fresh run on a quiet machine will settle it.
+- **I did not use Next.js, shadcn/ui or Motion** from your brief; the reasons are in `design/COMPONENT-NOTES.md`. Say so if you want any of them.
+- **The "own checks" panel is hand-maintained.** Its numbers are right for today and will go stale if the checks are rerun without updating `src/data/checks.ts`.
+- **Amber is used sparingly** (motion, "User-reported", small labels). Say if you want more or less of it.
+- **Pages I did not re-inspect after the redesign:** Services, About, Contact and the 404 render with the new tokens and pass every automated check, but I only looked at the home page and the case-study diagrams and header.
+
+### Not checked
+
+Real devices; Firefox and WebKit; a screen-reader walkthrough; the deployed site.

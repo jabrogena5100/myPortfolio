@@ -47,8 +47,8 @@ test('only first-party requests, fonts load, no console errors', async ({ page }
   expect([...hosts]).toEqual([new URL(test.info().project.use.baseURL as string).host]);
   expect(errors).toEqual([]);
   const loaded = await page.evaluate(() => [...document.fonts].filter((f) => f.status === 'loaded').map((f) => f.family.replace(/"/g, '')));
-  expect(loaded).toContain('Hanken Grotesk');
-  expect(loaded).toContain('Source Serif 4 Display');
+  expect(loaded).toContain('Geist');
+  expect(loaded).toContain('Geist Mono');
 });
 
 test('every internal link and in-page anchor on the home page resolves', async ({ page, request }) => {
@@ -664,5 +664,24 @@ test('phase 7 review screenshots: the 404 page', async ({ page }) => {
     await page.goto('/404.html');
     await page.evaluate(() => document.fonts.ready);
     await page.screenshot({ path: `design/screenshots/phase7/404-${name}.png` });
+  }
+});
+
+test('diagram flow animation runs by default and is off under reduced motion', async ({ page }) => {
+  await page.goto('/projects/ryustorefront/');
+  expect(await page.locator('.d-flow').count()).toBeGreaterThanOrEqual(2);
+  expect(await page.evaluate(() => document.getAnimations().filter((a) => (a as CSSAnimation).animationName === 'd-dash').length)).toBeGreaterThanOrEqual(2);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/projects/ryustorefront/');
+  expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
+  const dash = await page.locator('.d-flow').first().evaluate((e) => getComputedStyle(e).strokeDasharray);
+  expect(dash).not.toBe('none'); // still drawn as dashes, just not moving
+});
+
+test('no serif fonts are used anywhere: headings and body are Geist, labels are Geist Mono', async ({ page }) => {
+  for (const path of PAGES) {
+    await page.goto(path);
+    const fams = await page.evaluate(() => [...new Set([...document.querySelectorAll('h1,h2,h3,p,li,a,dt,dd,td,th,code')].map((e) => getComputedStyle(e).fontFamily.split(',')[0].replace(/"/g, '').trim()))]);
+    for (const f of fams) expect(['Geist', 'Geist Mono'], `${path}: ${f}`).toContain(f);
   }
 });

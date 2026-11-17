@@ -1,0 +1,22 @@
+---
+// Lucide icons (ISC licence, https://lucide.dev), inlined at build time. Decorative: always aria-hidden.
+import arrowRight from 'lucide-static/icons/arrow-right.svg?raw';
+import server from 'lucide-static/icons/server.svg?raw';
+import cloud from 'lucide-static/icons/cloud.svg?raw';
+import flask from 'lucide-static/icons/flask-conical.svg?raw';
+import circleCheck from 'lucide-static/icons/circle-check.svg?raw';
+import userCheck from 'lucide-static/icons/user-check.svg?raw';
+import fileText from 'lucide-static/icons/file-text.svg?raw';
+import circleDashed from 'lucide-static/icons/circle-dashed.svg?raw';
+import check from 'lucide-static/icons/check.svg?raw';
+import shieldCheck from 'lucide-static/icons/shield-check.svg?raw';
+
+const icons = { 'arrow-right': arrowRight, server, cloud, flask, 'circle-check': circleCheck, 'user-check': userCheck, 'file-text': fileText, 'circle-dashed': circleDashed, check, 'shield-check': shieldCheck } as const;
+interface Props { name: keyof typeof icons; size?: number }
+const { name, size = 16 } = Astro.props;
+const svg = icons[name]
+  .replace(/<!--[\s\S]*?-->/g, '')
+  .replace(/\s(width|height)="24"/g, '')
+  .replace('<svg', `<svg aria-hidden="true" focusable="false" width="${size}" height="${size}"`);
+---
+<Fragment set:html={svg} />
