@@ -38,16 +38,18 @@ Proposed pins (verify again at install): `astro 7.4.12`, `tailwindcss 4.3.5` (+ 
 Recommendation: write the Terraform and runbook (Phase 7) and have the owner decide. Nothing will be applied by me.
 A domain, DNS and `terraform apply` are the owner's actions.
 
-## D3. Positioning and services — **Proposed**, to be confirmed against the other two evidence files
+## D3. Positioning and services: **Proposed** (revised 2026-11-17 after all three evidence files)
 
-Positioning line (draft): "Software engineer building payment-correct backends and the cloud infrastructure to run them." It rests on RyuStoreFront evidence only; RyuCloud and wildfire evidence may change it.
+Full reasoning, comparison table and case-study outlines are in `docs/content-plan.md`.
 
-Services supportable by **RyuStoreFront evidence alone**:
-1. **Backend APIs, data systems and payment workflows** (Java/Spring Boot, PostgreSQL, Stripe in test mode, idempotent webhooks, state machines, outbox/worker).
-2. **Cloud infrastructure and deployment** (Terraform, ECS Fargate, RDS, ALB, ACM, per-session deploy and destroy with an audit script).
-3. **Full-stack application development** (Next.js frontend wired to an API, token-based design system, Playwright and axe verification).
+Positioning line (draft): "Software engineer building backends that stay correct under retries and failure, and the AWS infrastructure to run them."
 
-Not yet supportable: distributed systems, AI-enabled systems, UAV/perception. Wait for the RyuCloud and wildfire evidence. The services page must say these are capabilities demonstrated in personal projects, with no clients, revenue or users implied.
+Services, ranked by evidence strength:
+1. **Backend systems that stay correct under retries and failure** (payment webhooks, inventory holds, state machines, outbox and job-queue workers). Two independent projects, StoreFront and RyuCloud, with crash, race and duplicate tests.
+2. **AWS infrastructure as code with cost-aware deploy and teardown** (Terraform, ECS Fargate, RDS, S3/CloudFront, SQS, an audit script). Each stack ran once; no always-on operation, no measured cost.
+3. **Experiment design and audit for computer-vision models** (single-path evaluation harness, leakage audit, calibrated claims). Wildfire capstone; research context only.
+
+Full-stack work is a capability, not a headline service (no deployed frontend and no visible demo). "Distributed systems" and "AI-enabled systems" are **not** claimed: no multi-node, load or production evidence; the AI work is an academic simulation. Every service page states "demonstrated in personal and academic projects; no clients, revenue or users".
 
 ## D4. Design direction — **Proposed**; full checklist in `design/ANTI-SLOP.md` (to be written in Phase 1)
 
@@ -75,7 +77,7 @@ Not yet supportable: distributed systems, AI-enabled systems, UAV/perception. Wa
 
 **Honest summary.** The five popular components you named were all evaluated. None fits the brief's "restrained" requirement and licence standard. If you still want one installed, say which and I will read its source and licence first.
 
-## D6. Open items blocking later phases (not Phase 1)
+## D6. Open items (owner decisions; see `docs/content-plan.md` section 7)
 
 - RyuCloud and wildfire evidence files (placeholders will be used until they arrive).
 - Resume PDF (the link stays absent until you provide it).
