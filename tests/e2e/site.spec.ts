@@ -306,3 +306,108 @@ test('case-study review crops (diagrams, figures, tables, header)', async ({ pag
     }
   }
 });
+
+// ---------------------------------------------------------------- Phase 5: services, about, contact
+
+const PHASE5 = ['/services/', '/about/', '/contact/'];
+
+test.describe('services, about and contact', () => {
+  test('services: three numbered services with labelled evidence, plus what is not claimed', async ({ page }) => {
+    await page.goto('/services/');
+    const heads = await page.$$eval('main h2', (hs) => hs.map((h) => (h.textContent || '').replace(/\s+/g, ' ').trim()));
+    expect(heads).toEqual([
+      '1 Backend systems that stay correct under retries and failure',
+      '2 AWS infrastructure as code, deployed and torn down',
+      '3 Experiment design and audit for computer-vision models',
+      'What I do not claim',
+    ]);
+    expect(await page.locator('.badge').count()).toBeGreaterThanOrEqual(12);
+    const t = await page.locator('main').innerText();
+    for (const s of ['No clients, no paid work, no revenue', 'None of the projects has a load test', 'currently down', 'Where it stops']) expect(t, s).toContain(s);
+  });
+
+  test('about: How I work is anchored and discloses AI assistance; no resume link while none is supplied', async ({ page }) => {
+    await page.goto('/about/');
+    expect(await page.locator('#how-i-work').count()).toBe(1);
+    const section = await page.locator('#how-i-work').innerText();
+    for (const s of ['Claude Code', 'AI reviewer', 'unverified until it is tested', 'do not claim to have hand-written every line']) expect(section, s).toContain(s);
+    expect(await page.locator('a[href$=".pdf"]').count()).toBe(0);
+    expect(await page.locator('main').innerText()).toContain('Resume: to be added');
+    // the services page links to the anchor, and it resolves
+    await page.goto('/services/');
+    expect(await page.locator('a[href="/about/#how-i-work"]').count()).toBe(1);
+  });
+
+  test('contact: no form, no inputs, no storage, placeholders only', async ({ page }) => {
+    await page.goto('/contact/');
+    expect(await page.locator('form, input, textarea, select, button[type="submit"]').count()).toBe(0);
+    expect(await page.locator('a[href^="mailto:"], a[href^="http"], a[href$=".pdf"]').count()).toBe(0);
+    expect(await page.locator('.todo').count()).toBe(4);
+    const t = await page.locator('main').innerText();
+    expect(t).toContain('no contact form');
+    expect(t).toContain('no analytics');
+  });
+
+  test('no cookies, no web storage and only first-party requests on any page', async ({ page }) => {
+    const hosts = new Set<string>();
+    page.on('request', (r) => hosts.add(new URL(r.url()).host));
+    for (const path of PAGES) {
+      await page.goto(path);
+      await page.evaluate(() => document.fonts.ready);
+      const state = await page.evaluate(() => ({ cookie: document.cookie, ls: localStorage.length, ss: sessionStorage.length }));
+      expect(state, `storage on ${path}`).toEqual({ cookie: '', ls: 0, ss: 0 });
+    }
+    expect([...hosts]).toEqual(['127.0.0.1:4321']);
+  });
+
+  for (const path of PHASE5) {
+    test(`links and anchors resolve, none external: ${path}`, async ({ page, request }) => {
+      await page.goto(path);
+      const hrefs = await page.$$eval('a[href]', (as) => as.map((a) => a.getAttribute('href') as string));
+      for (const h of new Set(hrefs)) {
+        expect(h).not.toMatch(/^https?:|^mailto:|github\.com/);
+        if (h.startsWith('#')) { expect(await page.locator(h).count(), `anchor ${h}`).toBe(1); continue; }
+        const [url, hash] = h.split('#');
+        expect((await request.get(url)).status(), `link ${h}`).toBe(200);
+        if (hash) { await page.goto(h); expect(await page.locator(`#${hash}`).count(), `target ${h}`).toBe(1); await page.goto(path); }
+      }
+    });
+
+    test(`keyboard: visible focus ring on every tab stop: ${path}`, async ({ page }) => {
+      await setSize(page, 'desktop');
+      await page.goto(path);
+      let stops = 0;
+      for (let i = 0; i < 60; i++) {
+        await page.keyboard.press('Tab');
+        const info = await page.evaluate(() => {
+          const el = document.activeElement as HTMLElement;
+          const cs = getComputedStyle(el);
+          return { tag: el.tagName, label: (el.textContent || '').trim().slice(0, 40), outline: `${cs.outlineStyle} ${cs.outlineWidth}` };
+        });
+        if (info.tag === 'BODY') break;
+        stops++;
+        expect(info.outline, `focus ring on "${info.label}"`).toMatch(/solid 2px/);
+      }
+      expect(stops).toBeGreaterThan(8);
+    });
+  }
+
+  for (const [name] of Object.entries(WIDTHS) as [keyof typeof WIDTHS, number][]) {
+    test(`phase 5 screenshots at ${name}`, async ({ page }) => {
+      await setSize(page, name);
+      for (const path of PHASE5) {
+        await page.goto(path);
+        await page.evaluate(() => document.fonts.ready);
+        await page.screenshot({ path: `design/screenshots/phase5/${path.replace(/\//g, '')}-${name}.png`, fullPage: true });
+      }
+    });
+  }
+
+  test('reduced motion: nothing animates on the new pages', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    for (const path of PHASE5) {
+      await page.goto(path);
+      expect(await page.evaluate(() => document.getAnimations().length), path).toBe(0);
+    }
+  });
+});

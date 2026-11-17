@@ -1,5 +1,5 @@
 ---
-import { site, nav } from '../data/site';
+import { site, nav, hasContact } from '../data/site';
 ---
 <footer class="site-footer">
   <div class="container grid">
@@ -7,7 +7,7 @@ import { site, nav } from '../data/site';
     <nav aria-label="Footer">
       <ul>{nav.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
     </nav>
-    <p class="note">Personal portfolio. No client work is listed. Contact details are being added.</p>
+    <p class="note">Personal portfolio. No client work is listed.{hasContact ? '' : ' Contact details are being added.'}</p>
   </div>
 </footer>
 

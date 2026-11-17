@@ -1,9 +1,110 @@
 ---
 import Base from '../../layouts/Base.astro';
+import Section from '../../components/Section.astro';
+import FactList from '../../components/FactList.astro';
 ---
-<Base title="Services | Joshua Abrogena" description="Services page in progress (Phase 5).">
-  <div class="container" style="padding-block: var(--space-8)">
-    <h1>Services</h1>
-    <p>Services page in progress (Phase 5).</p>
+<Base
+  title="Services | Joshua Abrogena"
+  description="Three engineering services, each tied to the project that demonstrates it, with its evidence and its limits stated."
+>
+  <div class="container wrap">
+    <p class="eyebrow">Services</p>
+    <h1>What I can do, and the proof behind each</h1>
+    <p class="lede">These are capabilities I have demonstrated in personal and academic projects. I have no clients to list, no revenue and no production users, and I do not imply any. Each service names the project that shows it, labels its evidence, and says where it stops.</p>
+
+    <nav class="jump" aria-label="Services">
+      <ol>
+        <li><a href="#backend">Backend systems that stay correct</a></li>
+        <li><a href="#aws">AWS infrastructure as code</a></li>
+        <li><a href="#cv">Computer-vision experiment audit</a></li>
+        <li><a href="#not">What I do not claim</a></li>
+      </ol>
+    </nav>
+
+    <Section n={1} id="backend" title="Backend systems that stay correct under retries and failure">
+      <p>For systems where a duplicate, a crash or a race has a real cost: taking payments, holding inventory, running background jobs.</p>
+      <h3>What the work looks like</h3>
+      <ul>
+        <li>Payment webhook handlers that are safe to receive twice, late, or out of order, including the refund path when the money cannot be honoured.</li>
+        <li>Stock reservation and order state machines where every legal and illegal move is tested.</li>
+        <li>Outbox and job-queue workers with leases, retries, a sweeper and crash-recovery tests that kill the worker on purpose.</li>
+        <li>Database design that does real work: constraints, locking order and transaction boundaries chosen deliberately.</li>
+      </ul>
+      <h3>How I approach it</h3>
+      <ul>
+        <li>The database is the source of truth, and the queue only carries a hint. That tolerates duplicates by design.</li>
+        <li>Every status change goes through one function that checks one table, so no code path can skip the rules.</li>
+        <li>Test what the code actually builds, not only what a helper accepts. RyuCloud's CloudFront bug passed unit tests because they signed a hand-written string.</li>
+        <li>Write the tradeoff down next to the decision, including what it costs.</li>
+      </ul>
+      <h3>Evidence</h3>
+      <p>Shown in <a href="/projects/ryustorefront/">RyuStoreFront</a> and <a href="/projects/ryucloud/">RyuCloud</a>. Each line is a short form; the setup, dataset and caveats are in the case studies.</p>
+      <FactList compact ids={['ssfWebhookDupes', 'ssfStockRace', 'rcCrash', 'rcWorkerTests']} />
+      <h3>Where it stops</h3>
+      <p>No load testing and no production traffic. Test results are my own records. Both projects ran only on my machines and, once each, in AWS.</p>
+    </Section>
+
+    <Section n={2} id="aws" title="AWS infrastructure as code, deployed and torn down">
+      <p>For getting a service onto AWS with Terraform in a way that can be reviewed, repeated and removed.</p>
+      <h3>What the work looks like</h3>
+      <ul>
+        <li>Terraform for ECS Fargate services, RDS PostgreSQL, load balancing with certificates, S3 with CloudFront and origin access control, SQS with a dead-letter queue, Secrets Manager and least-privilege IAM.</li>
+        <li>A persistent foundation stage (DNS zone, registry, certificate, secret shells) separate from a destroyable per-session stage, so a teardown cannot touch DNS.</li>
+        <li>An audit script that checks each service directly for leftovers after teardown, because tag searches lag behind deletions.</li>
+        <li>Working inside short-lived credentials: staged applies, and recovery from a failed apply (lock release, saved state, untainting a healthy database).</li>
+      </ul>
+      <h3>How I approach it</h3>
+      <ul>
+        <li>Save the plan to a file and read it before every apply. Check the numbers: resources to add, change and destroy.</li>
+        <li>Say what a cost saving costs. Public-subnet tasks without a NAT gateway are cheaper and less isolated, so I do not call that a private network.</li>
+        <li>Deploy early, because the surprises are cloud-only. Record every result as run, user-reported or not run.</li>
+      </ul>
+      <h3>Evidence</h3>
+      <p>Shown in <a href="/projects/ryustorefront/">RyuStoreFront</a> and <a href="/projects/ryucloud/">RyuCloud</a>. Each line is a short form; the setup, dataset and caveats are in the case studies.</p>
+      <FactList compact ids={['ssfCloudCheckout', 'ssfTeardown', 'rcCloud', 'rcCfChecks']} />
+      <h3>Where it stops</h3>
+      <p>Each stack ran for one session. There is no always-on operation, no measured cost, and RyuCloud's raw output was not kept. RyuCloud's CI deploy workflow has never been run. In both projects every apply ran from a saved plan that I read first.</p>
+    </Section>
+
+    <Section n={3} id="cv" title="Experiment design and audit for computer-vision models">
+      <p>For teams who need to know whether a model comparison can be trusted before they act on it.</p>
+      <h3>What the work looks like</h3>
+      <ul>
+        <li>One evaluation path for every model and dataset, on frozen, hash-pinned splits, with saved predictions so metrics can be recomputed offline.</li>
+        <li>Leakage audits of train, validation and test splits, and a rebuilt split with retraining when the audit finds a problem.</li>
+        <li>Honest statistics: seed variance, clustered intervals, the right unit of inference, and conclusions cut down to what the data supports.</li>
+        <li>Connecting a detector to a simulator (ArduPilot SITL) so that the ground truth cannot leak to the agent.</li>
+      </ul>
+      <h3>How I approach it</h3>
+      <ul>
+        <li>Treat the cell that looks best with the most suspicion.</li>
+        <li>Record every confound found, even when it cannot be fixed, and say what it limits.</li>
+        <li>Never write "synthetic beats real" or "AI improves monitoring" when the evidence supports neither.</li>
+      </ul>
+      <h3>Evidence</h3>
+      <p>Shown in the <a href="/projects/wildfire-monitoring/">wildfire monitoring</a> capstone. Each line is a short form; the setup and caveats are in the case study.</p>
+      <FactList compact ids={['wfSplit', 'wfOnePath', 'wfLevel3Headline', 'wfConfound']} />
+      <h3>Where it stops</h3>
+      <p>This is an academic simulation study, not a production machine-learning system. Three seeds, a small test set and a single simulated UAV. The results are descriptive. The <a href="/about/#how-i-work">About page</a> explains my part and the AI assistance.</p>
+    </Section>
+
+    <Section id="not" title="What I do not claim">
+      <ul>
+        <li>No clients, no paid work, no revenue and no production users.</li>
+        <li>No scale, throughput, latency or uptime figures. None of the projects has a load test.</li>
+        <li>No distributed-systems or machine-learning-in-production expertise. The evidence shows reliable single-database backends, one-session cloud deployments and an academic study.</li>
+        <li>No live demos. Both web projects were destroyed after testing and their domains are currently down.</li>
+      </ul>
+      <p>Full-stack work (Next.js against a real API, Playwright and axe checks) appears in both software projects, but neither frontend is deployed, so I list it as a capability rather than a service.</p>
+      <p><a href="/contact/">Contact</a> &middot; <a href="/projects/">All projects</a></p>
+    </Section>
   </div>
 </Base>
+
+<style>
+  .wrap { padding-block: var(--space-8) 0; }
+  h1 { font-size: var(--step-4); margin-top: var(--space-3); max-width: 20ch; }
+  .lede { color: var(--color-text-muted); max-width: var(--measure); margin: var(--space-4) 0 var(--space-6); }
+  .jump ol { list-style: none; margin: 0 0 var(--space-6); padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); }
+  .jump a { display: inline-block; padding: var(--space-2) 0; min-height: 44px; box-sizing: border-box; }
+</style>

@@ -1,9 +1,68 @@
 ---
 import Base from '../../layouts/Base.astro';
+import Section from '../../components/Section.astro';
+import { site, contact } from '../../data/site';
 ---
-<Base title="About | Joshua Abrogena" description="About page in progress (Phase 5).">
-  <div class="container" style="padding-block: var(--space-8)">
-    <h1>About</h1>
-    <p>About page in progress (Phase 5).</p>
+<Base
+  title="About | Joshua Abrogena"
+  description="Who I am, what I have built, how I work with AI coding assistants, and what this portfolio does not claim."
+>
+  <div class="container wrap">
+    <p class="eyebrow">About</p>
+    <h1>{site.name}</h1>
+    <p class="lede">{site.role}, {site.since}.</p>
+
+    <Section id="who" title="Who I am">
+      <p>My work so far focuses on the parts of a system where things go wrong: a payment that arrives twice, a worker killed halfway through a job, a comparison that looks better than it should. I build backends in Java and Go, deploy them to AWS with Terraform, and write down what I tested and what I did not.</p>
+      <p>The work on this site is three projects: a payments and inventory backend, a crash-safe video pipeline, and a university research study of a smoke-detection model. None has users or clients. They are how I show what I can do, so each one states its status and its limits.</p>
+    </Section>
+
+    <Section id="work" title="What I have built, and when">
+      <ul class="timeline">
+        <li><strong>Wildfire monitoring</strong>, a university capstone (ECE 496, Fall 2026). Its repository history runs from 2026-09-19 to 2026-11-13, 116 commits. <a href="/projects/wildfire-monitoring/">Case study</a>.</li>
+        <li><strong>RyuCloud</strong>, a video pipeline. Its history runs from 2026-11-03 to 2026-11-14, 25 commits, with one AWS session on 2026-11-14. <a href="/projects/ryucloud/">Case study</a>.</li>
+        <li><strong>RyuStoreFront</strong>, a payments and inventory backend. Its first decisions are dated 2026-11-14; one cloud checkout ran on 2026-11-15. Still in development. <a href="/projects/ryustorefront/">Case study</a>.</li>
+      </ul>
+      <p>These dates come from each project's own git history and logs. They show when the work was recorded, not how many hours it took.</p>
+    </Section>
+
+    <Section id="how-i-work" title="How I work, and the AI assistance">
+      <p>I use AI coding assistants, and I want that to be clear. Claude Code helped write code, tests and documentation in all three projects and in this site. On the wildfire project an AI reviewer (Codex) performed audits, including the one that found the train and test split leakage described in the case study.</p>
+      <h3>What I do</h3>
+      <ul>
+        <li><strong>Decide scope and tradeoffs.</strong> Each project keeps a decision log that records what was chosen and what it cost.</li>
+        <li><strong>Run the consequential commands.</strong> On this portfolio and on RyuStoreFront I run Git, AWS and Terraform commands myself; the assistant proposes them and does not deploy or commit.</li>
+        <li><strong>Treat AI-written code as unverified until it is tested.</strong> Results are labelled by how they were obtained: run, user-reported, documented or not run.</li>
+        <li><strong>Check AI findings against the data.</strong> On the wildfire project I chose the Boreal dataset, examined its limitations, and ran the synthetic and external evaluations. I treat the AI audits as input that I checked, not as independent review.</li>
+        <li><strong>Read claims before they are published.</strong> Every number on this site is traced to a project's own evidence file, and each case study says which results I did not re-run.</li>
+      </ul>
+      <h3>One disclosure that matters</h3>
+      <p>On the wildfire project, GPU training ran under a written budget ($100 in total, $20 per experiment) that the project's own notes call an "autonomous" allowance, with the budget gate written into the code. I do not claim to have hand-written every line of any project. I claim the design decisions, the verification discipline and the honesty of what is reported here.</p>
+    </Section>
+
+    <Section id="experience" title="Experience and resume">
+      <p>My current role, as I describe it: <strong>{site.role}, {site.since}</strong>. That is a description of how I am working now, not a claim of client work, and this site lists no clients.</p>
+      {contact.resumeUrl
+        ? <p><a href={contact.resumeUrl}>Resume (PDF)</a></p>
+        : <p class="placeholder">Resume: to be added. Education and earlier experience will appear with it.</p>}
+    </Section>
+
+    <Section id="not" title="What this portfolio does not claim">
+      <ul>
+        <li>No clients, revenue, users or paid work.</li>
+        <li>No production operation, scale or uptime figures.</li>
+        <li>No live demos: the AWS stacks were destroyed after testing, and ryustorefront.net and ryucloud.link are currently down.</li>
+        <li>No results beyond what each project's own records show. Where I could not re-check a result I say so.</li>
+      </ul>
+      <p><a href="/projects/">See the projects</a> &middot; <a href="/contact/">Contact</a></p>
+    </Section>
   </div>
 </Base>
+
+<style>
+  .wrap { padding-block: var(--space-8) 0; }
+  h1 { font-size: var(--step-5); margin-top: var(--space-3); }
+  .lede { color: var(--color-text-muted); font-size: var(--step-1); margin: var(--space-3) 0 var(--space-7); }
+  .timeline { display: grid; gap: var(--space-4); }
+  .placeholder { color: var(--color-text-muted); }
+</style>

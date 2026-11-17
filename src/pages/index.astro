@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import SpotlightCard from '../components/SpotlightCard.astro';
-import { site, services, projects, verifyTerms, capabilities } from '../data/site';
+import { site, services, projects, verifyTerms, capabilities, contact, hasContact } from '../data/site';
 ---
 <Base
   title={`${site.name}: ${site.role}`}
@@ -16,6 +16,7 @@ import { site, services, projects, verifyTerms, capabilities } from '../data/sit
         <p class="cta">
           <a class="btn" href="#projects">See the projects</a>
           <a class="link" href="/contact/">Contact</a>
+          {contact.resumeUrl && <a class="link" href={contact.resumeUrl}>Resume (PDF)</a>}
         </p>
       </div>
     </div>
@@ -108,7 +109,11 @@ import { site, services, projects, verifyTerms, capabilities } from '../data/sit
   <section class="section closing" aria-labelledby="closing-h">
     <div class="container">
       <h2 id="closing-h">Talk to me about your system</h2>
-      <p class="lede">Contact links and a resume are being added. Until then the <a href="/contact/">contact page</a> says where things stand.</p>
+      <p class="lede">
+        {hasContact || contact.resumeUrl
+          ? <>Details are on the <a href="/contact/">contact page</a>.</>
+          : <>Contact links and a resume are being added. Until then the <a href="/contact/">contact page</a> says where things stand.</>}
+      </p>
     </div>
   </section>
 </Base>

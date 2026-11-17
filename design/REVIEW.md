@@ -1,6 +1,6 @@
 # Review gallery
 
-Screenshots are Chromium via Playwright 1.65.1, taken from the production build by `scripts/e2e.sh`. **Owner sign-off: not done.** Services, About and Contact are still placeholders and are not reviewed here.
+Screenshots are Chromium via Playwright 1.65.1, taken from the production build by `scripts/e2e.sh`. **Owner sign-off: not done.** Everything on the site is now built; Phase 6 is the full responsive, accessibility and performance pass.
 
 ## Phase 3: homepage and shared layout (2026-11-17)
 
@@ -79,3 +79,28 @@ Figures: [Level 2 matrix on its mat](screenshots/phase4/crops/wildfire-monitorin
 ### Not checked
 
 Real devices; Firefox and WebKit; a screen-reader walkthrough; forced-colors mode; 200 percent zoom; Lighthouse; whether the cross-document page transition behaves; the Services, About and Contact pages (placeholders); external links (none exist).
+
+## Phase 5: services, about, contact (2026-11-17)
+
+| Page | Desktop | Tablet | Phone |
+| --- | --- | --- | --- |
+| Services | [full](screenshots/phase5/services-desktop.png) | [full](screenshots/phase5/services-tablet.png) | [full](screenshots/phase5/services-phone.png) |
+| About | [full](screenshots/phase5/about-desktop.png) | [full](screenshots/phase5/about-tablet.png) | [full](screenshots/phase5/about-phone.png) |
+| Contact | [full](screenshots/phase5/contact-desktop.png) | [full](screenshots/phase5/contact-tablet.png) | [full](screenshots/phase5/contact-phone.png) |
+
+### Defects found, and fixed
+
+1. **Services was 7,693 px tall** because it repeated the full evidence blocks that the case studies already contain. Evidence lines are now the one-line form with status and date, and a pointer to the case study for setup and caveats (5,981 px).
+2. **The contact intro said "details are being added" even once details were supplied.** Found by temporarily filling the contact data with fake values and building; now conditional.
+3. Wording I softened before it went live: a personality claim ("likes the parts where things go wrong") that you had not given me, an attribution of every audit to the AI reviewer (the evidence names it for the split-leakage audit only), and a promise on your behalf about who runs AWS commands.
+
+### Look at these (judgement calls for the owner)
+
+- The **How I work** text is a draft from the evidence plus your answers. Please confirm each line, especially the GPU-budget sentence: the wildfire notes call the budget "autonomous", and I did not claim who launched the jobs.
+- The **contact page is narrow and centred** on purpose (one reading column); the other pages use the full width.
+- **Services is still long** (about 6,000 px at desktop). The three services each have what, how, evidence and limits.
+- **Contact and resume are placeholders** ("To be added."). See the README for the one place to fill them in.
+
+### Not checked
+
+Real devices; Firefox and WebKit; a screen-reader walkthrough; forced-colors mode; 200 percent zoom; Lighthouse.

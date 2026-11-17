@@ -123,3 +123,15 @@ Full-stack work is a capability, not a headline service (no deployed frontend an
 | Role and AI statement | Each case study states the AI assistance in its meta block. The wildfire page also states my part (chose Boreal, examined its limitations, ran the synthetic and external evaluations) and calls the AI audit "audit input I checked", not independent review. A fuller "How I work" goes on the About page in Phase 5 | The wording rests on the owner's short written answer; the owner should confirm it |
 | Links | No repository links on any page (placeholders). `ryustorefront.net` and `ryucloud.link` are named only as "currently down". Nothing links to the unpublished wildfire code, report or replay | Visitors cannot reach any code yet |
 | Page length | Full 8-section template, not shortened, no collapsed sections | Long pages (10,000 to 15,000 px). Collapsing evidence is an option for the owner |
+
+## D10. Phase 5 choices (2026-11-17)
+
+| Decision | Choice | Tradeoff |
+| --- | --- | --- |
+| Contact and resume data | One object, `contact` in `src/data/site.ts`, with every value `null` until supplied. Pages show "To be added." and render real links the moment a value is set; the home hero, About, Contact, the home closing line and the footer note all switch together | Nothing public is invented. The owner edits one file |
+| Contact form | None. No input, no storage, no analytics, no cookies, no third-party requests (all tested) | Visitors must use an email or profile link once supplied |
+| How I work | A section on About (`#how-i-work`) listing what I decide, run and verify, the AI tools used (Claude Code on all three projects and this site; Codex as an audit reviewer on the wildfire project) and one disclosure about the capped GPU budget. A sentence in each case study links to it | Draft; the owner should confirm it line by line |
+| Services evidence | Compact one-line facts with status and date, linking to the case study for setup. The three services are the ones in D3 | The full caveats are one click away, not on the page |
+| "What I do not claim" | A section on Services and on About | Repetition between the two, on purpose |
+| Experience | Only the owner's own description ("Independent Software Engineer, November 2026 to present"), with a note that it is not a claim of client work. Education and earlier experience are left to the resume | The About page is short and factual |
+| Dates | Project dates are each repository's git history range (wildfire 2026-09-19 to 2026-11-13, RyuCloud 2026-11-03 to 2026-11-14) and, for RyuStoreFront, its first dated decision (2026-11-14) | They show when work was recorded, not hours; the page says so |
