@@ -1,23 +1,21 @@
 # myPortfolio
 
-My personal software engineering portfolio.
+Joshua Abrogena's software engineering portfolio: a static Astro site documenting three projects with their evidence.
 
-## About
+## Develop (Node runs in Docker; no host Node needed)
 
-This repository contains my portfolio website, projects,
-technical experience, and software development work.
+```
+scripts/web.sh npm install
+scripts/web.sh npm run check
+scripts/web.sh npm run build        # output in dist/
+TTY_FLAGS=-it scripts/web.sh npm run dev   # http://localhost:4321
+```
 
-## Technologies
+## Layout
 
-- Git and GitHub
-- Docker
-- AWS
-- Terraform
+- `src/` site source; `src/styles/tokens.css` is the only place design values live
+- `content/evidence/` per-project evidence (separate from site copy)
+- `docs/` decisions, verification log, content plan
+- `design/` anti-slop checklist, tokens spec, component notes, review gallery
 
-## Getting Started
-
-Project setup instructions will be added as development progresses.
-
-## Author
-
-Personal portfolio project.
+Status and decisions: `docs/decisions.md`. Every verification result, including what was not run: `docs/verification.md`.

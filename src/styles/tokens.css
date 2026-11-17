@@ -1,0 +1,86 @@
+/*
+ * Design tokens: the single source of truth (spec: design/TOKENS.md).
+ * No colour, size, radius, shadow or duration may be written elsewhere.
+ * Contrast ratios in the spec were computed on 2026-11-17.
+ */
+
+/* Tailwind v4: switch off the default palette so only these colours exist. */
+@theme {
+  --color-*: initial;
+  --color-bg: #151310;
+  --color-surface-1: #1d1a16;
+  --color-surface-2: #26221c;
+  --color-border: #3b352c;
+  --color-text: #ece6d9;
+  --color-text-muted: #a69e90;
+  --color-text-subtle: #8a8275; /* only on bg / surface-1, 14px or larger */
+  --color-accent: #d98b55;
+  --color-accent-hover: #e5a070;
+  --color-sage: #9fb596;
+  --color-danger: #e0786a;
+
+  --breakpoint-*: initial;
+  --breakpoint-sm: 30rem;  /* 480px */
+  --breakpoint-md: 48rem;  /* 768px */
+  --breakpoint-lg: 64rem;  /* 1024px */
+  --breakpoint-xl: 80rem;  /* 1280px */
+
+  --font-display: var(--font-display-stack);
+  --font-sans: var(--font-body-stack);
+  --font-mono: var(--font-mono-stack);
+
+  --radius-sm: 4px;
+  --radius-md: 10px;
+  --shadow-1: 0 1px 0 rgb(0 0 0 / 0.4);
+  --shadow-2: 0 12px 32px -16px rgb(0 0 0 / 0.6);
+}
+
+:root {
+  color-scheme: dark;
+
+  /* Font stacks. Faces are chosen with the owner in Phase 3; until then these
+     are system stacks, so nothing is downloaded. */
+  --font-display-stack: ui-serif, 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --font-body-stack: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono-stack: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+
+  /* Type scale (7 steps; display steps are fluid). */
+  --step--1: 0.875rem;
+  --step-0: 1rem;
+  --step-1: 1.25rem;
+  --step-2: clamp(1.4rem, 1.2rem + 0.8vw, 1.6rem);
+  --step-3: clamp(1.7rem, 1.3rem + 1.6vw, 2.1rem);
+  --step-4: clamp(2.1rem, 1.4rem + 3vw, 2.9rem);
+  --step-5: clamp(2.6rem, 1.4rem + 5vw, 4rem);
+  --measure: 68ch;
+
+  /* Spacing scale. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 72px;
+  --space-9: 112px;
+  --gutter: 16px;
+  --content-max: 1200px;
+
+  /* Motion. */
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (min-width: 48rem) { :root { --gutter: 32px; } }
+@media (min-width: 64rem) { :root { --gutter: 48px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+  }
+}

@@ -3,7 +3,7 @@
 Status key: **Proposed** (awaiting owner approval), **Settled**.
 Nothing has been scaffolded. Versions below were read from the npm registry (`registry.npmjs.org/<pkg>/latest`) on 2026-11-17.
 
-## D1. Framework: Astro vs Next.js static export — **Proposed: Astro**
+## D1. Framework: Astro vs Next.js static export — **Settled: Astro** (owner approved 2026-11-17)
 
 | Criterion | Astro 7.4.12 (published 2026-11-13) | Next.js 16.4.6 (2026-11-09), `output: 'export'` |
 | --- | --- | --- |
@@ -23,9 +23,9 @@ Nothing has been scaffolded. Versions below were read from the npm registry (`re
 
 **Cost accepted.** Two mental models (Astro components + occasional React). Astro 7 is a recent major version, so I would pin exact versions and check that `@astrojs/react` and `@astrojs/tailwind`/`@tailwindcss/vite` support it before install.
 
-Proposed pins (verify again at install): `astro 7.4.12`, `tailwindcss 4.3.5` (+ `@tailwindcss/vite 4.3.5`), `typescript 7.0.2`, `@playwright/test 1.65.1`, `@axe-core/playwright 4.14.0`, `lighthouse 13.6.0`. TypeScript 7 is new; fall back to 5.x if Astro's checker objects.
+**Settled 2026-11-17 (Phase 2, installed and built):** `astro 7.4.12`, `@astrojs/sitemap 3.7.5`, `@astrojs/markdown-remark 7.3.9` (Astro peer), `tailwindcss` and `@tailwindcss/vite 4.3.5`, `typescript 6.0.3`, `@astrojs/check 0.9.12`, Node `26.13.1` image. **Deviation from the proposal:** TypeScript 6.0.3 instead of 7.0.2, because `@astrojs/check` 0.9.12 declares peer `typescript ^5 || ^6`. Still to add in Phase 6: `@playwright/test 1.65.1`, `@axe-core/playwright 4.14.0`, `lighthouse 13.6.0`.
 
-## D2. Hosting — **Proposed: S3 + CloudFront via Terraform; GitHub Pages as the zero-cost fallback**
+## D2. Hosting — **Settled: S3 + CloudFront via Terraform; GitHub Pages as the zero-cost fallback** (owner approved 2026-11-17; Terraform written in Phase 7, applied only by the owner)
 
 | | GitHub Pages | S3 + CloudFront + Terraform |
 | --- | --- | --- |
@@ -83,3 +83,16 @@ Full-stack work is a capability, not a headline service (no deployed frontend an
 - Resume PDF (the link stays absent until you provide it).
 - Which public contact links (email, GitHub, LinkedIn) you want shown; I will not invent them.
 - Whether you want a custom domain.
+
+## D7. Phase 2 scaffold choices (2026-11-17)
+
+| Decision | Choice | Tradeoff |
+| --- | --- | --- |
+| Telemetry | Astro telemetry disabled in `scripts/web.sh` (`ASTRO_TELEMETRY_DISABLED=1`, `DO_NOT_TRACK=1`) | None; Astro prints a data-collection notice by default |
+| Palette enforcement | `--color-*: initial` in Tailwind `@theme`, so only token colours exist | Cannot use `bg-gray-800` and similar; intended |
+| Fonts | System stacks until the owner picks faces in Phase 3; nothing downloaded | Headline face is generic until then |
+| `site` / sitemap | Not set yet; `@astrojs/sitemap` is installed but not enabled until the domain is chosen | No canonical URLs or sitemap until Phase 7 |
+| Trailing slash | `always`, `build.format: directory` | Matches S3/CloudFront `index.html` behaviour; needs a CloudFront function or default root object per directory in Phase 7 |
+| Owner details | Display name "Joshua Abrogena"; contact links and resume are **placeholders** until supplied | Contact and resume pages show a plain "to be added" state |
+| Domains | `ryustorefront.net` and `ryucloud.link` may be mentioned; both are currently down and the case studies say so | No live links |
+| Repo links | Not shown until the owner confirms each is public | Placeholders |

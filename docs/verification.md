@@ -13,5 +13,10 @@ Status values: **Run and passed**, **Run and failed**, **User-reported**, **Not 
 | 2026-11-17 | 0 | Node/npm available locally | Blocked (resolved by decision) | `node`, `npm` not in PATH; Docker 29.9.3 is available. Owner decided 2026-11-17: run Node tooling through Docker |
 | 2026-11-17 | 1 | RyuCloud and wildfire evidence files read in full (496 and 313 lines) | Run and passed | `content/evidence/RyuCloudInfo.md`, `AutonomousDroneProjectInfo.md`. Their contents are the exporters' own statements; I ran nothing in those projects and could not verify them |
 | 2026-11-17 | 1 | Dark palette contrast ratios (text, muted, accent, sage, danger, borders) | Run and passed | Computed with WCAG 2.x relative luminance in a Python script; table in `design/TOKENS.md`. `text-subtle` fails 4.5:1 on `surface-2` and is restricted. Not yet checked in rendered pages |
-| 2026-11-17 | 1 | Node 26.13.1 and 22.23.5 images exist; Astro 7.4.12 builds on them | Not run | Image tags confirmed on Docker Hub API. **No Astro build has been run**; Astro's `engines` allows `>=22.23.4` |
+| 2026-11-17 | 1 | Node 26.13.1 and 22.23.5 images exist | Run and passed | Docker Hub tag API; `node:26.13.1-bookworm-slim` pulled and ran (`node -v` v26.13.1, npm 11.20.0) |
+| 2026-11-17 | 2 | `npm install` of the pinned dependencies | Run and passed | In Docker: 408 packages added, 0 vulnerabilities (npm's install-time summary, not a separate audit). `@astrojs/check` peer range forced TypeScript 6.0.3 (see D1) |
+| 2026-11-17 | 2 | `astro check` (types) | Run and passed | 4 files, 0 errors, 0 warnings, 0 hints |
+| 2026-11-17 | 2 | `astro build` produces a static site on Node 26.13.1 | Run and passed | 1 page built in 1.92 s; `dist/index.html` is 584 bytes with 0 `<script>` tags; one CSS file, 11,380 bytes |
+| 2026-11-17 | 2 | Only token colours exist in the built CSS | Run and passed (narrow) | `grep` of the built CSS found the two token hexes checked (`#151310`, `d98b55`) and no `gray-`, `slate-` or `zinc-` classes. Not a full audit of every declared value |
+| 2026-11-17 | 2 | Astro telemetry disabled in the wrapper | Run and passed | After the change a build printed no "collects anonymous usage data" notice (count 0) |
 | — | 2+ | Playwright, axe, Lighthouse, link, contrast, keyboard, reduced-motion checks | Not run | No site exists yet |
