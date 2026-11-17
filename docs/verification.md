@@ -56,4 +56,48 @@ Status values: **Run and passed**, **Run and failed**, **User-reported**, **Not 
 | 2026-11-17 | 5 | Services, About and Contact screenshots read by Claude Code | Run and passed | 9 full-page screenshots in `design/screenshots/phase5/`; 3 issues fixed (see `design/REVIEW.md`). **Owner sign-off: not done** |
 | 2026-11-17 | 5 | The "How I work" text is accurate | **User-reported: not yet** | Drafted from the evidence files and the owner's short answers. Not confirmed line by line by the owner. The GPU-budget sentence quotes the project's own word "autonomous" and does not say who launched the jobs |
 | — | 5 | Education, earlier experience, a longer bio, a portrait, the resume PDF and the public contact links | Blocked | Not supplied; nothing invented. Fill in `contact` in `src/data/site.ts` |
-| — | 6 | Full responsive pass, Lighthouse, Firefox/WebKit, real devices, screen reader, forced colors, 200% zoom, external link checks | Not run | Phase 6 |
+| 2026-11-17 | 5 | Owner confirmed the "What I do" part of How I work and corrected the wildfire description | User-reported | The owner said the "what I do" list is correct; that Claude Code launched the RunPod sessions through the MCP server, mostly on GPU (RTX 4090 "I believe", matching the project's records) with some CPU time for datasets; that Claude Code analysed results and the owner approved each next step; that the GitHub cron watchdog never worked; and that "I run Git, AWS and Terraform myself" is true for RyuCloud and RyuStoreFront but not the wildfire project. The About page and the wildfire case study were rewritten to match |
+| 2026-11-17 | 6 | Lighthouse 13.6.0 on every page, mobile and desktop presets, production build | Run and passed | `scripts/lighthouse.sh`: **17 of 18 runs scored 100 in performance, accessibility, best practices and SEO; one run (RyuCloud, mobile) scored 99 on performance.** HeadlessChrome 159, simulated throttling (mobile: slow 4G, 4x CPU), served by `astro preview` on this VM with **no CDN and no HTTP compression**, one run per page and preset (home on mobile 3 times: LCP 918, 912, 908 ms). Raw summary in `design/lighthouse/summary.json`. Not a measurement of the deployed site |
+| 2026-11-17 | 6 | Lighthouse "insight" audits that still fail on every page | Run and failed (informational) | `render-blocking-insight` (the stylesheet is a separate file) and `network-dependency-tree-insight` (HTML, CSS, then fonts). They do not lower the category scores here. See D11 for the inlining experiment |
+| 2026-11-17 | 6 | Reflow at 320 px (WCAG 1.4.10): no horizontal page scroll and axe-clean | Run and passed | Playwright, all 8 pages. Wide tables, code and diagrams scroll inside their own focusable regions |
+| 2026-11-17 | 6 | 200% zoom (640 css px) and 200% text size (html font-size 200% at 1280 px) | Run and passed | Playwright: no horizontal page scroll and axe-clean on all 8 pages, both conditions |
+| 2026-11-17 | 6 | Text-spacing overrides (WCAG 1.4.12: line-height 1.5, letter-spacing 0.12em, word-spacing 0.16em, paragraph spacing 2em) | Run and passed | Playwright at 390 and 1440 px, all 8 pages: no overflow, and no element clips its own text vertically |
+| 2026-11-17 | 6 | Forced-colors (high-contrast) mode | Run and passed | Playwright `forcedColors: active`, all 8 pages: axe clean (colour-contrast rule disabled, as it does not apply), a solid focus outline on tab stops, screenshots read. First screenshot showed the primary button looked like plain text; fixed with a transparent border |
+| 2026-11-17 | 6 | Mobile menu at 320 px stays inside the viewport and Escape closes it | Run and passed | Playwright |
+| 2026-11-17 | 6 | Page weight and image dimensions | Run and passed | Initial load under 250 KB per page (budget asserted); every case-study image has width, height, `srcset` and `loading=lazy`. Table below |
+| 2026-11-17 | 6 | Metadata: unique titles and descriptions, `lang`, viewport, favicon, Open Graph title; `robots.txt` and favicon served | Run and passed | Playwright, all 8 pages; descriptions are 160 characters or fewer. Three case-study descriptions (186, 216, 179 characters) were too long and were shortened |
+| 2026-11-17 | 6 | Playwright + axe suite, Chromium only, final run | Run and passed | `scripts/e2e.sh`: **101 passed** (2.1 min). `astro check` 30 files, 0 errors |
+| 2026-11-17 | 6 | First Phase 6 test run failed 5 tests | Run and failed, then fixed | 1 real defect (RyuCloud description 216 characters) and 4 test mistakes (a screen-reader-only element flagged as clipped text, a screenshot filename, a RyuCloud image check that ignored that it has no images, and an over-tight description length). Fixed; the final run passed |
+| 2026-11-17 | 6 | Screenshots read by Claude Code | Run and passed | 8 captures in `design/screenshots/phase6/` (forced colors, 320 px, 200% zoom); 1 defect fixed. **Owner sign-off: not done** |
+| — | 6 | Firefox, WebKit, real devices, a screen-reader walkthrough, an HTML validator, Lighthouse against the deployed site | Not run | The deployed site does not exist yet; Lighthouse on CloudFront belongs to Phase 7 |
+
+### Lighthouse results, 2026-11-17 (scores are performance / accessibility / best practices / SEO)
+
+Local run, `astro preview`, no CDN, no compression, Chromium only. Mobile uses simulated slow 4G and 4x CPU slowdown.
+
+| Page | Mobile scores | Mobile LCP | Mobile TBT | Desktop scores | Desktop LCP |
+| --- | --- | --- | --- | --- | --- |
+| `/` | 100/100/100/100 | 918 ms | 0 ms | 100/100/100/100 | 250 ms |
+| `/projects/` | 100/100/100/100 | 762 ms | 11 ms | 100/100/100/100 | 208 ms |
+| `/projects/ryustorefront/` | 100/100/100/100 | 764 ms | 19 ms | 100/100/100/100 | 211 ms |
+| `/projects/ryucloud/` | 99/100/100/100 | 763 ms | 135 ms | 100/100/100/100 | 212 ms |
+| `/projects/wildfire-monitoring/` | 100/100/100/100 | 762 ms | 53 ms | 100/100/100/100 | 214 ms |
+| `/services/` | 100/100/100/100 | 762 ms | 21 ms | 100/100/100/100 | 212 ms |
+| `/about/` | 100/100/100/100 | 755 ms | 0 ms | 100/100/100/100 | 209 ms |
+| `/contact/` | 100/100/100/100 | 757 ms | 13 ms | 100/100/100/100 | 208 ms |
+
+### Page weight (uncompressed bytes from `astro preview`)
+
+| Page | Initial load, KB | Fully loaded (all lazy images), KB | Of which images, KB |
+| --- | --- | --- | --- |
+| `/` | 180 | 180 | 0 |
+| `/projects/` | 13 | 13 | 0 |
+| `/projects/ryustorefront/` | 41 | 289 | 248 |
+| `/projects/ryucloud/` | 38 | 38 | 0 |
+| `/projects/wildfire-monitoring/` | 41 | 276 | 235 |
+| `/services/` | 21 | 21 | 0 |
+| `/about/` | 13 | 13 | 0 |
+| `/contact/` | 7 | 7 | 0 |
+
+The home page is 180 KB because of the two self-hosted fonts (144 KB). Lighthouse reports 150 to 158 KB transferred per page; it counts differently (compressed responses, no favicon).
+| — | 7 | Deployment preparation: Terraform, hosting choice, canonical URL, sitemap, HTTP compression, security headers | Not run | Phase 7 |

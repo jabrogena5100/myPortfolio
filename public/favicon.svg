@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="JA monogram">
+  <rect width="32" height="32" rx="6" fill="#151310"/>
+  <rect x="6" y="25" width="20" height="2" fill="#d98b55"/>
+  <text x="16" y="21" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="15" fill="#ece6d9">JA</text>
+</svg>

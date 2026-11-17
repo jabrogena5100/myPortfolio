@@ -31,13 +31,14 @@ import { site, contact } from '../../data/site';
       <h3>What I do</h3>
       <ul>
         <li><strong>Decide scope and tradeoffs.</strong> Each project keeps a decision log that records what was chosen and what it cost.</li>
-        <li><strong>Run the consequential commands.</strong> On this portfolio and on RyuStoreFront I run Git, AWS and Terraform commands myself; the assistant proposes them and does not deploy or commit.</li>
+        <li><strong>Run the consequential commands where I can.</strong> On RyuCloud, RyuStoreFront and this portfolio I run the Git, AWS and Terraform commands myself; the assistant proposes them and does not deploy or commit. The wildfire project worked differently, as described below.</li>
         <li><strong>Treat AI-written code as unverified until it is tested.</strong> Results are labelled by how they were obtained: run, user-reported, documented or not run.</li>
         <li><strong>Check AI findings against the data.</strong> On the wildfire project I chose the Boreal dataset, examined its limitations, and ran the synthetic and external evaluations. I treat the AI audits as input that I checked, not as independent review.</li>
         <li><strong>Read claims before they are published.</strong> Every number on this site is traced to a project's own evidence file, and each case study says which results I did not re-run.</li>
       </ul>
-      <h3>One disclosure that matters</h3>
-      <p>On the wildfire project, GPU training ran under a written budget ($100 in total, $20 per experiment) that the project's own notes call an "autonomous" allowance, with the budget gate written into the code. I do not claim to have hand-written every line of any project. I claim the design decisions, the verification discipline and the honesty of what is reported here.</p>
+      <h3>How the wildfire project worked</h3>
+      <p>On the wildfire project, Claude Code launched the RunPod sessions itself through an MCP server, inside a written budget ($100 in total, $20 per experiment) with the budget gate written into the code. Most of the paid time was on GPU pods (RTX 4090, according to the project's records), with some CPU time, for example to generate the synthetic dataset and to arrange the external test datasets. When a run finished, Claude Code analysed the results and suggested what to try next, and I approved each next step. We also tried to add scheduled cost-control jobs on GitHub Actions; they never worked.</p>
+      <p>I do not claim to have hand-written every line of any project. I claim the design decisions, the verification discipline and the honesty of what is reported here.</p>
     </Section>
 
     <Section id="experience" title="Experience and resume">

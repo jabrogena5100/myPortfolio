@@ -126,7 +126,7 @@ import { site, services, projects, verifyTerms, capabilities, contact, hasContac
   .hero h1 { font-size: var(--step-5); }
   .intro { color: var(--color-text-muted); max-width: var(--measure); font-size: var(--step-1); margin: var(--space-5) 0 0; }
   .cta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-5); margin: var(--space-6) 0 0; }
-  .btn { display: inline-flex; align-items: center; min-height: 48px; padding: 0 var(--space-6); background: var(--color-accent); color: var(--color-bg); text-decoration: none; font-weight: 600; border-radius: var(--radius-sm); transition: background var(--duration-fast) var(--ease-out); }
+  .btn { display: inline-flex; align-items: center; min-height: 48px; padding: 0 var(--space-6); border: 2px solid transparent; box-sizing: border-box; /* transparent border becomes visible in forced-colors mode */ background: var(--color-accent); color: var(--color-bg); text-decoration: none; font-weight: 600; border-radius: var(--radius-sm); transition: background var(--duration-fast) var(--ease-out); }
   .btn:hover { background: var(--color-accent-hover); color: var(--color-bg); }
   .link { display: inline-block; padding: var(--space-3) 0; }
 
