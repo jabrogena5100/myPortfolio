@@ -55,24 +55,25 @@ Not yet supportable: distributed systems, AI-enabled systems, UAV/perception. Wa
 - Editorial layout: large type, generous whitespace, numbered sections, diagrams as hand-built inline SVG (legible, themeable, no screenshots of diagrams).
 - Motion: CSS only (View Transitions API for page change, small opacity/translate reveals via `IntersectionObserver` or CSS scroll-driven animations where supported), full `prefers-reduced-motion` support. No animation library without a written justification.
 
-## D5. 21st.dev components — **Proposed shortlist, nothing installed**
+## D5. 21st.dev components: **Proposed: borrow patterns, install no component code**
 
-The 21st.dev MCP server is **not available in this session** (no such tool is exposed), so I used the public site. Component pages were read through a subagent; source code was **not** visible without a 21st.dev API key (install commands require `API_KEY_21ST`), and I have not created one. So I have not inspected any component's actual code and claim no code review.
+**Access (2026-11-17).** The 21st.dev MCP server (`mcp__21st-dev__*`) connected after the owner registered it with local scope. I used only `search` (free) and `get_component` (source and demo; the account reports tier `paid`, quota not limited). Queries were generic phrases ("spotlight card hover", "responsive navbar with mobile menu", "bento grid project showcase", "editorial portfolio hero section minimal"); no project names or personal details were sent. I did not use any of the tools that write, submit, delete or bookmark.
 
-Per the 21st.dev Terms (updated 2026-07-20): the page's per-component "License" field is the only licence signal; components copied elsewhere need a visible link back to the 21st.dev page; demos and previews are owned by 21st Labs.
+**Licence limit.** `get_component` returns source, demo and dependencies but **no licence field**. The only licence signal I have is what the public component pages showed (previous subagent read, 2026-11-17: jahed Spotlight Card "unknown"). The 21st.dev Terms (updated 2026-07-20) say component code belongs to its authors, and a copy needs a visible link back to the 21st.dev page. Without a stated licence I will not copy code.
 
-| Component | URL | Page-stated licence | Dependencies listed | Verdict |
+**Source actually read** (3 components):
+
+| Component | URL | Dependencies | Findings from the source | Decision |
 | --- | --- | --- | --- | --- |
-| Spotlight Card (Hossain Jahed) | https://21st.dev/@jahed/components/spotlight-card | **unknown** | none listed (CSS custom properties) | Do not copy. The idea is a pointer-tracked radial gradient, about 15 lines of CSS and JS; write our own and credit the pattern |
-| Container Scroll Animation (Manu Arora, Aceternity UI) | https://21st.dev/@manuarora700/components/container-scroll-animation | mit | `framer-motion` | Probably **skip**: a 3D scroll tilt is exactly the "template" effect to avoid, and it forces a large animation library |
-| Scroll Morph Hero (Prashant Som) | https://21st.dev/@prashantsom75/components/scroll-morph-hero | unknown | `framer-motion` | **Reject**: unknown licence, heavy, decorative |
-| Animated hero (Tommy Jepsen) | https://21st.dev/@tommyjepsen/components/animated-hero | mit | `framer-motion`, `lucide-react`, shadcn buttons | **Reject** for the same reason, but its rotating headline word pattern is not needed anyway |
-| Motion Footer (Hossain Jahed) | https://21st.dev/@jahed/components/motion-footer | unknown | `gsap` (ScrollTrigger) | **Reject**: unknown licence plus GSAP |
-| Bento / gallery / navbar candidates | listed in the notes below | **not checked** | not checked | Need a per-component look before any decision |
+| Spotlight Card (jahed, EaseMize) id 2487 | https://21st.dev/@jahed/components/spotlight-card | none (React only) | Registers a `pointermove` listener on `document` **per card**; uses `background-attachment: fixed` and a 3:4 aspect default; injects CSS through `dangerouslySetInnerHTML` on each render; presets are blue/purple/green/red/orange hues (the glow hue shifts with pointer X, a rainbow effect that fights our palette). Page licence "unknown" | **Do not use.** Reimplement the idea: a single delegated pointer listener sets two CSS variables on the hovered card, a copper radial gradient, `(hover: hover)` and `prefers-reduced-motion` guards. Roughly 20 lines |
+| Spotlight (ibelick) id 1500 | https://21st.dev/@ibelick/components/spotlight | `framer-motion`, shadcn `cn` | Bug: `removeEventListener` is passed fresh arrow functions, so the `mouseenter`/`mouseleave` listeners are never removed. Mutates the parent's `style.position` and `overflow` | **Reject**: leaks listeners and forces a large animation library for a gradient |
+| Editorial Hero (felipemenezes098) id 19075 | https://21st.dev/@felipemenezes098/components/hero-05 | `motion`, `react-wrap-balancer`, `@radix-ui/react-slot`, `class-variance-authority` | Good layout: small tagline left, large serif headline right on a 12-column grid, wide image below. Entrance uses blur-in staggered reveals and respects `useReducedMotion` | **Borrow the composition only.** Build in Astro with CSS grid and `text-wrap: balance`; no blur-in effect, no motion library |
 
-Candidate categories read (listings only; licences and responsiveness not checked): bento (`https://21st.dev/community/components/s/grid`), gallery/portfolio (`/s/gallery`), navigation (`/s/navigation-menu`).
+**Surveyed by search listing only** (no source read, no licence check): bento grids (kokonutd `bento-grid`, designali-in `bento-grid`, 0xUrvish `magnified-bento`), navbars (shadcnblockscom `navbar1`, preetsuthar17 `navbar-1`, ruixen.ui `floating-nav`), and the five brief patterns from the earlier read (Container Scroll Animation: `framer-motion`, listed "mit"; Scroll Morph Hero and Motion Footer: unknown licence, `framer-motion` / `gsap`). Not adopting any of them.
 
-**Honest conclusion.** The five "popular" patterns are mostly scroll-spectacle heroes that conflict with the brief's "restrained" requirement and your preference for lightweight CSS. Recommended: adopt **patterns, not code**, for (a) the spotlight hover on project cards (own CSS), and (b) a bento/asymmetric grid for the home capabilities block. Take at most one real component (a navbar or gallery with an `mit` licence) after reading its source. I need your decision on whether to create a 21st.dev API key (free tier has a daily install limit) so I can read source before choosing.
+**Why nothing is installed.** The adopted ideas are small enough that a dependency would cost more than the code: a pointer spotlight is about 20 lines, an editorial grid is plain CSS, and navigation for a 6-page site is a native `<nav>` plus a `<details>`/`<dialog>` mobile menu (the approach RyuStoreFront took, `docs/decisions.md` there). This keeps the bundle near zero JS, avoids unlicensed code and avoids the `shadcn` toolchain. Where a pattern is borrowed, `design/COMPONENT-NOTES.md` (Phase 1) will credit the 21st.dev page as inspiration and state that no code was copied.
+
+**Honest summary.** The five popular components you named were all evaluated. None fits the brief's "restrained" requirement and licence standard. If you still want one installed, say which and I will read its source and licence first.
 
 ## D6. Open items blocking later phases (not Phase 1)
 
