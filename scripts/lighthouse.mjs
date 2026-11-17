@@ -11,8 +11,8 @@ const PORT = 4322;
 // LH_BASE_URL points the run at a deployed site (for example https://xxxx.cloudfront.net) instead of the local preview.
 const EXTERNAL = process.env.LH_BASE_URL?.replace(/\/$/, '');
 const BASE = EXTERNAL || `http://127.0.0.1:${PORT}`;
-const PAGES = ['/', '/projects/', '/projects/ryustorefront/', '/projects/ryucloud/', '/projects/wildfire-monitoring/', '/services/', '/about/', '/contact/'];
-const REPEAT_HOME = 3; // home page mobile is repeated to show run-to-run variance
+const PAGES = process.env.LH_PAGES ? process.env.LH_PAGES.split(',') : ['/', '/projects/', '/projects/ryustorefront/', '/projects/ryucloud/', '/projects/wildfire-monitoring/', '/services/', '/about/', '/contact/'];
+const REPEAT_HOME = process.env.LH_PAGES ? 1 : 3; // home page mobile is repeated to show run-to-run variance
 const CATEGORIES = ['performance', 'accessibility', 'best-practices', 'seo'];
 
 const server = EXTERNAL ? null : spawn('npx', ['astro', 'preview', '--port', String(PORT), '--host', '127.0.0.1'], { stdio: 'ignore' });

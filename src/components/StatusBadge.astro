@@ -1,14 +1,16 @@
 ---
 import { statusLabel, type Status } from '../data/facts';
+import Icon from './Icon.astro';
 interface Props { status: Status }
 const { status } = Astro.props;
+const icon = { run: 'circle-check', 'user-reported': 'user-check', documented: 'file-text', 'not-run': 'circle-dashed' } as const;
 ---
-<span class={`badge ${status}`}>{statusLabel[status]}</span>
+<span class={`badge ${status}`}><Icon name={icon[status]} size={12} />{statusLabel[status]}</span>
 
 <style>
-  .badge { display: inline-block; font-size: var(--step--1); letter-spacing: 0.06em; text-transform: uppercase; padding: 1px var(--space-2); border: 1px solid currentColor; border-radius: var(--radius-sm); white-space: nowrap; line-height: 1.5; }
-  .run { color: var(--color-sage); }
-  .user-reported { color: var(--color-accent); }
+  .badge { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono-stack); font-size: 0.75rem; letter-spacing: 0.04em; text-transform: uppercase; padding: 1px var(--space-2); border: 1px solid currentColor; border-radius: 999px; white-space: nowrap; line-height: 1.6; }
+  .run { color: var(--color-accent); }
+  .user-reported { color: var(--color-amber); }
   .documented { color: var(--color-text-muted); }
   .not-run { color: var(--color-text-muted); border-style: dashed; }
 </style>

@@ -1,0 +1,449 @@
+{
+  "date": "2026-11-17",
+  "lighthouse": "13.6.0",
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
+  "throttling": "simulate",
+  "formFactor": "mobile",
+  "target": "local astro preview",
+  "note": "Local run against `astro preview` (no CDN, no HTTP compression). Mobile preset uses simulated slow-4G and 4x CPU slowdown; desktop preset uses the desktop config. Chromium only. One run per page and preset, except the home page on mobile (3 runs).",
+  "results": [
+    {
+      "path": "/",
+      "preset": "mobile",
+      "repeat": 1,
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp_ms": 953,
+        "lcp_ms": 953,
+        "tbt_ms": 19,
+        "cls": 0,
+        "speed_index_ms": 953,
+        "transfer_bytes": 157251
+      },
+      "failing": [
+        "max-potential-fid=0.98",
+        "network-dependency-tree-insight=0",
+        "render-blocking-insight=0"
+      ]
+    },
+    {
+      "path": "/projects/",
+      "preset": "mobile",
+      "repeat": 1,
+      "scores": {
+        "performance": 90,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp_ms": 1020,
+        "lcp_ms": 1020,
+        "tbt_ms": 427,
+        "cls": 0,
+        "speed_index_ms": 1665,
+        "transfer_bytes": 153991
+      },
+      "failing": [
+        "total-blocking-time=0.65",
+        "max-potential-fid=0.15",
+        "mainthread-work-breakdown=0",
+        "bootup-time=0.5",
+        "network-dependency-tree-insight=0",
+        "render-blocking-insight=0"
+      ]
+    },
+    {
+      "path": "/projects/ryustorefront/",
+      "preset": "mobile",
+      "repeat": 1,
+      "scores": {
+        "performance": 99,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp_ms": 942,
+        "lcp_ms": 942,
+        "tbt_ms": 139,
+        "cls": 0,
+        "speed_index_ms": 942,
+        "transfer_bytes": 163500
+      },
+      "failing": [
+        "total-blocking-time=0.95",
+        "max-potential-fid=0.74",
+        "mainthread-work-breakdown=0",
+        "network-dependency-tree-insight=0",
+        "render-blocking-insight=0"
+      ]
+    },
+    {
+      "path": "/projects/ryucloud/",
+      "preset": "mobile",
+      "repeat": 1,
+      "scores": {
+        "performance": 77,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp_ms": 1004,
+        "lcp_ms": 1004,
+        "tbt_ms": 1102,
+        "cls": 0,
+        "speed_index_ms": 2502,
+        "transfer_bytes": 162360
+      },
+      "failing": [
+        "speed-index=0.98",
+        "total-blocking-time=0.23",
+        "max-potential-fid=0.01",
+        "interactive=0.91",
+        "mainthread-work-breakdown=0",
+        "network-dependency-tree-insight=0",
+        "render-blocking-insight=0"
+      ]
+    },
+    {
+      "path": "/projects/wildfire-monitoring/",
+      "preset": "mobile",
+      "repeat": 1,
+      "scores": {
+        "performance": 99,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp_ms": 966,
+        "lcp_ms": 966,
+        "tbt_ms": 147,
+        "cls": 0,
+        "speed_index_ms": 966,
+        "transfer_bytes": 163726
+      },
+      "failing": [
+        "total-blocking-time=0.95",
+        "max-potential-fid=0.74",
+        "mainthread-work-breakdown=0",
+        "network-dependency-tree-insight=0",
+        "render-blocking-insight=0"
+      ]
+    },
+    {
+      "path": "/services/",
+      "preset": "mobile",
+      "repeat": 1,
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp_ms": 938,
+        "lcp_ms": 938,
+        "tbt_ms": 54,
+        "cls": 0,
+        "speed_index_ms": 938,
+        "transfer_bytes": 157257
+      },
+      "failing": [
+        "max-potential-fid=0.85",
+        "network-dependency-tree-insight=0",
+        "render-blocking-insight=0"
+      ]
+    },
+    {
+      "path": "/about/",
+      "preset": "mobile",
+      "repeat": 1,
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp_ms": 944,
+        "lcp_ms": 944,
+        "tbt_ms": 9,
+        "cls": 0,
+        "speed_index_ms": 944,
+        "transfer_bytes": 153520
+      },
+      "failing": [
+        "max-potential-fid=0.99",
+        "network-dependency-tree-insight=0",
+        "render-blocking-insight=0"
+      ]
+    },
+    {
+      "path": "/contact/",
+      "preset": "mobile",
+      "repeat": 1,
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp_ms": 928,
+        "lcp_ms": 928,
+        "tbt_ms": 16,
+        "cls": 0,
+        "speed_index_ms": 928,
+        "transfer_bytes": 151010
+      },
+      "failing": [
+        "max-potential-fid=0.99",
+        "network-dependency-tree-insight=0",
+        "render-blocking-insight=0"
+      ]
+    },
+    {
+      "path": "/",
+      "preset": "desktop",
+      "repeat": 1,
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp_ms": 322,
+        "lcp_ms": 322,
+        "tbt_ms": 0,
+        "cls": 0,
+        "speed_index_ms": 647,
+        "transfer_bytes": 157251
+      },
+      "failing": [
+        "max-potential-fid=0.97",
+        "network-dependency-tree-insight=0",
+        "render-blocking-insight=0"
+      ]
+    },
+    {
+      "path": "/projects/",
+      "preset": "desktop",
+      "repeat": 1,
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp_ms": 326,
+        "lcp_ms": 326,
+        "tbt_ms": 0,
+        "cls": 0,
+        "speed_index_ms": 327,
+        "transfer_bytes": 153991
+      },
+      "failing": [
+        "network-dependency-tree-insight=0",
+        "render-blocking-insight=0"
+      ]
+    },
+    {
+      "path": "/projects/ryustorefront/",
+      "preset": "desktop",
+      "repeat": 1,
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp_ms": 266,
+        "lcp_ms": 266,
+        "tbt_ms": 0,
+        "cls": 0,
+        "speed_index_ms": 390,
+        "transfer_bytes": 163500
+      },
+      "failing": [
+        "network-dependency-tree-insight=0",
+        "render-blocking-insight=0"
+      ]
+    },
+    {
+      "path": "/projects/ryucloud/",
+      "preset": "desktop",
+      "repeat": 1,
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp_ms": 267,
+        "lcp_ms": 267,
+        "tbt_ms": 0,
+        "cls": 0,
+        "speed_index_ms": 333,
+        "transfer_bytes": 162360
+      },
+      "failing": [
+        "network-dependency-tree-insight=0",
+        "render-blocking-insight=0"
+      ]
+    },
+    {
+      "path": "/projects/wildfire-monitoring/",
+      "preset": "desktop",
+      "repeat": 1,
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp_ms": 350,
+        "lcp_ms": 350,
+        "tbt_ms": 14,
+        "cls": 0,
+        "speed_index_ms": 683,
+        "transfer_bytes": 163726
+      },
+      "failing": [
+        "max-potential-fid=0.99",
+        "network-dependency-tree-insight=0",
+        "render-blocking-insight=0"
+      ]
+    },
+    {
+      "path": "/services/",
+      "preset": "desktop",
+      "repeat": 1,
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp_ms": 278,
+        "lcp_ms": 278,
+        "tbt_ms": 0,
+        "cls": 0,
+        "speed_index_ms": 300,
+        "transfer_bytes": 157257
+      },
+      "failing": [
+        "network-dependency-tree-insight=0",
+        "render-blocking-insight=0"
+      ]
+    },
+    {
+      "path": "/about/",
+      "preset": "desktop",
+      "repeat": 1,
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp_ms": 278,
+        "lcp_ms": 278,
+        "tbt_ms": 0,
+        "cls": 0,
+        "speed_index_ms": 461,
+        "transfer_bytes": 153520
+      },
+      "failing": [
+        "network-dependency-tree-insight=0",
+        "render-blocking-insight=0"
+      ]
+    },
+    {
+      "path": "/contact/",
+      "preset": "desktop",
+      "repeat": 1,
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp_ms": 297,
+        "lcp_ms": 297,
+        "tbt_ms": 0,
+        "cls": 0,
+        "speed_index_ms": 320,
+        "transfer_bytes": 151010
+      },
+      "failing": [
+        "network-dependency-tree-insight=0",
+        "render-blocking-insight=0"
+      ]
+    },
+    {
+      "path": "/",
+      "preset": "mobile",
+      "repeat": 2,
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp_ms": 946,
+        "lcp_ms": 946,
+        "tbt_ms": 51,
+        "cls": 0,
+        "speed_index_ms": 946,
+        "transfer_bytes": 157251
+      },
+      "failing": [
+        "max-potential-fid=0.87",
+        "network-dependency-tree-insight=0",
+        "render-blocking-insight=0"
+      ]
+    },
+    {
+      "path": "/",
+      "preset": "mobile",
+      "repeat": 3,
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "fcp_ms": 924,
+        "lcp_ms": 924,
+        "tbt_ms": 89,
+        "cls": 0,
+        "speed_index_ms": 924,
+        "transfer_bytes": 157251
+      },
+      "failing": [
+        "total-blocking-time=0.99",
+        "max-potential-fid=0.75",
+        "network-dependency-tree-insight=0",
+        "render-blocking-insight=0"
+      ]
+    }
+  ]
+}

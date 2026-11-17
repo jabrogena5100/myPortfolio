@@ -1,24 +1,30 @@
 ---
 import Base from '../layouts/Base.astro';
 import SpotlightCard from '../components/SpotlightCard.astro';
+import Icon from '../components/Icon.astro';
+import StatusBadge from '../components/StatusBadge.astro';
 import { site, services, projects, verifyTerms, capabilities, contact, hasContact } from '../data/site';
+import { siteChecks } from '../data/checks';
+const serviceIcons = ['server', 'cloud', 'flask'] as const;
+const spec = [['projects', '3'], ['AWS stacks', '2, destroyed after testing'], ['live demos', 'none (domains down)'], ['client work', 'none listed']];
 ---
 <Base
   title={`${site.name}: ${site.role}`}
   description="Backend systems that stay correct under retries and failure, and the AWS infrastructure to run them. Three projects with their evidence."
 >
   <section class="hero">
-    <div class="container grid">
-      <p class="tag">{site.role}<br />{site.since}</p>
-      <div class="main">
-        <h1>{site.positioning}</h1>
-        <p class="intro">{site.intro}</p>
-        <p class="cta">
-          <a class="btn" href="#projects">See the projects</a>
-          <a class="link" href="/contact/">Contact</a>
-          {contact.resumeUrl && <a class="link" href={contact.resumeUrl}>Resume (PDF)</a>}
-        </p>
-      </div>
+    <div class="container">
+      <p class="chip mono"><span class="dot" aria-hidden="true"></span>{site.role} &middot; {site.since}</p>
+      <h1>{site.positioning}</h1>
+      <p class="intro">{site.intro}</p>
+      <p class="cta">
+        <a class="btn" href="#projects">See the projects <Icon name="arrow-right" size={16} /></a>
+        <a class="btn ghost" href="/contact/">Contact</a>
+        {contact.resumeUrl && <a class="btn ghost" href={contact.resumeUrl}>Resume (PDF)</a>}
+      </p>
+      <dl class="spec mono">
+        {spec.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}
+      </dl>
     </div>
   </section>
 
@@ -28,18 +34,17 @@ import { site, services, projects, verifyTerms, capabilities, contact, hasContac
         <p class="eyebrow">What I can do for you</p>
         <h2 id="services-h">Three services, each tied to evidence</h2>
       </div>
-      <ol class="services">
-        {services.map((s) => (
+      <ul class="svc">
+        {services.map((sv, i) => (
           <li>
-            <span class="n" aria-hidden="true">{s.n}</span>
-            <div>
-              <h3>{s.title}</h3>
-              <p>{s.body}</p>
-              <p class="meta"><strong>Evidence:</strong> {s.proof} <strong>Limit:</strong> {s.limit}</p>
-            </div>
+            <span class="ico"><Icon name={serviceIcons[i]} size={18} /></span>
+            <h3>{sv.title}</h3>
+            <p>{sv.body}</p>
+            <p class="meta mono"><span>evidence</span> {sv.proof}</p>
+            <p class="meta mono"><span>limit</span> {sv.limit}</p>
           </li>
         ))}
-      </ol>
+      </ul>
       <p class="more"><a href="/services/">More on services</a></p>
     </div>
   </section>
@@ -60,9 +65,9 @@ import { site, services, projects, verifyTerms, capabilities, contact, hasContac
                 <h3><a class="stretch" href={`/projects/${p.slug}/`}>{p.name}</a></h3>
                 <p>{p.problem}</p>
                 <p class="status"><span class="sr">Status: </span>{p.status}</p>
-                <ul class="ev">{p.evidence.map((e) => <li>{e}</li>)}</ul>
-                <p class="stack">{p.stack}</p>
-                <p class="go" aria-hidden="true">Read the case study &rarr;</p>
+                <ul class="ev">{p.evidence.map((e) => <li><Icon name="check" size={14} /><span>{e}</span></li>)}</ul>
+                <p class="stack mono">{p.stack}</p>
+                <p class="go" aria-hidden="true">Read the case study <Icon name="arrow-right" size={14} /></p>
               </article>
             </SpotlightCard>
           </li>
@@ -77,6 +82,19 @@ import { site, services, projects, verifyTerms, capabilities, contact, hasContac
         <p class="eyebrow">How I verify</p>
         <h2 id="verify-h">Every result says how it was obtained</h2>
         <p class="lede">I label each claim so you can tell a test I ran from a number I only recorded. Where something was not done, I say so.</p>
+      </div>
+      <div class="panel" role="region" aria-label="This site's own checks">
+        <p class="panel-h mono">this site's own checks</p>
+        <ul class="checks">
+          {siteChecks.map((c) => (
+            <li>
+              <span class="lbl">{c.label}</span>
+              <span class="res mono">{c.result}</span>
+              <span class="ctx">{c.context}</span>
+              <span class="st"><StatusBadge status={c.status} /> <span class="d mono">{c.date}</span></span>
+            </li>
+          ))}
+        </ul>
       </div>
       <dl class="terms">
         {verifyTerms.map((t) => (
@@ -120,42 +138,60 @@ import { site, services, projects, verifyTerms, capabilities, contact, hasContac
 
 <style>
   .hero { padding-block: var(--space-8) var(--space-7); }
-  .hero .grid { display: grid; gap: var(--space-5); }
-  .hero .grid::before { content: ''; display: block; height: 2px; width: 72px; background: var(--color-accent); }
-  .tag { margin: 0; color: var(--color-text-muted); font-size: var(--step--1); letter-spacing: 0.08em; text-transform: uppercase; line-height: 1.8; }
-  .hero h1 { font-size: var(--step-5); }
-  .intro { color: var(--color-text-muted); max-width: var(--measure); font-size: var(--step-1); margin: var(--space-5) 0 0; }
-  .cta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-5); margin: var(--space-6) 0 0; }
-  .btn { display: inline-flex; align-items: center; min-height: 48px; padding: 0 var(--space-6); border: 2px solid transparent; box-sizing: border-box; /* transparent border becomes visible in forced-colors mode */ background: var(--color-accent); color: var(--color-bg); text-decoration: none; font-weight: 600; border-radius: var(--radius-sm); transition: background var(--duration-fast) var(--ease-out); }
+  .chip { display: inline-flex; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-5); padding: 4px var(--space-3); border: 1px solid var(--color-border); border-radius: 999px; background: var(--color-surface-1); color: var(--color-text-muted); font-size: 0.75rem; letter-spacing: 0.02em; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-accent); }
+  .hero h1 { font-size: var(--step-5); max-width: 18ch; }
+  .intro { color: var(--color-text-muted); max-width: 62ch; font-size: var(--step-1); line-height: 1.55; margin: var(--space-5) 0 0; }
+  .cta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin: var(--space-6) 0 0; }
+  .btn { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 44px; padding: 0 var(--space-5); background: var(--color-accent); color: var(--color-bg); text-decoration: none; font-weight: 600; border-radius: var(--radius-md); border: 1px solid transparent; box-sizing: border-box; /* the transparent border shows in forced-colors mode */ transition: background var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out); }
   .btn:hover { background: var(--color-accent-hover); color: var(--color-bg); }
-  .link { display: inline-block; padding: var(--space-3) 0; }
+  .btn.ghost { background: transparent; color: var(--color-text); border-color: var(--color-border-strong); }
+  .btn.ghost:hover { border-color: var(--color-text-muted); background: var(--color-surface-1); color: var(--color-text); }
+  .spec { display: grid; grid-template-columns: repeat(2, 1fr); margin: var(--space-7) 0 0; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-1); overflow: hidden; }
+  .spec div { padding: var(--space-4); border-bottom: 1px solid var(--color-border); }
+  .spec div:nth-child(odd) { border-right: 1px solid var(--color-border); }
+  .spec div:nth-last-child(-n+2) { border-bottom: 0; }
+  .spec dt { color: var(--color-text-muted); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; }
+  .spec dd { margin: var(--space-1) 0 0; color: var(--color-text); font-size: var(--step--1); }
 
   .lede { color: var(--color-text-muted); max-width: var(--measure); margin: 0; }
-  .services { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--color-border); }
-  .services li { display: grid; grid-template-columns: 3rem 1fr; gap: var(--space-4); padding-block: var(--space-6); border-bottom: 1px solid var(--color-border); }
-  .services .n { font-family: var(--font-display-stack); font-size: var(--step-3); color: var(--color-accent); line-height: 1; }
-  .services h3 { font-size: var(--step-1); }
-  .services p { margin: var(--space-3) 0 0; max-width: var(--measure); }
-  .services .meta { color: var(--color-text-muted); font-size: var(--step--1); }
+  .svc { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); }
+  .svc li { padding: var(--space-5); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-1); display: flex; flex-direction: column; gap: var(--space-3); }
+  .ico { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: var(--radius-sm); background: var(--color-surface-2); color: var(--color-accent); border: 1px solid var(--color-border); }
+  .svc h3 { font-size: var(--step-1); }
+  .svc p { margin: 0; }
+  .svc .meta { color: var(--color-text-muted); font-size: 0.8125rem; line-height: 1.5; }
+  .svc .meta span { display: inline-block; margin-right: var(--space-2); color: var(--color-amber); text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.6875rem; }
   .more { margin-top: var(--space-5); }
 
-  .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-5); }
-  .card { padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-3); height: 100%; box-sizing: border-box; position: relative; }
-  .card h3 { font-family: var(--font-display-stack); font-weight: 400; font-size: var(--step-3); }
+  .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); }
+  .card { padding: var(--space-5); display: flex; flex-direction: column; gap: var(--space-3); height: 100%; box-sizing: border-box; position: relative; background: var(--color-surface-1); }
+  .card h3 { font-size: var(--step-2); }
   .card p { margin: 0; }
   .stretch { color: var(--color-text); text-decoration: none; }
   .stretch::after { content: ''; position: absolute; inset: 0; }
   .stretch:hover { color: var(--color-accent-hover); }
-  .ev li::marker { color: var(--color-accent); }
-  .status { color: var(--color-sage); font-size: var(--step--1); }
-  .ev { list-style: disc; margin: var(--space-2) 0 0; padding-left: var(--space-5); color: var(--color-text-muted); font-size: var(--step--1); display: grid; gap: var(--space-2); }
-  .stack { color: var(--color-text-subtle); font-size: var(--step--1); margin-top: auto !important; padding-top: var(--space-3) !important; }
-  .go { color: var(--color-accent); font-size: var(--step--1); }
+  .status { color: var(--color-accent); font-size: var(--step--1); }
+  .ev { list-style: none; margin: var(--space-2) 0 0; padding: 0; color: var(--color-text-muted); font-size: var(--step--1); display: grid; gap: var(--space-3); }
+  .ev li { display: grid; grid-template-columns: 14px 1fr; gap: var(--space-2); align-items: start; }
+  .ev li :global(svg) { margin-top: 3px; color: var(--color-accent); }
+  .stack { color: var(--color-text-subtle); font-size: 0.75rem; margin-top: auto !important; padding-top: var(--space-3) !important; }
+  .go { display: inline-flex; align-items: center; gap: var(--space-2); color: var(--color-accent); font-size: var(--step--1); transition: gap var(--duration-base) var(--ease-out); }
+  .card:hover .go { gap: var(--space-3); }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
-  .terms { display: grid; gap: var(--space-5); margin: 0; }
-  .terms > div { border-top: 2px solid var(--color-border); padding-top: var(--space-4); }
-  .terms dt { font-family: var(--font-display-stack); font-size: var(--step-2); color: var(--color-sage); }
+  .panel { border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-1); overflow: hidden; margin-bottom: var(--space-6); }
+  .panel-h { margin: 0; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-border); background: var(--color-surface-2); color: var(--color-text-muted); font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; }
+  .checks { list-style: none; margin: 0; padding: 0; }
+  .checks li { display: grid; gap: var(--space-1); padding: var(--space-4); border-bottom: 1px solid var(--color-border); }
+  .checks li:last-child { border-bottom: 0; }
+  .lbl { font-weight: 600; }
+  .res { color: var(--color-accent); white-space: nowrap; }
+  .ctx { color: var(--color-text-muted); font-size: var(--step--1); }
+  .st { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-1); }
+  .d { color: var(--color-text-muted); font-size: 0.75rem; }
+  .terms { display: grid; gap: var(--space-4); margin: 0; }
+  .terms > div { border-top: 1px solid var(--color-border); padding-top: var(--space-4); }
   .terms dd { margin: var(--space-2) 0 0; }
   .ex { color: var(--color-text-muted); font-size: var(--step--1); display: inline-block; margin-top: var(--space-2); }
 
@@ -163,22 +199,24 @@ import { site, services, projects, verifyTerms, capabilities, contact, hasContac
   .caps h3 { font-size: var(--step-0); margin-bottom: var(--space-3); }
   .caps ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
   .caps li { color: var(--color-text); border-top: 1px solid var(--color-border); padding-top: var(--space-3); }
-  .where { display: block; color: var(--color-text-muted); font-size: var(--step--1); }
+  .where { display: block; color: var(--color-text-muted); font-family: var(--font-mono-stack); font-size: 0.75rem; }
 
   .closing h2 { font-size: var(--step-4); }
   .closing .lede { margin-top: var(--space-4); }
 
   @media (min-width: 48rem) {
+    .spec { grid-template-columns: repeat(4, 1fr); }
+    .spec div { border-bottom: 0; border-right: 1px solid var(--color-border); }
+    .spec div:last-child { border-right: 0; }
+    .svc { grid-template-columns: repeat(3, 1fr); }
     .terms { grid-template-columns: repeat(2, 1fr); }
     .caps { grid-template-columns: repeat(2, 1fr); }
+    .checks li { grid-template-columns: 11rem 14rem 1fr auto; align-items: center; gap: var(--space-4); }
+    .st { margin-top: 0; }
   }
   @media (min-width: 64rem) {
-    .hero .grid { grid-template-columns: repeat(12, 1fr); column-gap: var(--space-5); }
-    .hero .grid::before { grid-column: 1 / -1; }
-    .tag { grid-column: 1 / span 4; align-self: end; }
-    .main { grid-column: 5 / span 8; }
-    .caps { grid-template-columns: repeat(4, 1fr); }
     .cards { grid-template-columns: repeat(3, 1fr); }
     .terms { grid-template-columns: repeat(4, 1fr); }
+    .caps { grid-template-columns: repeat(4, 1fr); }
   }
 </style>

@@ -12,20 +12,23 @@
       "preset": "mobile",
       "repeat": 1,
       "scores": {
-        "performance": 100,
+        "performance": 96,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 938,
-        "lcp_ms": 938,
-        "tbt_ms": 0,
+        "fcp_ms": 1051,
+        "lcp_ms": 1051,
+        "tbt_ms": 224,
         "cls": 0,
-        "speed_index_ms": 938,
-        "transfer_bytes": 157618
+        "speed_index_ms": 1695,
+        "transfer_bytes": 157251
       },
       "failing": [
+        "total-blocking-time=0.87",
+        "max-potential-fid=0.3",
+        "mainthread-work-breakdown=0",
         "network-dependency-tree-insight=0",
         "render-blocking-insight=0"
       ]
@@ -41,16 +44,17 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 1041,
-        "lcp_ms": 1041,
-        "tbt_ms": 0,
+        "fcp_ms": 959,
+        "lcp_ms": 959,
+        "tbt_ms": 16,
         "cls": 0,
-        "speed_index_ms": 1041,
-        "transfer_bytes": 156206
+        "speed_index_ms": 959,
+        "transfer_bytes": 153991
       },
       "failing": [
+        "max-potential-fid=0.96",
         "mainthread-work-breakdown=0.5",
-        "bootup-time=0.5",
+        "bootup-time=0",
         "network-dependency-tree-insight=0",
         "render-blocking-insight=0"
       ]
@@ -60,21 +64,23 @@
       "preset": "mobile",
       "repeat": 1,
       "scores": {
-        "performance": 100,
+        "performance": 90,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 921,
-        "lcp_ms": 921,
-        "tbt_ms": 31,
+        "fcp_ms": 1004,
+        "lcp_ms": 1004,
+        "tbt_ms": 402,
         "cls": 0,
-        "speed_index_ms": 921,
-        "transfer_bytes": 165663
+        "speed_index_ms": 1552,
+        "transfer_bytes": 163500
       },
       "failing": [
-        "max-potential-fid=0.99",
+        "total-blocking-time=0.68",
+        "max-potential-fid=0.52",
+        "mainthread-work-breakdown=0",
         "network-dependency-tree-insight=0",
         "render-blocking-insight=0"
       ]
@@ -84,21 +90,23 @@
       "preset": "mobile",
       "repeat": 1,
       "scores": {
-        "performance": 100,
+        "performance": 95,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 936,
-        "lcp_ms": 936,
-        "tbt_ms": 32,
+        "fcp_ms": 974,
+        "lcp_ms": 974,
+        "tbt_ms": 253,
         "cls": 0,
-        "speed_index_ms": 936,
-        "transfer_bytes": 164618
+        "speed_index_ms": 1416,
+        "transfer_bytes": 162360
       },
       "failing": [
-        "max-potential-fid=0.98",
+        "total-blocking-time=0.84",
+        "max-potential-fid=0.29",
+        "mainthread-work-breakdown=0",
         "network-dependency-tree-insight=0",
         "render-blocking-insight=0"
       ]
@@ -114,15 +122,16 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 919,
-        "lcp_ms": 919,
-        "tbt_ms": 62,
+        "fcp_ms": 972,
+        "lcp_ms": 972,
+        "tbt_ms": 45,
         "cls": 0,
-        "speed_index_ms": 919,
-        "transfer_bytes": 166045
+        "speed_index_ms": 972,
+        "transfer_bytes": 163726
       },
       "failing": [
-        "max-potential-fid=0.94",
+        "max-potential-fid=0.76",
+        "mainthread-work-breakdown=0",
         "network-dependency-tree-insight=0",
         "render-blocking-insight=0"
       ]
@@ -132,21 +141,23 @@
       "preset": "mobile",
       "repeat": 1,
       "scores": {
-        "performance": 100,
+        "performance": 90,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 919,
-        "lcp_ms": 919,
-        "tbt_ms": 51,
+        "fcp_ms": 970,
+        "lcp_ms": 970,
+        "tbt_ms": 423,
         "cls": 0,
-        "speed_index_ms": 919,
-        "transfer_bytes": 159516
+        "speed_index_ms": 1516,
+        "transfer_bytes": 157257
       },
       "failing": [
-        "max-potential-fid=0.96",
+        "total-blocking-time=0.65",
+        "max-potential-fid=0.52",
+        "mainthread-work-breakdown=0",
         "network-dependency-tree-insight=0",
         "render-blocking-insight=0"
       ]
@@ -162,14 +173,15 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 924,
-        "lcp_ms": 924,
-        "tbt_ms": 0,
+        "fcp_ms": 942,
+        "lcp_ms": 942,
+        "tbt_ms": 11,
         "cls": 0,
-        "speed_index_ms": 924,
-        "transfer_bytes": 156265
+        "speed_index_ms": 942,
+        "transfer_bytes": 153520
       },
       "failing": [
+        "max-potential-fid=0.99",
         "network-dependency-tree-insight=0",
         "render-blocking-insight=0"
       ]
@@ -179,20 +191,22 @@
       "preset": "mobile",
       "repeat": 1,
       "scores": {
-        "performance": 100,
+        "performance": 97,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 920,
-        "lcp_ms": 920,
-        "tbt_ms": 0,
+        "fcp_ms": 941,
+        "lcp_ms": 941,
+        "tbt_ms": 204,
         "cls": 0,
-        "speed_index_ms": 920,
-        "transfer_bytes": 153761
+        "speed_index_ms": 1188,
+        "transfer_bytes": 151010
       },
       "failing": [
+        "total-blocking-time=0.89",
+        "max-potential-fid=0.63",
         "network-dependency-tree-insight=0",
         "render-blocking-insight=0"
       ]
@@ -208,12 +222,12 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 267,
-        "lcp_ms": 267,
+        "fcp_ms": 268,
+        "lcp_ms": 268,
         "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 267,
-        "transfer_bytes": 157618
+        "speed_index_ms": 484,
+        "transfer_bytes": 157251
       },
       "failing": [
         "network-dependency-tree-insight=0",
@@ -231,12 +245,12 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 296,
-        "lcp_ms": 296,
+        "fcp_ms": 298,
+        "lcp_ms": 298,
         "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 296,
-        "transfer_bytes": 156206
+        "speed_index_ms": 325,
+        "transfer_bytes": 153991
       },
       "failing": [
         "network-dependency-tree-insight=0",
@@ -254,16 +268,16 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 304,
-        "lcp_ms": 304,
+        "fcp_ms": 308,
+        "lcp_ms": 308,
         "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 304,
-        "transfer_bytes": 165663
+        "speed_index_ms": 372,
+        "transfer_bytes": 163500
       },
       "failing": [
         "network-dependency-tree-insight=0",
-        "render-blocking-insight=0"
+        "render-blocking-insight=0.5"
       ]
     },
     {
@@ -277,14 +291,15 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 257,
-        "lcp_ms": 257,
-        "tbt_ms": 0,
+        "fcp_ms": 293,
+        "lcp_ms": 293,
+        "tbt_ms": 11,
         "cls": 0,
-        "speed_index_ms": 259,
-        "transfer_bytes": 164618
+        "speed_index_ms": 321,
+        "transfer_bytes": 162360
       },
       "failing": [
+        "max-potential-fid=0.99",
         "network-dependency-tree-insight=0",
         "render-blocking-insight=0"
       ]
@@ -300,16 +315,16 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 279,
-        "lcp_ms": 279,
+        "fcp_ms": 358,
+        "lcp_ms": 358,
         "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 279,
-        "transfer_bytes": 166045
+        "speed_index_ms": 404,
+        "transfer_bytes": 163726
       },
       "failing": [
         "network-dependency-tree-insight=0",
-        "render-blocking-insight=0"
+        "render-blocking-insight=0.5"
       ]
     },
     {
@@ -323,12 +338,12 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 274,
-        "lcp_ms": 274,
+        "fcp_ms": 339,
+        "lcp_ms": 339,
         "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 274,
-        "transfer_bytes": 159516
+        "speed_index_ms": 359,
+        "transfer_bytes": 157257
       },
       "failing": [
         "network-dependency-tree-insight=0",
@@ -346,12 +361,12 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 294,
-        "lcp_ms": 294,
+        "fcp_ms": 280,
+        "lcp_ms": 280,
         "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 294,
-        "transfer_bytes": 156265
+        "speed_index_ms": 316,
+        "transfer_bytes": 153520
       },
       "failing": [
         "network-dependency-tree-insight=0",
@@ -369,12 +384,12 @@
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 283,
-        "lcp_ms": 283,
+        "fcp_ms": 273,
+        "lcp_ms": 273,
         "tbt_ms": 0,
         "cls": 0,
-        "speed_index_ms": 283,
-        "transfer_bytes": 153761
+        "speed_index_ms": 286,
+        "transfer_bytes": 151010
       },
       "failing": [
         "network-dependency-tree-insight=0",
@@ -386,20 +401,22 @@
       "preset": "mobile",
       "repeat": 2,
       "scores": {
-        "performance": 100,
+        "performance": 99,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 913,
-        "lcp_ms": 913,
-        "tbt_ms": 0,
+        "fcp_ms": 934,
+        "lcp_ms": 934,
+        "tbt_ms": 93,
         "cls": 0,
-        "speed_index_ms": 913,
-        "transfer_bytes": 157618
+        "speed_index_ms": 934,
+        "transfer_bytes": 157251
       },
       "failing": [
+        "total-blocking-time=0.98",
+        "max-potential-fid=0.94",
         "network-dependency-tree-insight=0",
         "render-blocking-insight=0"
       ]
@@ -409,20 +426,23 @@
       "preset": "mobile",
       "repeat": 3,
       "scores": {
-        "performance": 100,
+        "performance": 91,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "fcp_ms": 916,
-        "lcp_ms": 916,
-        "tbt_ms": 0,
+        "fcp_ms": 1042,
+        "lcp_ms": 1042,
+        "tbt_ms": 385,
         "cls": 0,
-        "speed_index_ms": 916,
-        "transfer_bytes": 157618
+        "speed_index_ms": 1480,
+        "transfer_bytes": 157251
       },
       "failing": [
+        "total-blocking-time=0.69",
+        "max-potential-fid=0.44",
+        "mainthread-work-breakdown=0",
         "network-dependency-tree-insight=0",
         "render-blocking-insight=0"
       ]
