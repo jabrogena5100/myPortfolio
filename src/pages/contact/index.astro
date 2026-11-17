@@ -1,9 +1,67 @@
 ---
 import Base from '../../layouts/Base.astro';
+import { contact, hasContact } from '../../data/site';
+
+const rows: { label: string; value: string | null; href: string | null }[] = [
+  { label: 'Email', value: contact.email, href: contact.email ? `mailto:${contact.email}` : null },
+  { label: 'GitHub', value: contact.github, href: contact.github },
+  { label: 'LinkedIn', value: contact.linkedin, href: contact.linkedin },
+  { label: 'Resume (PDF)', value: contact.resumeUrl ? 'Download' : null, href: contact.resumeUrl },
+];
 ---
-<Base title="Contact | Joshua Abrogena" description="Contact page in progress (Phase 5). Contact links are placeholders until supplied.">
-  <div class="container" style="padding-block: var(--space-8)">
-    <h1>Contact</h1>
-    <p>Contact page in progress (Phase 5). Contact links are placeholders until supplied.</p>
+<Base
+  title="Contact | Joshua Abrogena"
+  description="How to reach Joshua Abrogena. No form, no analytics and no tracking on this site."
+>
+  <div class="container wrap">
+    <p class="eyebrow">Contact</p>
+    <h1>Talk to me about your system</h1>
+    <p class="lede">I am happy to talk with recruiters, platform and cloud teams, collaborators and anyone with a backend or infrastructure problem.{hasContact ? ' You can reach me through the links below.' : ' My contact details are being added to this page as I set them up.'}</p>
+
+    <section aria-labelledby="where-h">
+      <h2 id="where-h">Where to find me</h2>
+      <dl class="rows">
+        {rows.map((r) => (
+          <div>
+            <dt>{r.label}</dt>
+            <dd>{r.href && r.value ? <a href={r.href}>{r.value}</a> : <span class="todo">To be added.</span>}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+
+    <section aria-labelledby="first-h">
+      <h2 id="first-h">What helps in a first message</h2>
+      <ul>
+        <li>What the system does and where it hurts: duplicates, crashes, a deployment you cannot repeat, a model comparison you do not trust.</li>
+        <li>What you already have: the language, the cloud account setup, and how you test today.</li>
+        <li>What you need to decide, and by when.</li>
+      </ul>
+      <p>I will tell you plainly whether my evidence fits. The <a href="/services/">services page</a> lists what I can show and where it stops.</p>
+    </section>
+
+    <section aria-labelledby="site-h">
+      <h2 id="site-h">What this site does not do</h2>
+      <ul>
+        <li>There is no contact form, so nothing you type is stored by this site.</li>
+        <li>There is no analytics, no tracking and no cookie banner. Pages load only from this site, including fonts.</li>
+      </ul>
+    </section>
   </div>
 </Base>
+
+<style>
+  .wrap { padding-block: var(--space-8) 0; max-width: calc(var(--measure) + 2 * var(--gutter)); margin-inline: auto; }
+  h1 { font-size: var(--step-4); margin-top: var(--space-3); }
+  .lede { color: var(--color-text-muted); max-width: var(--measure); margin: var(--space-4) 0 var(--space-7); }
+  section { padding-block: var(--space-6); border-top: 1px solid var(--color-border); }
+  h2 { font-size: var(--step-2); margin-bottom: var(--space-4); }
+  ul { list-style: disc; padding-left: var(--space-5); max-width: var(--measure); }
+  li { margin-bottom: var(--space-2); }
+  li::marker { color: var(--color-accent); }
+  .rows { margin: 0; display: grid; gap: var(--space-3); }
+  .rows div { display: grid; grid-template-columns: 9rem 1fr; gap: var(--space-4); border-bottom: 1px solid var(--color-border); padding-bottom: var(--space-3); }
+  dt { color: var(--color-text-muted); font-size: var(--step--1); letter-spacing: 0.06em; text-transform: uppercase; align-self: center; }
+  dd { margin: 0; }
+  .todo { color: var(--color-text-muted); }
+</style>

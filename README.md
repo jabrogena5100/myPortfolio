@@ -19,3 +19,11 @@ TTY_FLAGS=-it scripts/web.sh npm run dev   # http://localhost:4321
 - `design/` anti-slop checklist, tokens spec, component notes, review gallery
 
 Status and decisions: `docs/decisions.md`. Every verification result, including what was not run: `docs/verification.md`.
+
+## Fill in contact details and the resume
+
+Edit the `contact` object in `src/data/site.ts` (email, GitHub, LinkedIn, resume URL). Every value is `null` until supplied; the site then shows "To be added." For the resume, copy the PDF into `public/` (for example `public/resume.pdf`) and set `resumeUrl: '/resume.pdf'`. Rebuild and every page updates.
+
+## Checks
+
+`scripts/e2e.sh` builds the site and runs Playwright with axe in the pinned Playwright image. Results and what was not run are in `docs/verification.md`.

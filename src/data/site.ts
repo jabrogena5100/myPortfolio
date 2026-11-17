@@ -13,6 +13,16 @@ export const site = {
     'Payment webhooks, inventory holds, background job workers: the parts of a system where duplicates, crashes and races are the normal case. I build them in Java and Go, test the failure paths, and deploy them to AWS with Terraform and tear them down again. I also studied how to evaluate a smoke-detection model without fooling myself.',
 };
 
+// Fill these in when you have them; every page reads this object. null = not supplied yet,
+// and the site shows "to be added" instead of a link. Nothing here is invented.
+export const contact: { email: string | null; github: string | null; linkedin: string | null; resumeUrl: string | null } = {
+  email: null,      // e.g. 'name@example.com'  (rendered as a mailto link)
+  github: null,     // full URL of your profile
+  linkedin: null,   // full URL of your profile
+  resumeUrl: null,  // e.g. '/resume.pdf' after you add the PDF to public/
+};
+export const hasContact = Boolean(contact.email || contact.github || contact.linkedin);
+
 export const nav = [
   { href: '/projects/', label: 'Projects' },
   { href: '/services/', label: 'Services' },
