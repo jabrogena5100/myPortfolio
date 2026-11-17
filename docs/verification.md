@@ -1,0 +1,13 @@
+# Verification log
+
+Status values: **Run and passed**, **Run and failed**, **User-reported**, **Not run**, **Blocked**.
+
+| Date | Phase | Claim | Status | Evidence |
+| --- | --- | --- | --- | --- |
+| 2026-11-17 | 0 | Sibling repo located at `/home/joshua/RyuStoreFront`; read only | Run and passed | `ls`, `git status` (read-only); no writes made there |
+| 2026-11-17 | 0 | Framework versions on npm: astro 7.4.12, next 16.4.6, tailwindcss 4.3.5, typescript 7.0.2, @playwright/test 1.65.1, @axe-core/playwright 4.14.0, lighthouse 13.6.0 | Run and passed | `curl https://registry.npmjs.org/<pkg>/latest`; astro 7.4.12 published 2026-11-13, next 16.4.6 2026-11-09. Official docs pages not yet read |
+| 2026-11-17 | 0 | RyuStoreFront claims in the brief (Java 25, Spring Boot, Next.js, Terraform ECS/RDS/ALB, tests) match the repo | Run and passed | Code and config read: `pom.xml` (Spring Boot 4.1.2, Java 25), `web/package.json`, `infra/**/*.tf`, 28 test classes listed. Outcomes of its tests were **not** re-run, see evidence file |
+| 2026-11-17 | 0 | 21st.dev popular components inspected | Run and passed (partial) | Listing and component pages read; **source code not visible without an API key**, so no code inspection |
+| 2026-11-17 | 0 | 21st.dev MCP integration | Blocked | No such tool exposed in this session; `aws-mcp` also failed to start (`uvx` not found) |
+| 2026-11-17 | 0 | Node/npm available locally | Blocked | `node`, `npm` not in PATH; Docker 29.9.3 is available, as the sibling project uses. Needs a decision before Phase 2 |
+| — | 2+ | Playwright, axe, Lighthouse, link, contrast, keyboard, reduced-motion checks | Not run | No site exists yet |
