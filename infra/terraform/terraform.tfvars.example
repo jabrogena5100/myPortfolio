@@ -1,11 +1,15 @@
 # Copy to terraform.tfvars (git-ignored) and edit. Nothing here is applied until you run it yourself.
+#
+# RECOMMENDED FIRST PLAN ("Plan A", see docs/deploy/runbook.md): the default CloudFront address
+# plus a cost alert. No domain, no DNS, nothing to undo at a registrar. Expect about 12 resources.
 
 bucket_name = "REPLACE-with-a-globally-unique-lowercase-name"
 
-# Optional custom domain (needs a Route 53 hosted zone you control):
+# Cost alert (recommended). It only emails you; it does not stop spending. The amount is a threshold you choose.
+# Uncomment and set both, or leave both commented. A placeholder fails at plan time on purpose.
+# budget_amount_usd = 5
+# budget_email      = "REPLACE-with-your-email"
+
+# LATER ("Plan C"), once you own a domain with a Route 53 hosted zone. Set both together:
 # domain_name    = "www.example.com"
 # hosted_zone_id = "ZXXXXXXXXXXXXX"
-
-# Optional account-wide monthly cost alert:
-# budget_amount_usd = 5
-# budget_email      = "you@example.com"

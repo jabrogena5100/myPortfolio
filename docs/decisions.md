@@ -191,3 +191,16 @@ Trigger: the owner said the site "looks like a site for books", and supplied a d
 | Motion | CSS only. Hover and focus transitions, CSS View Transitions, and an amber dashed "flow" on key diagram edges (`.d-flow`), static under reduced motion | The brief's "subtle animated request/data flows" are on 6 edges across 3 diagrams, not all |
 | Existing guardrails | Unchanged: evidence rules, status labels, no invented metrics, CSP, accessibility | |
 | **Performance cost, unresolved** | After the redesign, mobile Lighthouse performance was 90 to 100 (before: 99 to 100) and total blocking time under 4x CPU throttling reached 423 ms (before: 62 ms); desktop and the other three categories stayed at 100. Two full runs: 7 of 18 below 100 each time. **The cause was not isolated.** The spread between repeats of the same page (91, 100, 100) is as large as the effect, a test removing `text-wrap: pretty` was inconclusive (reverted), and the VM was visibly slower during these runs (identical checks took 3 to 5 times longer), so the comparison is unreliable | Needs a controlled before/after on a quiet machine and a real-network run after deployment. Suspects, none confirmed: font shaping for two variable fonts, `tabular-nums`, `text-wrap` |
+
+## D14. Recommended Terraform plan (2026-11-17)
+
+The owner asked me to pick the plan I best recommend. I did not run `terraform plan`; that needs the owner's credentials and the owner runs cloud commands. The recommendation is in `docs/deploy/runbook.md` ("Recommended plan").
+
+| Decision | Choice | Tradeoff |
+| --- | --- | --- |
+| First deployment | **Plan A: the default CloudFront address plus a cost alert (about 12 resources), then Plan C (custom domain) later** | The address is random and changes if the distribution is recreated, so it is a validation step, not the address for a resume |
+| Why not start with a domain | A domain needs a registrar step, a Route 53 zone (a recurring charge, not priced here) and DNS changes. The previous projects showed that registrar and zone mismatches cost time. Plan A needs none | A second apply is needed later |
+| Reusing the owner's existing zones | Not recommended | Ties the portfolio to a project brand; the other projects' infrastructure is outside this repository |
+| Cost alert | Recommended on. `budget_amount_usd` and `budget_email` must be set together, the email must look like an email, and the amount must be above zero; a leftover placeholder fails at plan time | It only notifies; it does not stop spending; it covers the whole account |
+| Evidence | `terraform graph` (in a backend-free scratch copy) lists 17 declared blocks matching the expected counts (11 always, 5 domain, 1 budget); 13 variable-validation cases were exercised with `terraform console` (7 for bucket, domain, zone and price class; 6 for the budget variables) and all behaved as intended; `fmt` and `validate` pass | None of this is a plan. A configuration can still fail at plan or apply |
+| GitHub Pages | Remains the documented fallback, not the recommendation | Free and simpler, but no custom security headers, so the CSP and HSTS work would not apply |
