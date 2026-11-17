@@ -135,3 +135,17 @@ Full-stack work is a capability, not a headline service (no deployed frontend an
 | "What I do not claim" | A section on Services and on About | Repetition between the two, on purpose |
 | Experience | Only the owner's own description ("Independent Software Engineer, November 2026 to present"), with a note that it is not a claim of client work. Education and earlier experience are left to the resume | The About page is short and factual |
 | Dates | Project dates are each repository's git history range (wildfire 2026-09-19 to 2026-11-13, RyuCloud 2026-11-03 to 2026-11-14) and, for RyuStoreFront, its first dated decision (2026-11-14) | They show when work was recorded, not hours; the page says so |
+
+## D11. Phase 6 choices (2026-11-17)
+
+| Decision | Choice | Tradeoff |
+| --- | --- | --- |
+| Lighthouse | `lighthouse` 13.6.0 as a dev dependency, run by `scripts/lighthouse.sh` in the Playwright image (HeadlessChrome 159), mobile and desktop presets, one run per page, home repeated 3 times | Local, no CDN, no compression, simulated throttling: a best case, not a field measurement |
+| Stylesheet inlining | **Rejected after measuring.** Default `inlineStylesheets` kept | Lighthouse still lists two informational insights (render-blocking CSS, font chain) that cost no points. A cached shared stylesheet suits a CDN |
+| Page budget | Initial load under 250 KB per page, asserted in a test (currently 7 to 180 KB uncompressed) | The home page is mostly fonts |
+| Descriptions | At most 160 characters, unique per page, asserted | Shorter case-study descriptions |
+| Favicon and robots | A plain "JA" monogram SVG built from the palette tokens, and `robots.txt` allowing all | A monogram is a design choice, not a brand claim; no sitemap line or canonical URL until the domain exists |
+| Forced colors | Transparent borders on the primary button and skip link; tests run every page under `forcedColors: active` | None |
+| Zoom and spacing | Tests assert 320 px reflow, 200% zoom, 200% text size and WCAG 1.4.12 spacing overrides on every page | Wide tables, code and diagrams scroll inside focusable regions rather than reflow |
+| Deferred to Phase 7 | Canonical URLs, Open Graph URL and image, sitemap (all need the final domain), HTTP compression and security headers (CloudFront), Lighthouse on the deployed site | Social previews have no image until then |
+| Owner AI-assistance corrections | About and the wildfire page now say Claude Code launched the RunPod sessions through the MCP server within a written budget, with the owner approving each next step, and that the "I run Git, AWS and Terraform" line applies to RyuCloud, RyuStoreFront and this portfolio only | Based on the owner's written answer; no separate evidence |

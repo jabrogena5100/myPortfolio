@@ -26,4 +26,7 @@ Edit the `contact` object in `src/data/site.ts` (email, GitHub, LinkedIn, resume
 
 ## Checks
 
-`scripts/e2e.sh` builds the site and runs Playwright with axe in the pinned Playwright image. Results and what was not run are in `docs/verification.md`.
+- `scripts/e2e.sh` builds the site and runs Playwright with axe in the pinned Playwright image.
+- `scripts/lighthouse.sh` builds, then runs Lighthouse (mobile and desktop) on every page and writes `design/lighthouse/summary.json`.
+
+Results, and what was not run, are in `docs/verification.md`.

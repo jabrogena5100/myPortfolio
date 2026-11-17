@@ -24,7 +24,7 @@ const toc: [string, string][] = [
 ---
 <CaseStudy
   title="Wildfire monitoring: a cross-domain evaluation case study | Joshua Abrogena"
-  description="A university capstone comparing smoke detectors trained on synthetic and real imagery, then flown in an ArduPilot simulation. The story is the audits that narrowed its own claims."
+  description="A capstone comparing smoke detectors trained on synthetic and real imagery, then flown in simulation. The audits narrowed its own claims."
   kind="Research capstone"
   name="Wildfire monitoring"
   status="University research project (ECE 496, Fall 2026). Simulation and public datasets only; no real flights. The analysis is frozen as a local baseline and its results are descriptive, not a performance claim. The code, report and replay are not published."
@@ -55,7 +55,7 @@ const toc: [string, string][] = [
       <li>A working cost-control watchdog for the GPU pods. It was designed with budget gates and stop-only watchdogs but, in my words, it never worked.</li>
     </ul>
     <h3>My part, and the AI assistance</h3>
-    <p>I chose the Boreal dataset, examined its limitations (which is why the split had to be redone), and ran the synthetic and external evaluations. The repository shows heavy involvement of AI assistants, including an AI reviewer that performed the audits described below. I treat their findings as audit input that I checked against the data, not as independent third-party review.</p>
+    <p>I chose the Boreal dataset, examined its limitations (which is why the split had to be redone), and ran the synthetic and external evaluations. Claude Code was heavily involved in the code and analysis and launched the GPU training sessions itself, within a written budget, and I approved each next step. An AI reviewer performed audits, including the one described below. I treat their findings as audit input that I checked against the data, not as independent third-party review. More on the About page.</p>
   </Section>
 
   <Section n={3} id="architecture" title="System architecture">

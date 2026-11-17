@@ -411,3 +411,152 @@ test.describe('services, about and contact', () => {
     }
   });
 });
+
+// ---------------------------------------------------------------- Phase 6: responsive, zoom, spacing, forced colors, weight, metadata
+
+const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'];
+const overflowOf = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+
+test.describe('phase 6: responsive and adaptive behaviour', () => {
+  for (const path of PAGES) {
+    test(`reflow at 320 px (WCAG 1.4.10): ${path}`, async ({ page }) => {
+      await page.setViewportSize({ width: 320, height: 640 });
+      await page.goto(path);
+      await page.evaluate(() => document.fonts.ready);
+      expect(await overflowOf(page), 'page scrolls horizontally').toBeLessThanOrEqual(0);
+      const results = await new AxeBuilder({ page }).withTags(AXE_TAGS).analyze();
+      expect(results.violations.map((v) => `${v.id} (${v.nodes.length})`)).toEqual([]);
+    });
+
+    test(`200% zoom (640 css px) and 200% text size: ${path}`, async ({ page }) => {
+      await page.setViewportSize({ width: 640, height: 800 });
+      await page.goto(path);
+      expect(await overflowOf(page), '200% zoom').toBeLessThanOrEqual(0);
+      await page.setViewportSize({ width: 1280, height: 800 });
+      await page.addStyleTag({ content: 'html { font-size: 200% !important; }' });
+      expect(await overflowOf(page), '200% text size').toBeLessThanOrEqual(0);
+      const results = await new AxeBuilder({ page }).withTags(AXE_TAGS).analyze();
+      expect(results.violations.map((v) => `${v.id} (${v.nodes.length})`)).toEqual([]);
+    });
+
+    test(`text spacing overrides (WCAG 1.4.12): ${path}`, async ({ page }) => {
+      for (const w of [390, 1440]) {
+        await page.setViewportSize({ width: w, height: 900 });
+        await page.goto(path);
+        await page.addStyleTag({ content: '* { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; } p { margin-bottom: 2em !important; }' });
+        expect(await overflowOf(page), `overflow at ${w}`).toBeLessThanOrEqual(0);
+        // no text clipped inside fixed-height boxes: nothing clips its own overflow vertically
+        const clipped = await page.evaluate(() => [...document.querySelectorAll<HTMLElement>('body *')]
+          .filter((e) => { const s = getComputedStyle(e); return (s.overflowY === 'hidden') && e.clientWidth > 1 && e.clientHeight > 1 && e.scrollHeight > e.clientHeight + 1 && e.textContent!.trim().length > 0 && !e.closest('svg'); })
+          .map((e) => e.className || e.tagName));
+        expect(clipped, `clipped text at ${w}`).toEqual([]);
+      }
+    });
+
+    test(`forced colors: still operable and axe-clean: ${path}`, async ({ browser }) => {
+      const ctx = await browser.newContext({ forcedColors: 'active', viewport: { width: 1440, height: 900 } });
+      const page = await ctx.newPage();
+      await page.goto(path);
+      const results = await new AxeBuilder({ page }).withTags(AXE_TAGS).disableRules(['color-contrast']).analyze();
+      expect(results.violations.map((v) => `${v.id} (${v.nodes.length})`)).toEqual([]);
+      expect(await page.evaluate(() => matchMedia('(forced-colors: active)').matches)).toBe(true);
+      // focus is still visible: a tab stop has a non-zero solid outline
+      await page.keyboard.press('Tab'); await page.keyboard.press('Tab');
+      const o = await page.evaluate(() => { const s = getComputedStyle(document.activeElement as Element); return `${s.outlineStyle} ${s.outlineWidth}`; });
+      expect(o).toMatch(/solid [1-9]/);
+      if (path === '/' || path === '/projects/ryucloud/') await page.screenshot({ path: `design/screenshots/phase6/forced-colors-${path === '/' ? 'home' : path.split('/').filter(Boolean).pop()}.png`, fullPage: false });
+      await ctx.close();
+    });
+  }
+
+  test('mobile menu still works at 320 px', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    await page.goto('/');
+    const summary = page.locator('summary', { hasText: 'Menu' });
+    await summary.click();
+    await expect(page.locator('details[data-menu]')).toHaveAttribute('open', '');
+    const box = await page.locator('details[data-menu] ul').boundingBox();
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(320);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('details[data-menu]')).not.toHaveAttribute('open', '');
+  });
+
+  test('page weight: initial load budget, and full weight recorded', async ({ page }) => {
+    const report: Record<string, { initial_kb: number; full_kb: number; images_kb: number }> = {};
+    for (const path of PAGES) {
+      let bytes = 0; let imgBytes = 0;
+      const onResp = async (r: import('@playwright/test').Response) => { try { const b = (await r.body()).length; bytes += b; if (r.url().match(/\.(webp|png|jpg|svg)$/)) imgBytes += b; } catch {} };
+      page.on('response', onResp);
+      await page.goto(path);
+      await page.evaluate(() => document.fonts.ready);
+      await page.waitForLoadState('networkidle');
+      const initial = bytes;
+      await page.evaluate(async () => { document.querySelectorAll('img').forEach((i) => (i.loading = 'eager')); await Promise.all([...document.images].map((i) => i.decode().catch(() => {}))); });
+      await page.waitForLoadState('networkidle');
+      page.off('response', onResp);
+      report[path] = { initial_kb: Math.round(initial / 1024), full_kb: Math.round(bytes / 1024), images_kb: Math.round(imgBytes / 1024) };
+      expect(initial / 1024, `initial weight of ${path}`).toBeLessThan(250);
+    }
+    const { writeFileSync } = await import('node:fs');
+    writeFileSync('design/lighthouse/page-weight.json', JSON.stringify({ note: 'Uncompressed bytes from `astro preview` (no HTTP compression). initial = before any lazy image loads; full = after every image is forced to load.', report }, null, 2));
+  });
+
+  test('every image has dimensions (no layout shift) and below-the-fold images are lazy', async ({ page }) => {
+    for (const path of CASE_STUDIES) {
+      await page.goto(path);
+      const imgs = await page.$$eval('main img', (els) => (els as HTMLImageElement[]).map((i) => ({ w: i.getAttribute('width'), h: i.getAttribute('height'), lazy: i.loading, srcset: !!i.srcset })));
+      if (path.endsWith('/ryucloud/')) { expect(imgs.length, 'RyuCloud has no images by design').toBe(0); continue; }
+      expect(imgs.length).toBeGreaterThan(0);
+      for (const i of imgs) { expect(Number(i.w)).toBeGreaterThan(0); expect(Number(i.h)).toBeGreaterThan(0); expect(i.lazy).toBe('lazy'); expect(i.srcset).toBe(true); }
+    }
+  });
+
+  test('page metadata: unique titles and descriptions, language, viewport, icon', async ({ page }) => {
+    const titles = new Set<string>(); const descs = new Set<string>();
+    for (const path of PAGES) {
+      await page.goto(path);
+      const m = await page.evaluate(() => ({
+        lang: document.documentElement.lang,
+        title: document.title,
+        desc: document.querySelector('meta[name="description"]')?.getAttribute('content') || '',
+        viewport: document.querySelector('meta[name="viewport"]')?.getAttribute('content') || '',
+        icon: document.querySelector('link[rel="icon"]')?.getAttribute('href') || '',
+        ogTitle: document.querySelector('meta[property="og:title"]')?.getAttribute('content') || '',
+      }));
+      expect(m.lang).toBe('en');
+      expect(m.title.length, `title of ${path}`).toBeGreaterThan(10);
+      expect(m.title.length, `title of ${path}`).toBeLessThan(80);
+      expect(m.desc.length, `description of ${path}`).toBeGreaterThan(50);
+      expect(m.desc.length, `description of ${path}`).toBeLessThanOrEqual(160);
+      expect(m.viewport).toContain('width=device-width');
+      expect(m.icon).toBe('/favicon.svg');
+      expect(m.ogTitle).toBe(m.title);
+      expect(titles.has(m.title), `duplicate title ${m.title}`).toBe(false);
+      expect(descs.has(m.desc), `duplicate description on ${path}`).toBe(false);
+      titles.add(m.title); descs.add(m.desc);
+    }
+  });
+
+  test('robots.txt and favicon are served', async ({ request }) => {
+    expect((await request.get('/robots.txt')).status()).toBe(200);
+    const fav = await request.get('/favicon.svg');
+    expect(fav.status()).toBe(200);
+    expect(fav.headers()['content-type']).toContain('svg');
+  });
+});
+
+test('phase 6 review screenshots: 320 px first screens, 320 px menu, 200% zoom first screen', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 700 });
+  for (const path of ['/', '/projects/ryustorefront/', '/projects/wildfire-monitoring/', '/services/']) {
+    await page.goto(path);
+    await page.evaluate(() => document.fonts.ready);
+    await page.screenshot({ path: `design/screenshots/phase6/w320-${path === '/' ? 'home' : path.split('/').filter(Boolean).pop()}.png` });
+  }
+  await page.goto('/');
+  await page.locator('summary', { hasText: 'Menu' }).click();
+  await page.screenshot({ path: 'design/screenshots/phase6/w320-menu-open.png', clip: { x: 0, y: 0, width: 320, height: 420 } });
+  await page.setViewportSize({ width: 640, height: 800 });
+  await page.goto('/projects/wildfire-monitoring/');
+  await page.screenshot({ path: 'design/screenshots/phase6/zoom200-wildfire.png' });
+});

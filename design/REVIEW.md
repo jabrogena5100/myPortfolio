@@ -104,3 +104,27 @@ Real devices; Firefox and WebKit; a screen-reader walkthrough; forced-colors mod
 ### Not checked
 
 Real devices; Firefox and WebKit; a screen-reader walkthrough; forced-colors mode; 200 percent zoom; Lighthouse.
+
+## Phase 6: responsive, accessibility and performance (2026-11-17)
+
+Captures are in `screenshots/phase6/`: [forced colors, home](screenshots/phase6/forced-colors-home.png), [forced colors, RyuCloud](screenshots/phase6/forced-colors-ryucloud.png), 320 px first screens ([home](screenshots/phase6/w320-home.png), [StoreFront](screenshots/phase6/w320-ryustorefront.png), [wildfire](screenshots/phase6/w320-wildfire-monitoring.png), [services](screenshots/phase6/w320-services.png)), the [320 px menu](screenshots/phase6/w320-menu-open.png) and a [200% zoom view](screenshots/phase6/zoom200-wildfire.png). Lighthouse and page-weight numbers are in `docs/verification.md`; raw summaries are in `lighthouse/`.
+
+### Defects found, and fixed
+
+1. **Case-study descriptions were too long for search results** (186, 216 and 179 characters). Shortened to 160 or fewer.
+2. **In forced-colors (high-contrast) mode the primary button lost its background and looked like plain text.** The button and the skip link now have a transparent border, which the browser draws in forced-colors mode.
+3. The first run also exposed four test mistakes of mine (listed in `docs/verification.md`).
+
+### Experiment that I reverted
+
+Inlining the stylesheet (`inlineStylesheets: 'always'`) removed Lighthouse's "render-blocking" insight and cut mobile LCP on the small pages from about 920 ms to about 627 ms. But the three case studies got slightly slower (15 to 60 ms), the performance score dropped from 100 to 99 on several pages, and every page would re-ship its own CSS instead of sharing one cached file on a CDN. I kept the default. Both data sets are in `lighthouse/`.
+
+### Look at these (judgement calls for the owner)
+
+- **Scores are a local best case.** 17 of 18 runs scored 100; one scored 99. That is a small static site on a local server with no network cost. The honest figure to quote after deployment is the Phase 7 run against CloudFront.
+- **Fonts are 80 percent of the home page's bytes** (144 of 180 KB). Dropping a face or subsetting would shrink it, but Source Serif's reserved font name forbids subsetting without renaming (see `docs/fonts.md`).
+- **The long pages stay fully open**, as you asked.
+
+### Not checked
+
+Real devices; Firefox and WebKit; a screen-reader walkthrough; an HTML validator; Lighthouse on the deployed site; behaviour under a real CDN with compression.
