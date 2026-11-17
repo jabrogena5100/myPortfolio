@@ -18,6 +18,46 @@ No servers, no persistent compute, no logging, no analytics.
 
 **Cost.** I have not estimated or measured it. The billable parts are S3 storage and requests, CloudFront data transfer and requests, and, only if you use a custom domain, the Route 53 hosted zone and the domain registration. Check the current AWS pricing pages before applying, and set the budget alert (below). Do not take any number from this file as a price.
 
+## Recommended plan
+
+You asked me to pick. **Recommendation: Plan A first, then Plan C when you have a domain.**
+
+| Plan | What it creates | Resources | Address | Notes |
+| --- | --- | --- | --- | --- |
+| **A (recommended first)** | The site on the default CloudFront address, plus the cost alert | **12** (11 + 1 budget) | `dxxxxxxxx.cloudfront.net` | Nothing at a registrar, nothing in DNS, one `destroy` removes it all |
+| B | Same, without the cost alert | 11 | same | Only if you prefer no alert; A is safer |
+| C (later) | A plus a custom domain: ACM certificate, DNS validation, alias records | 17 (16 without the alert) | your domain | Needs a domain and a Route 53 hosted zone you control |
+| Fallback | GitHub Pages, no AWS at all | 0 | `<user>.github.io` or a domain | Free; no custom security headers (`docs/deploy/github-pages.md`) |
+
+Resource counts are from reading the configuration and were cross-checked against the resource list that `terraform graph` prints (17 declared blocks: 11 always created, 5 only with a domain, 1 only with a budget). **No `plan` has been run**; your plan is the real count.
+
+**Why A first**
+
+- It is the smallest and most reversible choice. There is no domain registration and no DNS to change, so there is nothing to untangle if you change your mind.
+- It lets you check everything that only a real deployment can show (headers, compression, the 404 page, the CloudFront Function, real-network Lighthouse) before you commit to an address.
+- The cost alert guards the one thing I could not measure. It only emails you; it does not stop spending.
+- Every site feature works on the default address; you build with `SITE_URL` set to it.
+
+**Honest downsides of A (why it is a first step and not the final one)**
+
+- The address is random and not memorable, so **do not put it on a resume.** If you destroy and recreate the distribution, the address changes and any link you shared breaks.
+- The default CloudFront certificate cannot enforce TLS 1.2 or later; a custom domain can.
+- Canonical links and the sitemap will point at the `cloudfront.net` address until you rebuild for a domain.
+
+**Moving from A to C.** Set `domain_name` and `hosted_zone_id`, then plan. The distribution should show as an **in-place update** (adding an alias and a certificate), not a replacement; if the plan says it will be replaced, stop. Then rebuild with `SITE_URL=https://<your domain>` and upload again. I have not run this transition.
+
+**About reusing a domain you already have.** Your other projects left Route 53 hosted zones in place. A subdomain of one of them would work technically, but it ties the portfolio to a project's brand, and the infrastructure for those projects is outside this repository. I recommend a domain of your own for the portfolio; that choice is yours.
+
+**The recommended path, in order** (each step is detailed below):
+
+1. Create the state bucket (section 2).
+2. `terraform.tfvars`: `bucket_name`, and enable the cost alert (`budget_amount_usd`, `budget_email`). I suggest a small threshold such as 5; that figure is a notification threshold you choose, not a price estimate.
+3. `init`, then `plan -out=tfplan`; confirm about 12 to add and nothing to change or destroy (section 4).
+4. `apply tfplan` in a fresh login (section 5).
+5. Build with the real address, `site-sync.sh` dry run, then `--apply` (section 6).
+6. Verify with the `curl` checks, `E2E_BASE_URL` and `LH_BASE_URL` (section 7). Record the results, including failures.
+7. Decide on a domain; if yes, Plan C (section 8). If you want to stop, section 11 removes everything.
+
 ## 1. Before you start
 
 - An AWS account you control, and a sign-in that works with `aws login` (the same arrangement as your other projects: an IAM user with MFA, no access keys). Credentials last about 15 minutes, so run plan and apply in a fresh login.
@@ -59,7 +99,7 @@ scripts/aws-terraform.sh -chdir=infra/terraform init -backend-config=backend.hcl
 scripts/aws-terraform.sh -chdir=infra/terraform plan -out=tfplan
 ```
 
-Read the whole plan. From reading the configuration, a first plan with no domain and no budget should show about **11 to add, 0 to change, 0 to destroy** (7 for the bucket, 4 for CloudFront: access control, function, headers policy, distribution). A domain adds about 5 and a budget adds 1. **That count is my reading of the code, not a result I observed.** If a first plan shows anything to change or destroy, stop and ask.
+Read the whole plan. For **Plan A** it should show about **12 to add, 0 to change, 0 to destroy**: 7 for the bucket, 4 for CloudFront (access control, function, headers policy, distribution) and 1 for the budget. Plan B is 11; a domain adds 5. **Those counts come from reading the configuration and from `terraform graph`, not from a plan I ran.** If a first plan shows anything to change or destroy, stop and ask. A budget placeholder that is still in the file fails here, at plan time, by design.
 
 Things to check in the plan: the bucket has `block_public_*` set to true; the distribution's origin uses the access control; there are no `aws_s3_bucket_acl` or public-policy resources.
 
