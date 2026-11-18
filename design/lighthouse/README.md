@@ -12,6 +12,7 @@
 | `experiment-inline-css.json` | Phase 6: stylesheet inlined (rejected) |
 | `experiment-local-third-run-after-redesign.json` | A third full run after the redesign, **local** (it was started as a live-site run, but `$SITE` was empty, so it measured the local preview; it was renamed from `summary-deployed.json` because that name was false). Mobile performance 87 to 100, desktop all 100 |
 | `experiment-first-run.json` | Phase 6: first run, before the final fixes |
+| `summary-deployed.json` | **Live site**, 18 runs, 2026-11-18. Performance 73 to 100 (unstable), LCP stable, other categories 100 |
 | `page-weight.json` | Uncompressed bytes per page from `astro preview` |
 
-Not a field measurement. **No deployed-site run exists yet.** When it does, it goes in `summary-deployed.json`, and its `target` field must be the CloudFront address (see `docs/deploy/runbook.md` section 7).
+Not a field measurement. `summary-deployed.json` is the first run against the deployed site (its `target` is the CloudFront address). It was run from the same slow VM as the others, so its performance scores are subject to the same CPU noise; its paint timings are stable.

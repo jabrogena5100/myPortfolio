@@ -26,6 +26,12 @@ async function run(path, preset, repeat) {
   const flags = { port: chrome.port, output: 'json', logLevel: 'error', onlyCategories: CATEGORIES };
   const r = await lighthouse(BASE + path, flags, preset === 'desktop' ? desktopConfig : undefined);
   const lhr = r.lhr;
+  if (lhr.runtimeError) {
+    const e = { code: lhr.runtimeError.code, message: String(lhr.runtimeError.message || '').slice(0, 300) };
+    console.log(preset.padEnd(8), path.padEnd(34), 'RUNTIME ERROR', e.code, '-', e.message);
+    results.push({ path, preset, repeat, error: e });
+    return;
+  }
   env = { lighthouse: lhr.lighthouseVersion, userAgent: lhr.environment.hostUserAgent, throttling: lhr.configSettings.throttlingMethod, formFactor: lhr.configSettings.formFactor };
   const a = lhr.audits;
   const failing = Object.values(a)
@@ -38,7 +44,7 @@ async function run(path, preset, repeat) {
       fcp_ms: Math.round(a['first-contentful-paint'].numericValue),
       lcp_ms: Math.round(a['largest-contentful-paint'].numericValue),
       tbt_ms: Math.round(a['total-blocking-time'].numericValue),
-      cls: Number(a['cumulative-layout-shift'].numericValue.toFixed(3)),
+      cls: Number((a['cumulative-layout-shift']?.numericValue ?? NaN).toFixed(3)),
       speed_index_ms: Math.round(a['speed-index'].numericValue),
       transfer_bytes: Math.round(a['total-byte-weight'].numericValue),
     },

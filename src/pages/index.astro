@@ -6,7 +6,7 @@ import StatusBadge from '../components/StatusBadge.astro';
 import { site, services, projects, verifyTerms, capabilities, contact, hasContact } from '../data/site';
 import { siteChecks } from '../data/checks';
 const serviceIcons = ['server', 'cloud', 'flask'] as const;
-const spec = [['projects', '3'], ['AWS stacks', '2, destroyed after testing'], ['live demos', 'none (domains down)'], ['client work', 'none listed']];
+const spec = [['projects', '3'], ['AWS stacks', '3: 2 destroyed, this site live'], ['live demos', 'none (domains down)'], ['client work', 'none listed']];
 ---
 <Base
   title={`${site.name}: ${site.role}`}

@@ -428,7 +428,11 @@ test.describe('phase 6: responsive and adaptive behaviour', () => {
       expect(results.violations.map((v) => `${v.id} (${v.nodes.length})`)).toEqual([]);
     });
 
-    test(`200% zoom (640 css px) and 200% text size: ${path}`, async ({ page }) => {
+    test(`200% zoom (640 css px) and 200% text size: ${path}`, async ({ browser }) => {
+      // Emulates a user stylesheet or extension, which a page's CSP does not govern, so CSP is bypassed here.
+      // (The CSP itself is tested separately, with the production header injected.)
+      const ctx = await browser.newContext({ bypassCSP: true, baseURL: test.info().project.use.baseURL });
+      const page = await ctx.newPage();
       await page.setViewportSize({ width: 640, height: 800 });
       await page.goto(path);
       expect(await overflowOf(page), '200% zoom').toBeLessThanOrEqual(0);
@@ -437,9 +441,14 @@ test.describe('phase 6: responsive and adaptive behaviour', () => {
       expect(await overflowOf(page), '200% text size').toBeLessThanOrEqual(0);
       const results = await new AxeBuilder({ page }).withTags(AXE_TAGS).analyze();
       expect(results.violations.map((v) => `${v.id} (${v.nodes.length})`)).toEqual([]);
+      await ctx.close();
     });
 
-    test(`text spacing overrides (WCAG 1.4.12): ${path}`, async ({ page }) => {
+    test(`text spacing overrides (WCAG 1.4.12): ${path}`, async ({ browser }) => {
+      // Emulates a user stylesheet or extension, which a page's CSP does not govern, so CSP is bypassed here.
+      // (The CSP itself is tested separately, with the production header injected.)
+      const ctx = await browser.newContext({ bypassCSP: true, baseURL: test.info().project.use.baseURL });
+      const page = await ctx.newPage();
       for (const w of [390, 1440]) {
         await page.setViewportSize({ width: w, height: 900 });
         await page.goto(path);
@@ -451,6 +460,7 @@ test.describe('phase 6: responsive and adaptive behaviour', () => {
           .map((e) => e.className || e.tagName));
         expect(clipped, `clipped text at ${w}`).toEqual([]);
       }
+      await ctx.close();
     });
 
     test(`forced colors: still operable and axe-clean: ${path}`, async ({ browser }) => {
