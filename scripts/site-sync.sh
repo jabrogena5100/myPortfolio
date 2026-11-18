@@ -46,7 +46,9 @@ sync_group() { # dir prefix cache-control [extra filters...]
 }
 
 # Order matters: hashed assets first, HTML last, so no page ever points at a file that is not there yet.
-sync_group dist/_astro "_astro" "public,max-age=31536000,immutable"
+# Hashed filenames mean a file with the same name always has the same content, so compare size only (the build rewrites
+# every CSS file with a new timestamp, which would otherwise re-upload identical files each time).
+sync_group dist/_astro "_astro" "public,max-age=31536000,immutable" --size-only
 sync_group dist/fonts  "fonts"  "public,max-age=2592000"
 sync_group dist        ""       "public,max-age=0,must-revalidate" --exclude "_astro/*" --exclude "fonts/*"
 
