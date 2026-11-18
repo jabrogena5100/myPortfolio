@@ -68,3 +68,11 @@ Written before any component, as required. Every component and page is reviewed 
 
 - [ ] No code copied from 21st.dev or elsewhere without a verified licence. Inspiration is credited in `design/COMPONENT-NOTES.md`.
 - [ ] Real dataset imagery (Boreal, FireMan, FASDD) is not redistributed (licences require attribution and checks).
+
+## G. Texture
+
+- [ ] Texture is decorative and sits behind content; it never carries information.
+- [ ] The average background colour is unchanged by the texture (a test measures real pixels against `--color-bg`).
+- [ ] No animated texture, no floating particles, no gradient washes; the dot grid is a static pattern that fades out.
+- [ ] Off for `forced-colors` and `prefers-contrast: more`.
+- [ ] No inline styles; the CSP stays `style-src 'self'`.

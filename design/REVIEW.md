@@ -173,3 +173,23 @@ What changed: Geist Sans and Geist Mono replace the serif and sans pairing; your
 ### Not checked
 
 Real devices; Firefox and WebKit; a screen-reader walkthrough; the deployed site.
+
+## Background texture (2026-11-18)
+
+Requested by the owner. Full-resolution captures: [hero, desktop](screenshots/phase8/hero-texture-desktop.png), [hero, phone](screenshots/phase8/hero-texture-phone.png), [the checks panel after its layout fix](screenshots/phase8/checks-panel-desktop.png).
+
+### Defects found, and fixed
+
+1. My first grain lightened the whole page from `#141414` to about `#1c1c1c`, so the palette on screen was not the palette specified. A pixel-measuring test caught a second version still at 25.5 (linear colour space in SVG filters); now 20.2.
+2. The first dots were barely visible; strengthened.
+3. Longer result strings in the home page's checks panel overlapped the description column; fixed.
+
+### Look at these (judgement calls for the owner)
+
+- **Strength.** The grain is visible but restrained (specks within about 8 levels of the background). Raise or lower `--texture-grain` and `--dot-color` in `src/styles/tokens.css`.
+- **Where.** Dots appear on the home hero only. Say if you want them on page headers too.
+- **Phone.** The dots look larger and more prominent on a phone because the pattern does not scale with the screen.
+
+### Not checked
+
+Real devices; Firefox and WebKit (mix-blend-mode and masks are supported but untested here); the texture on the live site until you upload.

@@ -216,3 +216,14 @@ The owner asked me to pick the plan I best recommend. I did not run `terraform p
 | External-link rule | Allow-list of exactly three URLs plus one `mailto`, all with `rel="noopener noreferrer"`, enforced by a test on every page | Any new external link needs a deliberate edit to the allow-list |
 | Wording | "without fooling myself" removed from the home page at the owner's request | None |
 | Sign-off | Owner signed off on all pages | Open items remain open (see `design/REVIEW.md`) |
+
+## D16. Background texture (2026-11-18)
+
+| Decision | Choice | Tradeoff |
+| --- | --- | --- |
+| What | Fine overlay-blended grain site-wide, plus a static dot grid fading from the top of the home hero | Subtle on purpose: restrained like the rest of the site. Strength is two tokens (`--texture-grain`, `--dot-color`) |
+| Colour fidelity | The grain must not change the palette. It is blended with `overlay`, the SVG filter runs in sRGB, and a test measures the rendered average against `#141414` | A blend mode on a page-sized layer; no measurable cost in two local Lighthouse runs |
+| Accessibility | Behind content, inert, no motion, removed for forced colors and more-contrast | Axe cannot see pseudo-elements, so the measured-pixels test stands in |
+| Security | A `data:` SVG background, covered by the existing `img-src 'self' data:`; no policy change | None |
+| Scope | Home hero dots only; grain on every page | The dot grid can be added to other page headers with one class (`texture-dots`) |
+| Alternatives not taken | A noise PNG (another request), a mesh or colour gradient (against the anti-slop rules), animated grain (motion cost, reduced-motion handling) | |

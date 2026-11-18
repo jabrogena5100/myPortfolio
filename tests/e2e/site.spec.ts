@@ -3,8 +3,10 @@ import AxeBuilder from '@axe-core/playwright';
 
 const PAGES = ['/', '/projects/', '/projects/ryustorefront/', '/projects/ryucloud/', '/projects/wildfire-monitoring/', '/services/', '/about/', '/contact/'];
 // The only external destinations the site may link to (owner-approved 2026-11-18). Everything else must be internal.
-const ALLOWED_EXTERNAL = ['https://github.com/jabrogena5100', 'https://github.com/jabrogena5100/RyuCloud', 'https://www.linkedin.com/in/joshua-abrogena-75757a3a6'];
-const ALLOWED_MAILTO = 'mailto:joshua.abrogena@gmail.com';
+// The profile links and the email come from the site's own contact data, so this file never duplicates them.
+import { contact } from '../../src/data/site';
+const ALLOWED_EXTERNAL = [contact.github!, `${contact.github}/RyuCloud`, `${contact.github}/RyuStoreFront`, contact.linkedin!];
+const ALLOWED_MAILTO = `mailto:${contact.email}`;
 const CASE_STUDIES = ['/projects/ryustorefront/', '/projects/ryucloud/', '/projects/wildfire-monitoring/'];
 const WIDTHS = { phone: 390, tablet: 820, desktop: 1440 } as const;
 const HEIGHTS = { phone: 844, tablet: 1180, desktop: 900 } as const;
@@ -702,7 +704,7 @@ test('no serif fonts are used anywhere: headings and body are Geist, labels are 
   }
 });
 
-test('every external link is on the allow-list and opens safely; RyuStoreFront is not linked yet', async ({ page }) => {
+test('every external link is on the allow-list and opens safely; both repositories are linked', async ({ page }) => {
   for (const path of [...PAGES, '/404.html']) {
     await page.goto(path);
     const links = await page.$$eval('a[href^="http"]', (as) => as.map((a) => ({ href: a.getAttribute('href') as string, rel: a.getAttribute('rel') || '' })));
@@ -713,8 +715,8 @@ test('every external link is on the allow-list and opens safely; RyuStoreFront i
     }
   }
   await page.goto('/projects/ryustorefront/');
-  expect(await page.locator('a[href*="RyuStoreFront"]').count()).toBe(0);
-  expect(await page.locator('main').innerText()).toContain('not linked yet');
+  expect(await page.locator(`a[href="${contact.github}/RyuStoreFront"]`).count()).toBe(1);
+  expect(await page.locator('main').innerText()).toContain('README is minimal');
   await page.goto('/projects/ryucloud/');
   expect(await page.locator('a[href="https://github.com/jabrogena5100/RyuCloud"]').count()).toBe(1);
 });
@@ -727,4 +729,60 @@ test('about: education is stated and the resume is still a placeholder', async (
   expect(t).toContain('expected Fall 2026');
   expect(t).toContain('Resume: to be added');
   expect(await page.locator('footer').innerText()).not.toContain('being added');
+});
+
+test('background texture: present, behind the content, inert, faint, and off for forced colors and more contrast', async ({ page }) => {
+  await page.goto('/');
+  const t = await page.evaluate(() => {
+    const b = getComputedStyle(document.body, '::before');
+    const h = getComputedStyle(document.querySelector('.texture-dots')!, '::before');
+    const mask = (h.maskImage && h.maskImage !== 'none' ? h.maskImage : (h as unknown as { webkitMaskImage: string }).webkitMaskImage) || '';
+    return { grainImg: b.backgroundImage.startsWith('url("data:image/svg+xml'), grainZ: b.zIndex, grainPointer: b.pointerEvents, grainOpacity: parseFloat(b.opacity), dotsImg: h.backgroundImage.includes('radial-gradient'), dotsZ: h.zIndex, dotsPointer: h.pointerEvents, dotsMask: mask.includes('radial-gradient') };
+  });
+  expect(t).toMatchObject({ grainImg: true, grainZ: '-1', grainPointer: 'none', dotsImg: true, dotsZ: '-1', dotsPointer: 'none', dotsMask: true });
+  expect(t.grainOpacity, 'blend strength (the real safeguard is the measured-pixels test below)').toBeGreaterThan(0);
+  expect(t.grainOpacity).toBeLessThanOrEqual(1);
+  expect(await page.evaluate(() => getComputedStyle(document.body, '::before').mixBlendMode), 'neutral blend').toBe('overlay');
+  // the texture must not sit over the content: the element at a point inside the hero heading is the heading itself
+  const top = await page.evaluate(() => { const h = document.querySelector('h1')!.getBoundingClientRect(); const e = document.elementFromPoint(h.x + 10, h.y + h.height / 2); return e?.tagName; });
+  expect(top).toBe('H1');
+  for (const media of [{ forcedColors: 'active' }, { contrast: 'more' }] as const) {
+    await page.emulateMedia(media as never);
+    await page.goto('/');
+    const d = await page.evaluate(() => [getComputedStyle(document.body, '::before').display, getComputedStyle(document.querySelector('.texture-dots')!, '::before').display]);
+    expect(d, JSON.stringify(media)).toEqual(['none', 'none']);
+    await page.emulateMedia({ forcedColors: 'none', contrast: 'no-preference' } as never);
+  }
+});
+
+test('texture review screenshots: hero and checks panel at full resolution', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  await page.evaluate(() => document.fonts.ready);
+  await page.screenshot({ path: 'design/screenshots/phase8/hero-texture-desktop.png', clip: { x: 0, y: 0, width: 1440, height: 760 } });
+  await page.locator('#verify').screenshot({ path: 'design/screenshots/phase8/checks-panel-desktop.png' });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await page.screenshot({ path: 'design/screenshots/phase8/hero-texture-phone.png', clip: { x: 0, y: 0, width: 390, height: 760 } });
+});
+
+test('the grain adds texture without shifting the background colour (measured from real pixels)', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/contact/');
+  await page.evaluate(() => document.fonts.ready);
+  // an empty region to the right of the narrow contact column: only the page background and the grain are there
+  const png = (await page.screenshot({ clip: { x: 1180, y: 300, width: 200, height: 200 } })).toString('base64');
+  const stats = await page.evaluate(async (b64) => {
+    const img = new Image(); img.src = `data:image/png;base64,${b64}`; await img.decode();
+    const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+    const ctx = c.getContext('2d')!; ctx.drawImage(img, 0, 0);
+    const d = ctx.getImageData(0, 0, c.width, c.height).data; let sum = 0, sq = 0, n = 0;
+    for (let i = 0; i < d.length; i += 4) { const y = (d[i] + d[i + 1] + d[i + 2]) / 3; sum += y; sq += y * y; n++; }
+    const mean = sum / n; return { mean, sd: Math.sqrt(sq / n - mean * mean) };
+  }, png);
+  // --color-bg is #141414 = 20. The average must stay within 2 levels of it; a visible grain has a spread above 1.5 levels.
+  expect(stats.mean, `mean ${stats.mean.toFixed(1)}`).toBeGreaterThan(18);
+  expect(stats.mean, `mean ${stats.mean.toFixed(1)}`).toBeLessThan(22);
+  expect(stats.sd, `spread ${stats.sd.toFixed(2)}`).toBeGreaterThan(1.5);
+  expect(stats.sd, `spread ${stats.sd.toFixed(2)}`).toBeLessThan(12);
 });
