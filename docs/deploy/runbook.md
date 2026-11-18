@@ -192,9 +192,12 @@ curl -s -o /dev/null -w "%{http_code}\n" "https://<bucket>.s3.<region>.amazonaws
 Then run the same automated checks against the live site, and keep the results (this is the first real Lighthouse figure for the deployed site; the local ones are a best case):
 
 ```
-E2E_BASE_URL="$SITE" scripts/e2e.sh
+SITE=https://<your-address>        # set it in the SAME shell: in a new terminal $SITE is empty
+E2E_BASE_URL="$SITE" scripts/e2e.sh --grep-invert "screenshot|review crops|page weight"
 LH_BASE_URL="$SITE" LH_OUT=design/lighthouse/summary-deployed.json scripts/lighthouse.sh
 ```
+
+Each script prints a `TARGET:` line first. It must say `LIVE https://...`. If it says `local build`, you are not testing the live site, and the script refuses a set-but-empty variable for exactly this reason. The `target` field in the Lighthouse JSON records the same thing; a file named `summary-deployed.json` whose target is not your address is not a deployed result.
 
 Record the outcome in `docs/verification.md`, including anything that fails. A first deployment normally finds something that only the real CDN reveals.
 
