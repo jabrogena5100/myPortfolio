@@ -65,10 +65,15 @@ Resource counts are from reading the configuration and were cross-checked agains
 - A decision on the domain: **you can skip it.** Without `domain_name` the site is served at a `*.cloudfront.net` address. Registering a domain and changing DNS are your decisions and are not done by anything here.
 - Recommended: a budget alert. Set `budget_amount_usd` and `budget_email` in `terraform.tfvars` (section 3); it covers the whole account.
 
+Use a **dedicated profile name for this project** (for example `myportfolio`), not `default`. The `default` profile is normally shared with your other projects, and `aws login` offers to **overwrite** a profile that already exists. If you see "Profile default is already configured to use session ... Do you want to overwrite it?", answer **n**: it means `AWS_PROFILE` was empty and the command fell back to `default`.
+
 ```
-export AWS_PROFILE=<your profile>
-aws login --profile "$AWS_PROFILE"
+export AWS_PROFILE=myportfolio
+aws login --remote --profile "$AWS_PROFILE"     # --remote prints a URL and a code, for a VM without a browser
+aws sts get-caller-identity --profile "$AWS_PROFILE"   # shows which identity you are; the output has your account ID, so do not paste it anywhere public
 ```
+
+Check the identity is the one you intend. `scripts/aws-terraform.sh` refuses `AWS_PROFILE=default` unless you set `ALLOW_DEFAULT_PROFILE=1`, so a stray shell cannot run against the shared profile by accident. The permissions needed are S3, CloudFront, and (only if you enable the alert) Budgets, plus read and write on the state bucket; a broader role works but is more than this needs.
 
 ## 2. One-time: the Terraform state bucket
 

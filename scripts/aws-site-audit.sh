@@ -5,6 +5,10 @@
 #   export AWS_PROFILE=<your profile>; BUCKET=<bucket name> [DOMAIN=www.example.com] scripts/aws-site-audit.sh
 set -uo pipefail
 [[ -n "${AWS_PROFILE:-}" && -n "${BUCKET:-}" ]] || { echo "Set AWS_PROFILE and BUCKET" >&2; exit 2; }
+# Refuse the shared `default` profile (usually used by other projects) unless explicitly allowed.
+if [[ "${AWS_PROFILE:-}" == "default" && "${ALLOW_DEFAULT_PROFILE:-}" != "1" ]]; then
+  echo "Refusing the shared 'default' profile. Use a dedicated profile (docs/deploy/runbook.md section 1), or set ALLOW_DEFAULT_PROFILE=1." >&2; exit 2
+fi
 left=0
 check() { # label  command-output
   if [[ -z "$2" || "$2" == "None" ]]; then printf 'ok    %-34s none\n' "$1"; else printf 'LEFT  %-34s %s\n' "$1" "$2"; left=1; fi

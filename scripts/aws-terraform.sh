@@ -17,6 +17,11 @@ IMAGE="hashicorp/terraform:${TF_VERSION}"
 PROFILE="${AWS_PROFILE:-}"
 
 if [[ -z "$PROFILE" ]]; then echo "AWS_PROFILE is not set (export AWS_PROFILE=<profile>)" >&2; exit 1; fi
+# The `default` profile is usually shared with other projects. Use a dedicated profile for this one
+# (for example: export AWS_PROFILE=myportfolio; aws login --remote --profile "$AWS_PROFILE").
+if [[ "$PROFILE" == "default" && "${ALLOW_DEFAULT_PROFILE:-}" != "1" ]]; then
+  echo "Refusing the shared 'default' profile. Use a dedicated profile (see docs/deploy/runbook.md section 1), or set ALLOW_DEFAULT_PROFILE=1 if you really mean it." >&2; exit 1
+fi
 for a in "$@"; do
   if [[ "$a" == "-auto-approve" || "$a" == "--auto-approve" ]]; then
     echo "Refusing -auto-approve: save a plan with -out=tfplan, read it, then apply that file." >&2; exit 1

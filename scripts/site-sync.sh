@@ -13,6 +13,10 @@ cd "$(dirname "$0")/.."
 
 APPLY=0; [[ "${1:-}" == "--apply" ]] && APPLY=1
 [[ -n "${AWS_PROFILE:-}" ]] || { echo "AWS_PROFILE is not set" >&2; exit 1; }
+# Refuse the shared `default` profile (usually used by other projects) unless explicitly allowed.
+if [[ "${AWS_PROFILE:-}" == "default" && "${ALLOW_DEFAULT_PROFILE:-}" != "1" ]]; then
+  echo "Refusing the shared 'default' profile. Use a dedicated profile (docs/deploy/runbook.md section 1), or set ALLOW_DEFAULT_PROFILE=1." >&2; exit 1
+fi
 
 # Pre-flight on the build output.
 [[ -f dist/index.html && -f dist/404.html ]] || { echo "dist/ is missing index.html or 404.html. Build first." >&2; exit 1; }
