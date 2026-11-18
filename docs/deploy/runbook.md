@@ -65,20 +65,61 @@ Resource counts are from reading the configuration and were cross-checked agains
 - A decision on the domain: **you can skip it.** Without `domain_name` the site is served at a `*.cloudfront.net` address. Registering a domain and changing DNS are your decisions and are not done by anything here.
 - Recommended: a budget alert. Set `budget_amount_usd` and `budget_email` in `terraform.tfvars` (section 3); it covers the whole account.
 
+Use a **dedicated profile name for this project** (for example `myportfolio`), not `default`. The `default` profile is normally shared with your other projects, and `aws login` offers to **overwrite** a profile that already exists. If you see "Profile default is already configured to use session ... Do you want to overwrite it?", answer **n**: it means `AWS_PROFILE` was empty and the command fell back to `default`.
+
 ```
-export AWS_PROFILE=<your profile>
-aws login --profile "$AWS_PROFILE"
+export AWS_PROFILE=myportfolio
+aws login --remote --profile "$AWS_PROFILE"     # --remote prints a URL and a code, for a VM without a browser
+aws sts get-caller-identity --profile "$AWS_PROFILE"   # shows which identity you are; the output has your account ID, so do not paste it anywhere public
 ```
+
+Check the identity is the one you intend. `scripts/aws-terraform.sh` refuses `AWS_PROFILE=default` unless you set `ALLOW_DEFAULT_PROFILE=1`, so a stray shell cannot run against the shared profile by accident. The permissions needed are S3, CloudFront, and (only if you enable the alert) Budgets, plus read and write on the state bucket; a broader role works but is more than this needs.
+
+### Troubleshooting: `AWS_ERROR_CAL_UNSUPPORTED_KEY_FORMAT: Key format is not supported`
+
+Seen on 2026-11-18 right after `aws login`: every `aws` command fails before it reaches AWS, so nothing is created. Cause (diagnosed from the key's structure, never its contents): the login session's P-256 private key was written with a **31-byte** private value instead of the required 32, so the CLI's crypto library refuses it. This happens when the random key starts with a zero byte, about 1 time in 256 logins.
+
+```
+python3 -I scripts/check-aws-login-key.py     # prints OK or BAD per login session; never prints a key
+aws login --remote --profile "$AWS_PROFILE"   # a new login generates a new key (answer y if asked to refresh this same profile)
+python3 -I scripts/check-aws-login-key.py     # expect OK
+```
+
+Only redo the login for the profile that shows BAD; do not touch the others. If it shows BAD again, log in once more. I found no existing report of this in the aws-cli issue tracker, so it may be worth reporting upstream.
 
 ## 2. One-time: the Terraform state bucket
 
-State lives in a bucket that Terraform does not manage (so a destroy can never delete its own history). Choose a unique name and region, then:
+State lives in a bucket that Terraform does not manage (so a destroy can never delete its own history). Use a **dedicated** bucket for this project, not the one from your other projects, so a mistake in one cannot touch the other's state. Bucket names are global; add a random suffix (`openssl rand -hex 4`) and use lowercase letters, digits and hyphens.
 
 ```
-STATE=<your-state-bucket>; REGION=us-west-2
-aws s3api create-bucket --bucket "$STATE" --region "$REGION" --create-bucket-configuration LocationConstraint="$REGION"
+export AWS_PROFILE=myportfolio
+export AWS_REGION=us-west-2
+STATE=<your-state-bucket>
+
+aws s3api create-bucket --bucket "$STATE" --region "$AWS_REGION" --create-bucket-configuration LocationConstraint="$AWS_REGION"
 aws s3api put-bucket-versioning --bucket "$STATE" --versioning-configuration Status=Enabled
 aws s3api put-public-access-block --bucket "$STATE" --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
+```
+
+Notes from reviewing these commands:
+
+- `LocationConstraint` is required for every region except `us-east-1`, so it is correct here.
+- Export `AWS_REGION` (as above) so the `put-*` calls go to the bucket's region; without it they can fail with a redirect error if your profile has a different default region.
+- New buckets already have ACLs disabled and server-side encryption (SSE-S3) on by default, so no extra command is needed for those. The Terraform `backend` also sets `encrypt = true`.
+- Do not paste a bucket name into a command if you are unsure it is yours: the first command creates it.
+
+Check the result (each command is read-only):
+
+```
+aws s3api get-bucket-versioning --bucket "$STATE"          # expect Status: Enabled
+aws s3api get-public-access-block --bucket "$STATE"        # expect all four true
+aws s3api get-bucket-encryption --bucket "$STATE"          # expect AES256
+```
+
+Optional hardening: refuse non-TLS requests to the state bucket.
+
+```
+aws s3api put-bucket-policy --bucket "$STATE" --policy "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"DenyInsecureTransport\",\"Effect\":\"Deny\",\"Principal\":\"*\",\"Action\":\"s3:*\",\"Resource\":[\"arn:aws:s3:::$STATE\",\"arn:aws:s3:::$STATE/*\"],\"Condition\":{\"Bool\":{\"aws:SecureTransport\":\"false\"}}}]}"
 ```
 
 State locking uses S3's native lockfile (`use_lockfile`); no DynamoDB table is needed.
@@ -151,9 +192,12 @@ curl -s -o /dev/null -w "%{http_code}\n" "https://<bucket>.s3.<region>.amazonaws
 Then run the same automated checks against the live site, and keep the results (this is the first real Lighthouse figure for the deployed site; the local ones are a best case):
 
 ```
-E2E_BASE_URL="$SITE" scripts/e2e.sh
+SITE=https://<your-address>        # set it in the SAME shell: in a new terminal $SITE is empty
+E2E_BASE_URL="$SITE" scripts/e2e.sh --grep-invert "screenshot|review crops|page weight"
 LH_BASE_URL="$SITE" LH_OUT=design/lighthouse/summary-deployed.json scripts/lighthouse.sh
 ```
+
+Each script prints a `TARGET:` line first. It must say `LIVE https://...`. If it says `local build`, you are not testing the live site, and the script refuses a set-but-empty variable for exactly this reason. The `target` field in the Lighthouse JSON records the same thing; a file named `summary-deployed.json` whose target is not your address is not a deployed result.
 
 Record the outcome in `docs/verification.md`, including anything that fails. A first deployment normally finds something that only the real CDN reveals.
 
