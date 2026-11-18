@@ -1,6 +1,8 @@
 # Review gallery
 
-Screenshots are Chromium via Playwright 1.65.1, taken from the production build by `scripts/e2e.sh`. **Owner sign-off: not done.** Everything on the site is now built; Phase 6 is the full responsive, accessibility and performance pass.
+> **Owner sign-off, 2026-11-18:** the owner signed off on all pages (stated in the session while the contact, education and repository-link edits were being made; user-reported). Sign-off does not close the open items listed in each section's "Look at these" and "Not checked", for example the unexplained mobile performance variance, which the owner chose to leave open.
+
+Screenshots are Chromium via Playwright 1.65.1, taken from the production build by `scripts/e2e.sh`. **Owner sign-off: given 2026-11-18 (all pages).** Everything on the site is now built; Phase 6 is the full responsive, accessibility and performance pass.
 
 ## Phase 3: homepage and shared layout (2026-11-17)
 

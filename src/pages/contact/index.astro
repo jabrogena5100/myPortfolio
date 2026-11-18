@@ -2,11 +2,12 @@
 import Base from '../../layouts/Base.astro';
 import { contact, hasContact } from '../../data/site';
 
-const rows: { label: string; value: string | null; href: string | null }[] = [
-  { label: 'Email', value: contact.email, href: contact.email ? `mailto:${contact.email}` : null },
-  { label: 'GitHub', value: contact.github, href: contact.github },
-  { label: 'LinkedIn', value: contact.linkedin, href: contact.linkedin },
-  { label: 'Resume (PDF)', value: contact.resumeUrl ? 'Download' : null, href: contact.resumeUrl },
+const shown = (u: string | null) => (u ? u.replace(/^https?:\/\//, '').replace(/\/$/, '') : null);
+const rows: { label: string; value: string | null; href: string | null; external: boolean }[] = [
+  { label: 'Email', value: contact.email, href: contact.email ? `mailto:${contact.email}` : null, external: false },
+  { label: 'GitHub', value: shown(contact.github), href: contact.github, external: true },
+  { label: 'LinkedIn', value: shown(contact.linkedin), href: contact.linkedin, external: true },
+  { label: 'Resume (PDF)', value: contact.resumeUrl ? 'Download' : null, href: contact.resumeUrl, external: false },
 ];
 ---
 <Base
@@ -24,7 +25,7 @@ const rows: { label: string; value: string | null; href: string | null }[] = [
         {rows.map((r) => (
           <div>
             <dt>{r.label}</dt>
-            <dd>{r.href && r.value ? <a href={r.href}>{r.value}</a> : <span class="todo">To be added.</span>}</dd>
+            <dd>{r.href && r.value ? <a href={r.href} rel={r.external ? 'noopener noreferrer' : undefined}>{r.value}</a> : <span class="todo">To be added.</span>}</dd>
           </div>
         ))}
       </dl>
@@ -62,6 +63,7 @@ const rows: { label: string; value: string | null; href: string | null }[] = [
   .rows { margin: 0; display: grid; gap: var(--space-3); }
   .rows div { display: grid; grid-template-columns: 9rem 1fr; gap: var(--space-4); border-bottom: 1px solid var(--color-border); padding-bottom: var(--space-3); }
   dt { color: var(--color-text-muted); font-size: var(--step--1); letter-spacing: 0.06em; text-transform: uppercase; align-self: center; }
-  dd { margin: 0; }
+  dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+  @media (max-width: 30rem) { .rows div { grid-template-columns: 1fr; gap: var(--space-1); } }
   .todo { color: var(--color-text-muted); }
 </style>

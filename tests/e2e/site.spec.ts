@@ -2,6 +2,9 @@ import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 const PAGES = ['/', '/projects/', '/projects/ryustorefront/', '/projects/ryucloud/', '/projects/wildfire-monitoring/', '/services/', '/about/', '/contact/'];
+// The only external destinations the site may link to (owner-approved 2026-11-18). Everything else must be internal.
+const ALLOWED_EXTERNAL = ['https://github.com/jabrogena5100', 'https://github.com/jabrogena5100/RyuCloud', 'https://www.linkedin.com/in/joshua-abrogena-75757a3a6'];
+const ALLOWED_MAILTO = 'mailto:joshua.abrogena@gmail.com';
 const CASE_STUDIES = ['/projects/ryustorefront/', '/projects/ryucloud/', '/projects/wildfire-monitoring/'];
 const WIDTHS = { phone: 390, tablet: 820, desktop: 1440 } as const;
 const HEIGHTS = { phone: 844, tablet: 1180, desktop: 900 } as const;
@@ -208,7 +211,7 @@ test.describe('case studies: structure and accessibility details', () => {
       // internal links and in-page anchors resolve; no external links; no repository links
       const hrefs = await page.$$eval('main a[href], header a[href], footer a[href]', (as) => as.map((a) => a.getAttribute('href') as string));
       for (const h of new Set(hrefs)) {
-        expect(h, 'no external or repo links yet').not.toMatch(/^https?:|github\.com/);
+        if (/^https?:/.test(h)) { expect(ALLOWED_EXTERNAL, `unexpected external link ${h}`).toContain(h); continue; }
         if (h.startsWith('#')) expect(await page.locator(h).count(), `anchor ${h}`).toBe(1);
         else expect((await request.get(h)).status(), `link ${h}`).toBe(200);
       }
@@ -341,8 +344,11 @@ test.describe('services, about and contact', () => {
   test('contact: no form, no inputs, no storage, placeholders only', async ({ page }) => {
     await page.goto('/contact/');
     expect(await page.locator('form, input, textarea, select, button[type="submit"]').count()).toBe(0);
-    expect(await page.locator('a[href^="mailto:"], a[href^="http"], a[href$=".pdf"]').count()).toBe(0);
-    expect(await page.locator('.todo').count()).toBe(4);
+    // owner-supplied 2026-11-18: one email, GitHub and LinkedIn; the resume is still a placeholder
+    expect(await page.locator('a[href^="mailto:"]').count()).toBe(1);
+    expect(await page.locator('main a[href^="http"]').count()).toBe(2);
+    expect(await page.locator('a[href$=".pdf"]').count()).toBe(0);
+    expect(await page.locator('.todo').count()).toBe(1);
     const t = await page.locator('main').innerText();
     expect(t).toContain('no contact form');
     expect(t).toContain('no analytics');
@@ -365,7 +371,7 @@ test.describe('services, about and contact', () => {
       await page.goto(path);
       const hrefs = await page.$$eval('a[href]', (as) => as.map((a) => a.getAttribute('href') as string));
       for (const h of new Set(hrefs)) {
-        expect(h).not.toMatch(/^https?:|^mailto:|github\.com/);
+        if (/^https?:|^mailto:/.test(h)) { expect([...ALLOWED_EXTERNAL, ALLOWED_MAILTO], `unexpected external link ${h}`).toContain(h); continue; }
         if (h.startsWith('#')) { expect(await page.locator(h).count(), `anchor ${h}`).toBe(1); continue; }
         const [url, hash] = h.split('#');
         expect((await request.get(url)).status(), `link ${h}`).toBe(200);
@@ -694,4 +700,31 @@ test('no serif fonts are used anywhere: headings and body are Geist, labels are 
     const fams = await page.evaluate(() => [...new Set([...document.querySelectorAll('h1,h2,h3,p,li,a,dt,dd,td,th,code')].map((e) => getComputedStyle(e).fontFamily.split(',')[0].replace(/"/g, '').trim()))]);
     for (const f of fams) expect(['Geist', 'Geist Mono'], `${path}: ${f}`).toContain(f);
   }
+});
+
+test('every external link is on the allow-list and opens safely; RyuStoreFront is not linked yet', async ({ page }) => {
+  for (const path of [...PAGES, '/404.html']) {
+    await page.goto(path);
+    const links = await page.$$eval('a[href^="http"]', (as) => as.map((a) => ({ href: a.getAttribute('href') as string, rel: a.getAttribute('rel') || '' })));
+    for (const l of links) {
+      expect(ALLOWED_EXTERNAL, `${path}: ${l.href}`).toContain(l.href);
+      expect(l.rel, `${path}: rel on ${l.href}`).toContain('noopener');
+      expect(l.rel, `${path}: rel on ${l.href}`).toContain('noreferrer');
+    }
+  }
+  await page.goto('/projects/ryustorefront/');
+  expect(await page.locator('a[href*="RyuStoreFront"]').count()).toBe(0);
+  expect(await page.locator('main').innerText()).toContain('not linked yet');
+  await page.goto('/projects/ryucloud/');
+  expect(await page.locator('a[href="https://github.com/jabrogena5100/RyuCloud"]').count()).toBe(1);
+});
+
+test('about: education is stated and the resume is still a placeholder', async ({ page }) => {
+  await page.goto('/about/');
+  const t = await page.locator('#experience').innerText();
+  expect(t).toContain('Computer Engineering');
+  expect(t).toContain('University of Hawai');
+  expect(t).toContain('expected Fall 2026');
+  expect(t).toContain('Resume: to be added');
+  expect(await page.locator('footer').innerText()).not.toContain('being added');
 });

@@ -204,3 +204,15 @@ The owner asked me to pick the plan I best recommend. I did not run `terraform p
 | Cost alert | Recommended on. `budget_amount_usd` and `budget_email` must be set together, the email must look like an email, and the amount must be above zero; a leftover placeholder fails at plan time | It only notifies; it does not stop spending; it covers the whole account |
 | Evidence | `terraform graph` (in a backend-free scratch copy) lists 17 declared blocks matching the expected counts (11 always, 5 domain, 1 budget); 13 variable-validation cases were exercised with `terraform console` (7 for bucket, domain, zone and price class; 6 for the budget variables) and all behaved as intended; `fmt` and `validate` pass | None of this is a plan. A configuration can still fail at plan or apply |
 | GitHub Pages | Remains the documented fallback, not the recommendation | Free and simpler, but no custom security headers, so the CSP and HSTS work would not apply |
+
+## D15. Public contact details, education and links (2026-11-18)
+
+| Decision | Choice | Tradeoff |
+| --- | --- | --- |
+| Contact | Email, GitHub and LinkedIn from the owner, in the single `contact` object; the contact page shows addresses without the scheme and wraps them on narrow screens | The email is a public `mailto:` link that scrapers will harvest (the owner chose to publish it) |
+| Resume | Still a placeholder ("To be added.") on Contact and About; the owner is writing it | One visible placeholder remains |
+| Education | One line on About: Computer Engineering, University of Hawaiʻi at Mānoa, expected Fall 2026, tied to the ECE 496 capstone. No degree type, GPA or dates beyond what the owner gave | The owner wrote "UH Manoa"; the expansion is mine and should be confirmed |
+| Repository links | **RyuCloud linked** (public). **RyuStoreFront not linked yet**: it says "not linked yet" | GitHub already reports it public, so this is the owner's call, not a technical one. RyuCloud's own README is stale and contradicts the case study |
+| External-link rule | Allow-list of exactly three URLs plus one `mailto`, all with `rel="noopener noreferrer"`, enforced by a test on every page | Any new external link needs a deliberate edit to the allow-list |
+| Wording | "without fooling myself" removed from the home page at the owner's request | None |
+| Sign-off | Owner signed off on all pages | Open items remain open (see `design/REVIEW.md`) |
