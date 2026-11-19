@@ -2,6 +2,11 @@ import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 const PAGES = ['/', '/projects/', '/projects/ryustorefront/', '/projects/ryucloud/', '/projects/wildfire-monitoring/', '/services/', '/about/', '/contact/'];
+// The only external destinations the site may link to (owner-approved 2026-11-18). Everything else must be internal.
+// The profile links and the email come from the site's own contact data, so this file never duplicates them.
+import { contact } from '../../src/data/site';
+const ALLOWED_EXTERNAL = [contact.github!, `${contact.github}/RyuCloud`, `${contact.github}/RyuStoreFront`, contact.linkedin!];
+const ALLOWED_MAILTO = `mailto:${contact.email}`;
 const CASE_STUDIES = ['/projects/ryustorefront/', '/projects/ryucloud/', '/projects/wildfire-monitoring/'];
 const WIDTHS = { phone: 390, tablet: 820, desktop: 1440 } as const;
 const HEIGHTS = { phone: 844, tablet: 1180, desktop: 900 } as const;
@@ -208,7 +213,7 @@ test.describe('case studies: structure and accessibility details', () => {
       // internal links and in-page anchors resolve; no external links; no repository links
       const hrefs = await page.$$eval('main a[href], header a[href], footer a[href]', (as) => as.map((a) => a.getAttribute('href') as string));
       for (const h of new Set(hrefs)) {
-        expect(h, 'no external or repo links yet').not.toMatch(/^https?:|github\.com/);
+        if (/^https?:/.test(h)) { expect(ALLOWED_EXTERNAL, `unexpected external link ${h}`).toContain(h); continue; }
         if (h.startsWith('#')) expect(await page.locator(h).count(), `anchor ${h}`).toBe(1);
         else expect((await request.get(h)).status(), `link ${h}`).toBe(200);
       }
@@ -326,13 +331,13 @@ test.describe('services, about and contact', () => {
     for (const s of ['No clients, no paid work, no revenue', 'None of the projects has a load test', 'currently down', 'Where it stops']) expect(t, s).toContain(s);
   });
 
-  test('about: How I work is anchored and discloses AI assistance; no resume link while none is supplied', async ({ page }) => {
+  test('about: How I work is anchored and discloses AI assistance; the resume PDF is linked', async ({ page }) => {
     await page.goto('/about/');
     expect(await page.locator('#how-i-work').count()).toBe(1);
     const section = await page.locator('#how-i-work').innerText();
     for (const s of ['Claude Code', 'AI reviewer', 'unverified until it is tested', 'do not claim to have hand-written every line']) expect(section, s).toContain(s);
-    expect(await page.locator('a[href$=".pdf"]').count()).toBe(0);
-    expect(await page.locator('main').innerText()).toContain('Resume: to be added');
+    expect(await page.locator('a[href="/resume.pdf"]').count()).toBe(1);
+    expect(await page.locator('main').innerText()).not.toContain('to be added');
     // the services page links to the anchor, and it resolves
     await page.goto('/services/');
     expect(await page.locator('a[href="/about/#how-i-work"]').count()).toBe(1);
@@ -341,8 +346,11 @@ test.describe('services, about and contact', () => {
   test('contact: no form, no inputs, no storage, placeholders only', async ({ page }) => {
     await page.goto('/contact/');
     expect(await page.locator('form, input, textarea, select, button[type="submit"]').count()).toBe(0);
-    expect(await page.locator('a[href^="mailto:"], a[href^="http"], a[href$=".pdf"]').count()).toBe(0);
-    expect(await page.locator('.todo').count()).toBe(4);
+    // owner-supplied 2026-11-18: one email, GitHub and LinkedIn; the resume PDF was added the same day
+    expect(await page.locator('a[href^="mailto:"]').count()).toBe(1);
+    expect(await page.locator('main a[href^="http"]').count()).toBe(2);
+    expect(await page.locator('a[href="/resume.pdf"]').count()).toBe(1);
+    expect(await page.locator('.todo').count()).toBe(0);
     const t = await page.locator('main').innerText();
     expect(t).toContain('no contact form');
     expect(t).toContain('no analytics');
@@ -365,7 +373,7 @@ test.describe('services, about and contact', () => {
       await page.goto(path);
       const hrefs = await page.$$eval('a[href]', (as) => as.map((a) => a.getAttribute('href') as string));
       for (const h of new Set(hrefs)) {
-        expect(h).not.toMatch(/^https?:|^mailto:|github\.com/);
+        if (/^https?:|^mailto:/.test(h)) { expect([...ALLOWED_EXTERNAL, ALLOWED_MAILTO], `unexpected external link ${h}`).toContain(h); continue; }
         if (h.startsWith('#')) { expect(await page.locator(h).count(), `anchor ${h}`).toBe(1); continue; }
         const [url, hash] = h.split('#');
         expect((await request.get(url)).status(), `link ${h}`).toBe(200);
@@ -428,7 +436,11 @@ test.describe('phase 6: responsive and adaptive behaviour', () => {
       expect(results.violations.map((v) => `${v.id} (${v.nodes.length})`)).toEqual([]);
     });
 
-    test(`200% zoom (640 css px) and 200% text size: ${path}`, async ({ page }) => {
+    test(`200% zoom (640 css px) and 200% text size: ${path}`, async ({ browser }) => {
+      // Emulates a user stylesheet or extension, which a page's CSP does not govern, so CSP is bypassed here.
+      // (The CSP itself is tested separately, with the production header injected.)
+      const ctx = await browser.newContext({ bypassCSP: true, baseURL: test.info().project.use.baseURL });
+      const page = await ctx.newPage();
       await page.setViewportSize({ width: 640, height: 800 });
       await page.goto(path);
       expect(await overflowOf(page), '200% zoom').toBeLessThanOrEqual(0);
@@ -437,9 +449,14 @@ test.describe('phase 6: responsive and adaptive behaviour', () => {
       expect(await overflowOf(page), '200% text size').toBeLessThanOrEqual(0);
       const results = await new AxeBuilder({ page }).withTags(AXE_TAGS).analyze();
       expect(results.violations.map((v) => `${v.id} (${v.nodes.length})`)).toEqual([]);
+      await ctx.close();
     });
 
-    test(`text spacing overrides (WCAG 1.4.12): ${path}`, async ({ page }) => {
+    test(`text spacing overrides (WCAG 1.4.12): ${path}`, async ({ browser }) => {
+      // Emulates a user stylesheet or extension, which a page's CSP does not govern, so CSP is bypassed here.
+      // (The CSP itself is tested separately, with the production header injected.)
+      const ctx = await browser.newContext({ bypassCSP: true, baseURL: test.info().project.use.baseURL });
+      const page = await ctx.newPage();
       for (const w of [390, 1440]) {
         await page.setViewportSize({ width: w, height: 900 });
         await page.goto(path);
@@ -451,6 +468,7 @@ test.describe('phase 6: responsive and adaptive behaviour', () => {
           .map((e) => e.className || e.tagName));
         expect(clipped, `clipped text at ${w}`).toEqual([]);
       }
+      await ctx.close();
     });
 
     test(`forced colors: still operable and axe-clean: ${path}`, async ({ browser }) => {
@@ -684,4 +702,135 @@ test('no serif fonts are used anywhere: headings and body are Geist, labels are 
     const fams = await page.evaluate(() => [...new Set([...document.querySelectorAll('h1,h2,h3,p,li,a,dt,dd,td,th,code')].map((e) => getComputedStyle(e).fontFamily.split(',')[0].replace(/"/g, '').trim()))]);
     for (const f of fams) expect(['Geist', 'Geist Mono'], `${path}: ${f}`).toContain(f);
   }
+});
+
+test('every external link is on the allow-list and opens safely; both repositories are linked', async ({ page }) => {
+  for (const path of [...PAGES, '/404.html']) {
+    await page.goto(path);
+    const links = await page.$$eval('a[href^="http"]', (as) => as.map((a) => ({ href: a.getAttribute('href') as string, rel: a.getAttribute('rel') || '' })));
+    for (const l of links) {
+      expect(ALLOWED_EXTERNAL, `${path}: ${l.href}`).toContain(l.href);
+      expect(l.rel, `${path}: rel on ${l.href}`).toContain('noopener');
+      expect(l.rel, `${path}: rel on ${l.href}`).toContain('noreferrer');
+    }
+  }
+  await page.goto('/projects/ryustorefront/');
+  expect(await page.locator(`a[href="${contact.github}/RyuStoreFront"]`).count()).toBe(1);
+  expect(await page.locator('main').innerText()).toContain('README is minimal');
+  await page.goto('/projects/ryucloud/');
+  expect(await page.locator('a[href="https://github.com/jabrogena5100/RyuCloud"]').count()).toBe(1);
+});
+
+test('about: education is stated and the resume is linked', async ({ page }) => {
+  await page.goto('/about/');
+  const t = await page.locator('#experience').innerText();
+  expect(t).toContain('Computer Engineering');
+  expect(t).toContain('University of Hawai');
+  expect(t).toContain('expected Fall 2026');
+  expect(t).toContain('Resume (PDF)');
+  expect(t).not.toContain('to be added');
+  expect(await page.locator('footer').innerText()).not.toContain('being added');
+});
+
+test('background texture: present, behind the content, inert, faint, and off for forced colors and more contrast', async ({ page }) => {
+  await page.goto('/');
+  const t = await page.evaluate(() => {
+    const b = getComputedStyle(document.body, '::before');
+    const h = getComputedStyle(document.querySelector('.texture-dots')!, '::before');
+    const mask = (h.maskImage && h.maskImage !== 'none' ? h.maskImage : (h as unknown as { webkitMaskImage: string }).webkitMaskImage) || '';
+    return { grainImg: b.backgroundImage.startsWith('url("data:image/svg+xml'), grainZ: b.zIndex, grainPointer: b.pointerEvents, grainOpacity: parseFloat(b.opacity), dotsImg: h.backgroundImage.includes('radial-gradient'), dotsZ: h.zIndex, dotsPointer: h.pointerEvents, dotsMask: mask.includes('radial-gradient') };
+  });
+  expect(t).toMatchObject({ grainImg: true, grainZ: '-1', grainPointer: 'none', dotsImg: true, dotsZ: '-1', dotsPointer: 'none', dotsMask: true });
+  expect(t.grainOpacity, 'blend strength (the real safeguard is the measured-pixels test below)').toBeGreaterThan(0);
+  expect(t.grainOpacity).toBeLessThanOrEqual(1);
+  expect(await page.evaluate(() => getComputedStyle(document.body, '::before').mixBlendMode), 'neutral blend').toBe('overlay');
+  // the texture must not sit over the content: the element at a point inside the hero heading is the heading itself
+  const top = await page.evaluate(() => { const h = document.querySelector('h1')!.getBoundingClientRect(); const e = document.elementFromPoint(h.x + 10, h.y + h.height / 2); return e?.tagName; });
+  expect(top).toBe('H1');
+  for (const media of [{ forcedColors: 'active' }, { contrast: 'more' }] as const) {
+    await page.emulateMedia(media as never);
+    await page.goto('/');
+    const d = await page.evaluate(() => [getComputedStyle(document.body, '::before').display, getComputedStyle(document.querySelector('.texture-dots')!, '::before').display]);
+    expect(d, JSON.stringify(media)).toEqual(['none', 'none']);
+    await page.emulateMedia({ forcedColors: 'none', contrast: 'no-preference' } as never);
+  }
+});
+
+test('texture review screenshots: hero and checks panel at full resolution', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  await page.evaluate(() => document.fonts.ready);
+  await page.screenshot({ path: 'design/screenshots/phase8/hero-texture-desktop.png', clip: { x: 0, y: 0, width: 1440, height: 760 } });
+  await page.locator('#verify').screenshot({ path: 'design/screenshots/phase8/checks-panel-desktop.png' });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await page.screenshot({ path: 'design/screenshots/phase8/hero-texture-phone.png', clip: { x: 0, y: 0, width: 390, height: 760 } });
+});
+
+test('the grain adds texture without shifting the background colour (measured from real pixels)', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/contact/');
+  await page.evaluate(() => document.fonts.ready);
+  // an empty region to the right of the narrow contact column: only the page background and the grain are there
+  const png = (await page.screenshot({ clip: { x: 1180, y: 300, width: 200, height: 200 } })).toString('base64');
+  const stats = await page.evaluate(async (b64) => {
+    const img = new Image(); img.src = `data:image/png;base64,${b64}`; await img.decode();
+    const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+    const ctx = c.getContext('2d')!; ctx.drawImage(img, 0, 0);
+    const d = ctx.getImageData(0, 0, c.width, c.height).data; let sum = 0, sq = 0, n = 0;
+    for (let i = 0; i < d.length; i += 4) { const y = (d[i] + d[i + 1] + d[i + 2]) / 3; sum += y; sq += y * y; n++; }
+    const mean = sum / n; return { mean, sd: Math.sqrt(sq / n - mean * mean) };
+  }, png);
+  // --color-bg is #141414 = 20. The average must stay within 2 levels of it; a visible grain has a spread above 1.5 levels.
+  expect(stats.mean, `mean ${stats.mean.toFixed(1)}`).toBeGreaterThan(18);
+  expect(stats.mean, `mean ${stats.mean.toFixed(1)}`).toBeLessThan(22);
+  expect(stats.sd, `spread ${stats.sd.toFixed(2)}`).toBeGreaterThan(1.5);
+  expect(stats.sd, `spread ${stats.sd.toFixed(2)}`).toBeLessThan(12);
+});
+
+test.describe('resume', () => {
+  for (const [name] of Object.entries(WIDTHS) as [keyof typeof WIDTHS, number][]) {
+    test(`resume page is accessible and does not overflow at ${name}`, async ({ page }) => {
+      await setSize(page, name);
+      await page.goto('/resume/');
+      await page.evaluate(() => document.fonts.ready);
+      const results = await new AxeBuilder({ page }).withTags(AXE_TAGS).analyze();
+      expect(results.violations.map((v) => `${v.id} (${v.nodes.length})`)).toEqual([]);
+      expect(await page.locator('h1').count()).toBe(1);
+      expect(await overflowOf(page)).toBeLessThanOrEqual(0);
+    });
+  }
+
+  test('the HTML resume is noindex, uses the site contact data, and states only what the evidence supports', async ({ page }) => {
+    await page.goto('/resume/');
+    expect(await page.locator('meta[name="robots"]').getAttribute('content')).toBe('noindex');
+    const t = await page.locator('main').innerText();
+    expect(t).toContain(contact.email!);
+    expect(await page.locator(`a[href="mailto:${contact.email}"]`).count()).toBe(1);
+    expect(await page.locator(`a[href="${contact.github}"]`).count()).toBe(1);
+    expect(await page.locator(`a[href="${contact.linkedin}"]`).count()).toBe(1);
+    for (const s of ['Expected Fall 2026', 'University of Hawai', 'Independent Software Engineer', 'November 2026']) expect(t, s).toContain(s);
+    // nothing the owner has not supplied: no phone number, street address, GPA or invented employer
+    expect(t).not.toMatch(/\b\d{3}[-. )]\d{3}[-. ]\d{4}\b/);
+    expect(t).not.toMatch(/GPA|Present\s*,\s*[A-Z]|Inc\.|LLC|Corp\./);
+    // the same banned phrases as the rest of the site
+    expect(t).not.toMatch(/world-class|cutting-edge|revolutioni|seamless|passionate|leverag|robust|high-traffic|enterprise-grade/i);
+    // external links on the resume stay on the allow-list
+    const hrefs = await page.$$eval('a[href^="http"]', (as) => as.map((a) => a.getAttribute('href') as string));
+    for (const h of hrefs) expect(ALLOWED_EXTERNAL).toContain(h);
+  });
+
+  test('resume.pdf is a real one-page PDF with a normal font embedding', async ({ request }) => {
+    const res = await request.get('/resume.pdf');
+    expect(res.status()).toBe(200);
+    expect(res.headers()['content-type']).toContain('application/pdf');
+    const body = await res.body();
+    const raw = body.toString('latin1');
+    expect(raw.startsWith('%PDF-')).toBe(true);
+    expect((raw.match(/\/Type\s*\/Page(?!s)/g) || []).length, 'page count').toBe(1);
+    expect(body.length, 'size').toBeLessThan(200 * 1024);
+    // fonts are embedded as TrueType/CID, not the unusual Type 3 that a variable web font produces
+    expect(raw).not.toMatch(/\/Subtype\s*\/Type3/);
+    expect(raw).toMatch(/\/FontFile2/);
+  });
 });

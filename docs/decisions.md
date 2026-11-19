@@ -204,3 +204,42 @@ The owner asked me to pick the plan I best recommend. I did not run `terraform p
 | Cost alert | Recommended on. `budget_amount_usd` and `budget_email` must be set together, the email must look like an email, and the amount must be above zero; a leftover placeholder fails at plan time | It only notifies; it does not stop spending; it covers the whole account |
 | Evidence | `terraform graph` (in a backend-free scratch copy) lists 17 declared blocks matching the expected counts (11 always, 5 domain, 1 budget); 13 variable-validation cases were exercised with `terraform console` (7 for bucket, domain, zone and price class; 6 for the budget variables) and all behaved as intended; `fmt` and `validate` pass | None of this is a plan. A configuration can still fail at plan or apply |
 | GitHub Pages | Remains the documented fallback, not the recommendation | Free and simpler, but no custom security headers, so the CSP and HSTS work would not apply |
+
+## D15. Public contact details, education and links (2026-11-18)
+
+| Decision | Choice | Tradeoff |
+| --- | --- | --- |
+| Contact | Email, GitHub and LinkedIn from the owner, in the single `contact` object; the contact page shows addresses without the scheme and wraps them on narrow screens | The email is a public `mailto:` link that scrapers will harvest (the owner chose to publish it) |
+| Resume | Still a placeholder ("To be added.") on Contact and About; the owner is writing it | One visible placeholder remains |
+| Education | One line on About: Computer Engineering, University of Hawaiʻi at Mānoa, expected Fall 2026, tied to the ECE 496 capstone. No degree type, GPA or dates beyond what the owner gave | The owner wrote "UH Manoa"; the expansion is mine and should be confirmed |
+| Repository links | **RyuCloud linked** (public). **RyuStoreFront not linked yet**: it says "not linked yet" | GitHub already reports it public, so this is the owner's call, not a technical one. RyuCloud's own README is stale and contradicts the case study |
+| External-link rule | Allow-list of exactly three URLs plus one `mailto`, all with `rel="noopener noreferrer"`, enforced by a test on every page | Any new external link needs a deliberate edit to the allow-list |
+| Wording | "without fooling myself" removed from the home page at the owner's request | None |
+| Sign-off | Owner signed off on all pages | Open items remain open (see `design/REVIEW.md`) |
+
+## D16. Background texture (2026-11-18)
+
+| Decision | Choice | Tradeoff |
+| --- | --- | --- |
+| What | Fine overlay-blended grain site-wide, plus a static dot grid fading from the top of the home hero | Subtle on purpose: restrained like the rest of the site. Strength is two tokens (`--texture-grain`, `--dot-color`) |
+| Colour fidelity | The grain must not change the palette. It is blended with `overlay`, the SVG filter runs in sRGB, and a test measures the rendered average against `#141414` | A blend mode on a page-sized layer; no measurable cost in two local Lighthouse runs |
+| Accessibility | Behind content, inert, no motion, removed for forced colors and more-contrast | Axe cannot see pseudo-elements, so the measured-pixels test stands in |
+| Security | A `data:` SVG background, covered by the existing `img-src 'self' data:`; no policy change | None |
+| Scope | Home hero dots only; grain on every page | The dot grid can be added to other page headers with one class (`texture-dots`) |
+| Alternatives not taken | A noise PNG (another request), a mesh or colour gradient (against the anti-slop rules), animated grain (motion cost, reduced-motion handling) | |
+
+## D17. The resume (2026-11-18)
+
+The owner asked me to create it, which reverses the original rule "do not fabricate a resume". The rule that stays: nothing on it that is not established in this project.
+
+| Decision | Choice | Tradeoff |
+| --- | --- | --- |
+| Source of truth | `src/pages/resume.astro`, an Astro page; the PDF is a print of it (`scripts/resume.sh`). Contact details come from `src/data/site.ts` | Editing the resume means editing a page and rerunning the script, not opening a word processor |
+| Content | Summary, education, one experience entry (the owner's own title and start date), three projects (the three case studies; the owner removed this portfolio as a fourth entry on 2026-11-18), skills. Every number keeps its context from the evidence files | Short on history: there is no earlier work to list, and I did not invent any |
+| Left off | Phone (owner: leave off), GPA (owner: leave off), earlier jobs, the portfolio address (until the permanent domain is live). Added on the owner's word: "Open to work anywhere" and the degree abbreviation CENG | The owner can add each; the address should be added once the permanent domain exists |
+| AI assistance | One sentence in the experience entry: Claude Code was used, under the owner's decisions and verification (matches the About page the owner approved) | Some employers read this differently; it is the owner's call to keep or cut |
+| Format | One US Letter page, single column, real text, standard section names, real links | Plain on purpose, for readability and parsers |
+| Font | Geist as three static TrueType weights generated from the variable font | A derived font file set (`docs/fonts.md`); the alternative, a system font, would be more generic |
+| Web version | `/resume/` is public but `noindex`, outside the sitemap, and not linked from navigation | A public HTML copy of the same facts; the PDF is the downloadable one |
+| Deployment | `pdf` added to the upload script's content-type map (it refuses unknown types) | None |
+

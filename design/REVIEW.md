@@ -1,6 +1,8 @@
 # Review gallery
 
-Screenshots are Chromium via Playwright 1.65.1, taken from the production build by `scripts/e2e.sh`. **Owner sign-off: not done.** Everything on the site is now built; Phase 6 is the full responsive, accessibility and performance pass.
+> **Owner sign-off, 2026-11-18:** the owner signed off on all pages (stated in the session while the contact, education and repository-link edits were being made; user-reported). Sign-off does not close the open items listed in each section's "Look at these" and "Not checked", for example the unexplained mobile performance variance, which the owner chose to leave open.
+
+Screenshots are Chromium via Playwright 1.65.1, taken from the production build by `scripts/e2e.sh`. **Owner sign-off: given 2026-11-18 (all pages).** Everything on the site is now built; Phase 6 is the full responsive, accessibility and performance pass.
 
 ## Phase 3: homepage and shared layout (2026-11-17)
 
@@ -171,3 +173,44 @@ What changed: Geist Sans and Geist Mono replace the serif and sans pairing; your
 ### Not checked
 
 Real devices; Firefox and WebKit; a screen-reader walkthrough; the deployed site.
+
+## Background texture (2026-11-18)
+
+Requested by the owner. Full-resolution captures: [hero, desktop](screenshots/phase8/hero-texture-desktop.png), [hero, phone](screenshots/phase8/hero-texture-phone.png), [the checks panel after its layout fix](screenshots/phase8/checks-panel-desktop.png).
+
+### Defects found, and fixed
+
+1. My first grain lightened the whole page from `#141414` to about `#1c1c1c`, so the palette on screen was not the palette specified. A pixel-measuring test caught a second version still at 25.5 (linear colour space in SVG filters); now 20.2.
+2. The first dots were barely visible; strengthened.
+3. Longer result strings in the home page's checks panel overlapped the description column; fixed.
+
+### Look at these (judgement calls for the owner)
+
+- **Strength.** The grain is visible but restrained (specks within about 8 levels of the background). Raise or lower `--texture-grain` and `--dot-color` in `src/styles/tokens.css`.
+- **Where.** Dots appear on the home hero only. Say if you want them on page headers too.
+- **Phone.** The dots look larger and more prominent on a phone because the pattern does not scale with the screen.
+
+### Not checked
+
+Real devices; Firefox and WebKit (mix-blend-mode and masks are supported but untested here); the texture on the live site until you upload.
+
+## Resume (2026-11-18)
+
+Rendered page: [resume-page1.png](screenshots/phase8/resume-page1.png) (the PDF is `public/resume.pdf`).
+
+### Defects found, and fixed
+
+1. Chromium embedded the variable Geist font as 15 Type 3 fonts; now static TrueType weights (see `docs/fonts.md`).
+2. The contact separators ran together, the okina rendered as an accent, and a quarter inch of the page was empty.
+
+### Look at these (judgement calls for the owner)
+
+- **What is not on it** (because it was not supplied): phone, location, GPA, degree abbreviation, any earlier job, and the portfolio address. Add what you want in `src/pages/resume.astro`.
+- **The AI-assistance sentence** in the Experience entry. Keep it for consistency with the About page, or cut it.
+- **"Independent Software Engineer, November 2026 to present"** is your own title. The entry describes personal projects, not client work.
+- Resolved 2026-11-18: the portfolio entry was removed; "Open to work anywhere" and "(CENG)" were added on the owner's instruction.
+
+### Not checked
+
+An applicant-tracking system; Preview, Acrobat or a browser PDF viewer; printing.
+

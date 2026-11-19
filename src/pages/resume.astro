@@ -1,0 +1,158 @@
+---
+// Resume: the HTML source of public/resume.pdf (rendered by scripts/resume.sh).
+// Every statement here is taken from the project evidence recorded in this repository; nothing is invented.
+// Contact details come from src/data/site.ts so they exist in one place only.
+import { contact, site } from '../data/site';
+
+const shown = (u: string) => u.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '');
+
+const projects = [
+  {
+    name: 'RyuStoreFront',
+    stack: 'Java 25, Spring Boot, PostgreSQL, Next.js, Terraform, AWS',
+    when: 'Nov 2026',
+    bullets: [
+      'Payments and inventory backend: idempotent Stripe (test mode) webhook handling, atomic stock reservation, an order state machine, and a transactional outbox with a background worker.',
+      'Tested the failure paths: duplicate and out-of-order webhooks (six simultaneous duplicates leave one paid order), a 50-thread stock race (exactly 10 reservations for 10 units), and a worker killed mid-job; 235 tests, Testcontainers.',
+      'Terraform for ECS Fargate, RDS and an ALB; ran one real checkout on AWS in test mode, then destroyed the stack and audited it for leftovers.',
+    ],
+  },
+  {
+    name: 'RyuCloud',
+    stack: 'Go, PostgreSQL, FFmpeg, Next.js, Terraform, AWS',
+    when: 'Nov 2026',
+    bullets: [
+      'Video platform: browsers upload straight to private S3; a Go worker transcodes to adaptive HLS with lease-based job claims, retries and crash recovery (a worker killed mid-encode, the job finished by a second attempt).',
+      'Found and fixed a CloudFront signed-cookie bug that appeared only on AWS (a wildcard percent-encoded in the policy) and added a regression test; cleared 13 reachable Go vulnerabilities to 0.',
+      'Deployed once to AWS with Terraform (ECS Fargate, RDS, S3, CloudFront, SQS) and tore it down; recovered from expired credentials and a failed apply.',
+    ],
+  },
+  {
+    name: 'Wildfire monitoring (ECE 496 capstone)',
+    stack: 'Python, YOLOv8, PyTorch, ArduPilot SITL',
+    when: 'Sep – Nov 2026',
+    bullets: [
+      'Chose the Boreal dataset and examined its limits. Compared smoke detectors trained on synthetic versus real imagery through one evaluation harness (3 seeds per model); an audit found train/test leakage, so a clip-disjoint split was built and the models retrained.',
+      'Integrated the detector into an ArduPilot simulation where the fire state is hidden from the agent; ran 56 simulated runs and reported the results as descriptive, with a timing confound and censored events documented.',
+    ],
+  },
+];
+
+const skills = [
+  ['Languages', 'Java, Go, Python, TypeScript, SQL'],
+  ['Backend and data', 'Spring Boot, PostgreSQL, Flyway, Stripe, FFmpeg'],
+  ['Cloud and delivery', 'AWS (ECS Fargate, RDS, ALB, S3, CloudFront, SQS, IAM), Terraform, Docker, GitHub Actions'],
+  ['Testing', 'JUnit, Testcontainers, Playwright, axe, Vitest'],
+  ['ML and simulation', 'PyTorch, YOLOv8, ArduPilot SITL'],
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Joshua Abrogena, Resume</title>
+    <meta name="description" content="Resume of Joshua Abrogena, software engineer." />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <h1>{site.name}</h1>
+        <p class="role">Software engineer &middot; backend systems and AWS infrastructure &middot; Open to work anywhere</p>
+        <p class="contact">
+          <a href={`mailto:${contact.email}`}>{contact.email}</a>
+          <span class="sep" aria-hidden="true">&middot;</span>
+          <a href={contact.github!} rel="noopener noreferrer">{shown(contact.github!)}</a>
+          <span class="sep" aria-hidden="true">&middot;</span>
+          <a href={contact.linkedin!} rel="noopener noreferrer">{shown(contact.linkedin!)}</a>
+        </p>
+      </header>
+
+      <section aria-labelledby="summary-h">
+        <h2 id="summary-h">Summary</h2>
+        <p>I build backends that stay correct under retries and failure, and the AWS infrastructure to run them. Three projects in Java, Go and Python, each tested on its failure paths, with every result labelled by how it was obtained.</p>
+      </section>
+
+      <section aria-labelledby="edu-h">
+        <h2 id="edu-h">Education</h2>
+        <div class="row"><strong>University of Hawai<span class="okina">&#699;</span>i at M&#257;noa</strong><span class="when">Expected Fall 2026</span></div>
+        <p class="sub">Computer Engineering (CENG). Capstone: ECE 496, wildfire monitoring study (below).</p>
+      </section>
+
+      <section aria-labelledby="exp-h">
+        <h2 id="exp-h">Experience</h2>
+        <div class="row"><strong>Independent Software Engineer</strong><span class="when">November 2026 &ndash; Present</span></div>
+        <p class="sub">Designed, built, tested and deployed the personal projects below, with AI coding assistants (Claude Code) under my own design decisions and verification. Each has a public case study.</p>
+      </section>
+
+      <section aria-labelledby="proj-h">
+        <h2 id="proj-h">Projects</h2>
+        {projects.map((p) => (
+          <div class="project">
+            <div class="row"><span><strong>{p.name}</strong> <span class="stack">{p.stack}</span></span><span class="when">{p.when}</span></div>
+            <ul>{p.bullets.map((b) => <li>{b}</li>)}</ul>
+          </div>
+        ))}
+      </section>
+
+      <section aria-labelledby="skills-h">
+        <h2 id="skills-h">Skills</h2>
+        <dl class="skills">
+          {skills.map(([k, v]) => <div><dt>{k}</dt><dd>{v}</dd></div>)}
+        </dl>
+      </section>
+    </main>
+  </body>
+</html>
+
+<style is:global>
+  /* Static weights generated from the upstream variable font (see docs/fonts.md): a PDF embeds these as ordinary
+     TrueType, whereas a variable font is embedded as Type 3, which some resume parsers read poorly. */
+  @font-face { font-family: 'Geist'; src: url('/fonts/resume/Geist-Regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+  @font-face { font-family: 'Geist'; src: url('/fonts/resume/Geist-SemiBold.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
+  @font-face { font-family: 'Geist'; src: url('/fonts/resume/Geist-Bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+</style>
+
+<style>
+  /* Screen: the page is shown as a sheet of paper. Print: US Letter, one page. */
+  :global(html) { background: #e9e7e1; }
+  :global(body) { margin: 0; font-family: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; color: #141414; font-size: 14px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+  .page { box-sizing: border-box; max-width: 8.5in; margin: 24px auto; background: #fff; padding: 32px clamp(18px, 6vw, 0.6in); }
+  h1 { margin: 0; font-size: 2.1em; letter-spacing: -0.03em; line-height: 1.1; font-weight: 700; }
+  .role { margin: 4px 0 0; color: #3d3d3a; }
+  .contact { margin: 6px 0 0; color: #3d3d3a; overflow-wrap: anywhere; }
+  .sep { margin: 0 0.55em; color: #7a7a75; }
+  .okina { font-family: 'Liberation Sans', 'DejaVu Sans', Arial, sans-serif; font-weight: 700; }
+  a { color: #141414; text-decoration: underline; text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+  section { margin-top: 14px; }
+  h2 { margin: 0 0 6px; padding-bottom: 3px; border-bottom: 1px solid #bdbdb8; font-size: 0.78em; letter-spacing: 0.1em; text-transform: uppercase; color: #46553a; font-weight: 700; }
+  p { margin: 0 0 4px; }
+  .sub { color: #3d3d3a; }
+  .row { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+  .when { color: #3d3d3a; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .stack { color: #3d3d3a; font-size: 0.92em; }
+  .project { margin-top: 8px; }
+  .project:first-of-type { margin-top: 2px; }
+  ul { margin: 2px 0 0; padding-left: 1.15em; }
+  li { margin: 0 0 2px; }
+  .skills { margin: 0; display: grid; gap: 2px; }
+  .skills div { display: grid; grid-template-columns: 9.5em 1fr; gap: 8px; }
+  .skills dt { font-weight: 600; }
+  .skills dd { margin: 0; }
+  @media (max-width: 34rem) { .skills div { grid-template-columns: 1fr; gap: 0; } }
+
+  @page { size: Letter; margin: 0.45in 0.55in; }
+  @media print {
+    :global(html) { background: #fff; }
+    :global(body) { font-size: 9.9pt; line-height: 1.34; }
+    .page { margin: 0; max-width: none; padding: 0; background: #fff; }
+    h1 { font-size: 22pt; }
+    section { margin-top: 10px; }
+    h2 { font-size: 8pt; margin-bottom: 5px; }
+    .project { margin-top: 7px; }
+    a { text-decoration: none; }
+    .project, li { break-inside: avoid; }
+  }
+</style>

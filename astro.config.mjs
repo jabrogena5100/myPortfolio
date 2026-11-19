@@ -13,7 +13,8 @@ export default defineConfig({
   output: 'static',
   trailingSlash: 'always',
   build: { format: 'directory' },
-  integrations: site ? [sitemap()] : [],
+  // The HTML resume (/resume/) is the source of public/resume.pdf. It is noindex and kept out of the sitemap.
+  integrations: site ? [sitemap({ filter: (page) => !page.endsWith('/resume/') })] : [],
   vite: {
     plugins: [tailwindcss()],
     // Never inline scripts into the HTML, so a strict Content-Security-Policy (script-src 'self') works.

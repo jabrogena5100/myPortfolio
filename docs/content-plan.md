@@ -50,7 +50,7 @@ Full-stack work is shown as a **capability**, not a headline service: both softw
 > Software engineer building backends that stay correct under retries and failure, and the AWS infrastructure to run them.
 
 Intro paragraph (draft, about 60 words):
-> I design, build and test backend systems where retries, crashes and duplicate messages are the normal case: a payment-webhook and inventory system in Java, a video-processing pipeline in Go, and the Terraform to deploy each to AWS and tear it down again. I also studied how to evaluate a smoke-detection model without fooling myself, in a university capstone.
+> I design, build and test backend systems where retries, crashes and duplicate messages are the normal case: a payment-webhook and inventory system in Java, a video-processing pipeline in Go, and the Terraform to deploy each to AWS and tear it down again. I also studied how to evaluate a smoke-detection model, in a university capstone.
 
 Resume line, used as given: "Independent Software Engineer | November 2026 to Present" (the owner's preferred description; the site does not imply clients).
 

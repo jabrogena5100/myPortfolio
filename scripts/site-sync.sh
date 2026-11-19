@@ -25,7 +25,7 @@ grep -q 'rel="canonical"' dist/index.html || echo "WARNING: built without SITE_U
 declare -A CT=(
   [html]="text/html; charset=utf-8" [css]="text/css; charset=utf-8" [js]="text/javascript; charset=utf-8"
   [svg]="image/svg+xml" [webp]="image/webp" [png]="image/png" [woff2]="font/woff2"
-  [txt]="text/plain; charset=utf-8" [md]="text/plain; charset=utf-8" [xml]="application/xml" [json]="application/json"
+  [txt]="text/plain; charset=utf-8" [md]="text/plain; charset=utf-8" [pdf]="application/pdf" [xml]="application/xml" [json]="application/json"
 )
 unknown="$(find dist -type f | sed 's/.*\.//' | sort -u | while read -r e; do [[ -n "${CT[$e]:-}" ]] || echo "$e"; done)"
 [[ -z "$unknown" ]] || { echo "dist/ has file types with no content type mapping: $unknown" >&2; exit 1; }
@@ -46,7 +46,9 @@ sync_group() { # dir prefix cache-control [extra filters...]
 }
 
 # Order matters: hashed assets first, HTML last, so no page ever points at a file that is not there yet.
-sync_group dist/_astro "_astro" "public,max-age=31536000,immutable"
+# Hashed filenames mean a file with the same name always has the same content, so compare size only (the build rewrites
+# every CSS file with a new timestamp, which would otherwise re-upload identical files each time).
+sync_group dist/_astro "_astro" "public,max-age=31536000,immutable" --size-only
 sync_group dist/fonts  "fonts"  "public,max-age=2592000"
 sync_group dist        ""       "public,max-age=0,must-revalidate" --exclude "_astro/*" --exclude "fonts/*"
 

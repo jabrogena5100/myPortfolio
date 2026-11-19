@@ -41,11 +41,14 @@ import { site, contact } from '../../data/site';
       <p>I do not claim to have hand-written every line of any project. I claim the design decisions, the verification discipline and the honesty of what is reported here.</p>
     </Section>
 
-    <Section id="experience" title="Experience and resume">
+    <Section id="experience" title="Education, experience and resume">
       <p>My current role, as I describe it: <strong>{site.role}, {site.since}</strong>. That is a description of how I am working now, not a claim of client work, and this site lists no clients.</p>
+      <h3>Education</h3>
+      <p>Computer Engineering at the University of Hawaiʻi at Mānoa, expected Fall 2026. The wildfire monitoring study was my ECE 496 capstone.</p>
+      <h3>Resume</h3>
       {contact.resumeUrl
         ? <p><a href={contact.resumeUrl}>Resume (PDF)</a></p>
-        : <p class="placeholder">Resume: to be added. Education and earlier experience will appear with it.</p>}
+        : <p class="placeholder">Resume: to be added.</p>}
     </Section>
 
     <Section id="not" title="What this portfolio does not claim">

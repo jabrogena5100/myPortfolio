@@ -57,3 +57,14 @@ Diagram flow animation (new): key request paths in the architecture diagrams use
 ## 6. Focus and interaction
 
 Focus ring 2 px solid accent, 3 px offset, never removed. Touch targets at least 44 px. Links in running text are underlined.
+
+## 7. Background texture (decorative)
+
+Added 2026-11-18 at the owner's request ("texture like modern portfolio sites"). Two layers, both defined in `src/styles/global.css` and tuned by two tokens in `tokens.css`:
+
+| Layer | What it is | Token | Notes |
+| --- | --- | --- | --- |
+| Grain | A tiled 180 px SVG noise (a `data:` image, allowed by the CSP's `img-src`) on `body::before`, blended with `overlay` | `--texture-grain` (0.9) | Overlay makes the specks lighter and darker in equal measure. **Measured from rendered pixels: mean 20.2 against the specified `#141414` = 20, spread 12 to 29.** The filter must run in sRGB (`color-interpolation-filters`); in the default linear colour space the average drifted to 25.5 |
+| Dot grid | A radial-gradient dot pattern, 28 px apart, masked so it fades out from the top; opt-in with the `.texture-dots` class, used on the home hero | `--dot-color` (text colour at 30%) | The mask only controls how much of the pattern shows |
+
+Rules: both layers sit behind all content (`z-index: -1`), never intercept the pointer, use no motion and no inline styles, and are removed for `forced-colors: active` and `prefers-contrast: more`. Cards and panels are opaque and cover the texture. Axe cannot see pseudo-elements, so contrast is guaranteed by the measured-pixels test and by keeping the average equal to `--color-bg`.

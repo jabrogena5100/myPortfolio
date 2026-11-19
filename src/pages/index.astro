@@ -6,13 +6,13 @@ import StatusBadge from '../components/StatusBadge.astro';
 import { site, services, projects, verifyTerms, capabilities, contact, hasContact } from '../data/site';
 import { siteChecks } from '../data/checks';
 const serviceIcons = ['server', 'cloud', 'flask'] as const;
-const spec = [['projects', '3'], ['AWS stacks', '2, destroyed after testing'], ['live demos', 'none (domains down)'], ['client work', 'none listed']];
+const spec = [['projects', '3'], ['AWS stacks', '3: 2 destroyed, this site live'], ['live demos', 'none (domains down)'], ['client work', 'none listed']];
 ---
 <Base
   title={`${site.name}: ${site.role}`}
   description="Backend systems that stay correct under retries and failure, and the AWS infrastructure to run them. Three projects with their evidence."
 >
-  <section class="hero">
+  <section class="hero texture-dots">
     <div class="container">
       <p class="chip mono"><span class="dot" aria-hidden="true"></span>{site.role} &middot; {site.since}</p>
       <h1>{site.positioning}</h1>
@@ -186,7 +186,7 @@ const spec = [['projects', '3'], ['AWS stacks', '2, destroyed after testing'], [
   .checks li { display: grid; gap: var(--space-1); padding: var(--space-4); border-bottom: 1px solid var(--color-border); }
   .checks li:last-child { border-bottom: 0; }
   .lbl { font-weight: 600; }
-  .res { color: var(--color-accent); white-space: nowrap; }
+  .res { color: var(--color-accent); overflow-wrap: anywhere; }
   .ctx { color: var(--color-text-muted); font-size: var(--step--1); }
   .st { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-1); }
   .d { color: var(--color-text-muted); font-size: 0.75rem; }
@@ -211,7 +211,7 @@ const spec = [['projects', '3'], ['AWS stacks', '2, destroyed after testing'], [
     .svc { grid-template-columns: repeat(3, 1fr); }
     .terms { grid-template-columns: repeat(2, 1fr); }
     .caps { grid-template-columns: repeat(2, 1fr); }
-    .checks li { grid-template-columns: 11rem 14rem 1fr auto; align-items: center; gap: var(--space-4); }
+    .checks li { grid-template-columns: 11rem 15rem 1fr auto; align-items: center; gap: var(--space-4); }
     .st { margin-top: 0; }
   }
   @media (min-width: 64rem) {

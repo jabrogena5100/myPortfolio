@@ -71,6 +71,10 @@
   --content-max: 1200px;
 
   /* Motion. */
+  /* Background texture (decorative; docs in design/TOKENS.md section 7). Raise or lower to taste. */
+  --texture-grain: 0.9; /* overlay strength: lighter and darker specks in equal measure, so the average colour stays --color-bg */
+  --dot-color: color-mix(in srgb, var(--color-text) 30%, transparent);
+
   --duration-fast: 120ms;
   --duration-base: 200ms;
   --duration-slow: 320ms;

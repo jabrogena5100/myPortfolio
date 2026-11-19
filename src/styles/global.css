@@ -81,3 +81,38 @@ a:hover { color: var(--color-accent-hover); }
 .d-flow { stroke: var(--color-amber); stroke-width: 1.75; fill: none; stroke-dasharray: 6 6; }
 @keyframes d-dash { to { stroke-dashoffset: -12; } }
 @media (prefers-reduced-motion: no-preference) { .d-flow { animation: d-dash 1.4s linear infinite; } }
+
+/* ---- Background texture (decorative only) ----
+   1. Fine grain across the whole page, from a tiled SVG noise (a data: image, allowed by the CSP's img-src).
+   2. A dot grid that fades out from the top, opt-in with the .texture-dots class (the home hero).
+   Both sit BEHIND all content (z-index -1), never intercept the pointer, use no motion and no inline styles,
+   and switch off for forced colors and for people who ask for more contrast. */
+html { min-height: 100%; }
+body { position: relative; isolation: isolate; min-height: 100vh; }
+body::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--texture-grain);
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='.33 .33 .33 0 0 .33 .33 .33 0 0 .33 .33 .33 0 0 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+.texture-dots { position: relative; isolation: isolate; }
+.texture-dots::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(circle at center, var(--dot-color) 1px, transparent 1.6px);
+  background-size: 28px 28px;
+  /* the mask only controls how much of the pattern shows (opaque at the top, gone by 75% of the way down) */
+  -webkit-mask-image: radial-gradient(ellipse 85% 100% at 50% 0%, var(--color-text), transparent 75%);
+  mask-image: radial-gradient(ellipse 85% 100% at 50% 0%, var(--color-text), transparent 75%);
+}
+@media (forced-colors: active), (prefers-contrast: more) {
+  body::before, .texture-dots::before { display: none; }
+}
