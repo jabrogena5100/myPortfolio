@@ -2,8 +2,8 @@
   "note": "Uncompressed bytes from `astro preview` (no HTTP compression). initial = before any lazy image loads; full = after every image is forced to load.",
   "report": {
     "/": {
-      "initial_kb": 194,
-      "full_kb": 194,
+      "initial_kb": 195,
+      "full_kb": 195,
       "images_kb": 0
     },
     "/projects/": {

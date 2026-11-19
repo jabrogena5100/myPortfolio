@@ -193,3 +193,24 @@ Requested by the owner. Full-resolution captures: [hero, desktop](screenshots/ph
 ### Not checked
 
 Real devices; Firefox and WebKit (mix-blend-mode and masks are supported but untested here); the texture on the live site until you upload.
+
+## Resume (2026-11-18)
+
+Rendered page: [resume-page1.png](screenshots/phase8/resume-page1.png) (the PDF is `public/resume.pdf`).
+
+### Defects found, and fixed
+
+1. Chromium embedded the variable Geist font as 15 Type 3 fonts; now static TrueType weights (see `docs/fonts.md`).
+2. The contact separators ran together, the okina rendered as an accent, and a quarter inch of the page was empty.
+
+### Look at these (judgement calls for the owner)
+
+- **What is not on it** (because it was not supplied): phone, location, GPA, degree abbreviation, any earlier job, and the portfolio address. Add what you want in `src/pages/resume.astro`.
+- **The AI-assistance sentence** in the Experience entry. Keep it for consistency with the About page, or cut it.
+- **"Independent Software Engineer, November 2026 to present"** is your own title. The entry describes personal projects, not client work.
+- Resolved 2026-11-18: the portfolio entry was removed; "Open to work anywhere" and "(CENG)" were added on the owner's instruction.
+
+### Not checked
+
+An applicant-tracking system; Preview, Acrobat or a browser PDF viewer; printing.
+

@@ -227,3 +227,19 @@ The owner asked me to pick the plan I best recommend. I did not run `terraform p
 | Security | A `data:` SVG background, covered by the existing `img-src 'self' data:`; no policy change | None |
 | Scope | Home hero dots only; grain on every page | The dot grid can be added to other page headers with one class (`texture-dots`) |
 | Alternatives not taken | A noise PNG (another request), a mesh or colour gradient (against the anti-slop rules), animated grain (motion cost, reduced-motion handling) | |
+
+## D17. The resume (2026-11-18)
+
+The owner asked me to create it, which reverses the original rule "do not fabricate a resume". The rule that stays: nothing on it that is not established in this project.
+
+| Decision | Choice | Tradeoff |
+| --- | --- | --- |
+| Source of truth | `src/pages/resume.astro`, an Astro page; the PDF is a print of it (`scripts/resume.sh`). Contact details come from `src/data/site.ts` | Editing the resume means editing a page and rerunning the script, not opening a word processor |
+| Content | Summary, education, one experience entry (the owner's own title and start date), three projects (the three case studies; the owner removed this portfolio as a fourth entry on 2026-11-18), skills. Every number keeps its context from the evidence files | Short on history: there is no earlier work to list, and I did not invent any |
+| Left off | Phone (owner: leave off), GPA (owner: leave off), earlier jobs, the portfolio address (until the permanent domain is live). Added on the owner's word: "Open to work anywhere" and the degree abbreviation CENG | The owner can add each; the address should be added once the permanent domain exists |
+| AI assistance | One sentence in the experience entry: Claude Code was used, under the owner's decisions and verification (matches the About page the owner approved) | Some employers read this differently; it is the owner's call to keep or cut |
+| Format | One US Letter page, single column, real text, standard section names, real links | Plain on purpose, for readability and parsers |
+| Font | Geist as three static TrueType weights generated from the variable font | A derived font file set (`docs/fonts.md`); the alternative, a system font, would be more generic |
+| Web version | `/resume/` is public but `noindex`, outside the sitemap, and not linked from navigation | A public HTML copy of the same facts; the PDF is the downloadable one |
+| Deployment | `pdf` added to the upload script's content-type map (it refuses unknown types) | None |
+

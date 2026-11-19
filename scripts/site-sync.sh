@@ -25,7 +25,7 @@ grep -q 'rel="canonical"' dist/index.html || echo "WARNING: built without SITE_U
 declare -A CT=(
   [html]="text/html; charset=utf-8" [css]="text/css; charset=utf-8" [js]="text/javascript; charset=utf-8"
   [svg]="image/svg+xml" [webp]="image/webp" [png]="image/png" [woff2]="font/woff2"
-  [txt]="text/plain; charset=utf-8" [md]="text/plain; charset=utf-8" [xml]="application/xml" [json]="application/json"
+  [txt]="text/plain; charset=utf-8" [md]="text/plain; charset=utf-8" [pdf]="application/pdf" [xml]="application/xml" [json]="application/json"
 )
 unknown="$(find dist -type f | sed 's/.*\.//' | sort -u | while read -r e; do [[ -n "${CT[$e]:-}" ]] || echo "$e"; done)"
 [[ -z "$unknown" ]] || { echo "dist/ has file types with no content type mapping: $unknown" >&2; exit 1; }

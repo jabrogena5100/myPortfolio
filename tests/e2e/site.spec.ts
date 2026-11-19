@@ -331,13 +331,13 @@ test.describe('services, about and contact', () => {
     for (const s of ['No clients, no paid work, no revenue', 'None of the projects has a load test', 'currently down', 'Where it stops']) expect(t, s).toContain(s);
   });
 
-  test('about: How I work is anchored and discloses AI assistance; no resume link while none is supplied', async ({ page }) => {
+  test('about: How I work is anchored and discloses AI assistance; the resume PDF is linked', async ({ page }) => {
     await page.goto('/about/');
     expect(await page.locator('#how-i-work').count()).toBe(1);
     const section = await page.locator('#how-i-work').innerText();
     for (const s of ['Claude Code', 'AI reviewer', 'unverified until it is tested', 'do not claim to have hand-written every line']) expect(section, s).toContain(s);
-    expect(await page.locator('a[href$=".pdf"]').count()).toBe(0);
-    expect(await page.locator('main').innerText()).toContain('Resume: to be added');
+    expect(await page.locator('a[href="/resume.pdf"]').count()).toBe(1);
+    expect(await page.locator('main').innerText()).not.toContain('to be added');
     // the services page links to the anchor, and it resolves
     await page.goto('/services/');
     expect(await page.locator('a[href="/about/#how-i-work"]').count()).toBe(1);
@@ -346,11 +346,11 @@ test.describe('services, about and contact', () => {
   test('contact: no form, no inputs, no storage, placeholders only', async ({ page }) => {
     await page.goto('/contact/');
     expect(await page.locator('form, input, textarea, select, button[type="submit"]').count()).toBe(0);
-    // owner-supplied 2026-11-18: one email, GitHub and LinkedIn; the resume is still a placeholder
+    // owner-supplied 2026-11-18: one email, GitHub and LinkedIn; the resume PDF was added the same day
     expect(await page.locator('a[href^="mailto:"]').count()).toBe(1);
     expect(await page.locator('main a[href^="http"]').count()).toBe(2);
-    expect(await page.locator('a[href$=".pdf"]').count()).toBe(0);
-    expect(await page.locator('.todo').count()).toBe(1);
+    expect(await page.locator('a[href="/resume.pdf"]').count()).toBe(1);
+    expect(await page.locator('.todo').count()).toBe(0);
     const t = await page.locator('main').innerText();
     expect(t).toContain('no contact form');
     expect(t).toContain('no analytics');
@@ -721,13 +721,14 @@ test('every external link is on the allow-list and opens safely; both repositori
   expect(await page.locator('a[href="https://github.com/jabrogena5100/RyuCloud"]').count()).toBe(1);
 });
 
-test('about: education is stated and the resume is still a placeholder', async ({ page }) => {
+test('about: education is stated and the resume is linked', async ({ page }) => {
   await page.goto('/about/');
   const t = await page.locator('#experience').innerText();
   expect(t).toContain('Computer Engineering');
   expect(t).toContain('University of Hawai');
   expect(t).toContain('expected Fall 2026');
-  expect(t).toContain('Resume: to be added');
+  expect(t).toContain('Resume (PDF)');
+  expect(t).not.toContain('to be added');
   expect(await page.locator('footer').innerText()).not.toContain('being added');
 });
 
@@ -785,4 +786,51 @@ test('the grain adds texture without shifting the background colour (measured fr
   expect(stats.mean, `mean ${stats.mean.toFixed(1)}`).toBeLessThan(22);
   expect(stats.sd, `spread ${stats.sd.toFixed(2)}`).toBeGreaterThan(1.5);
   expect(stats.sd, `spread ${stats.sd.toFixed(2)}`).toBeLessThan(12);
+});
+
+test.describe('resume', () => {
+  for (const [name] of Object.entries(WIDTHS) as [keyof typeof WIDTHS, number][]) {
+    test(`resume page is accessible and does not overflow at ${name}`, async ({ page }) => {
+      await setSize(page, name);
+      await page.goto('/resume/');
+      await page.evaluate(() => document.fonts.ready);
+      const results = await new AxeBuilder({ page }).withTags(AXE_TAGS).analyze();
+      expect(results.violations.map((v) => `${v.id} (${v.nodes.length})`)).toEqual([]);
+      expect(await page.locator('h1').count()).toBe(1);
+      expect(await overflowOf(page)).toBeLessThanOrEqual(0);
+    });
+  }
+
+  test('the HTML resume is noindex, uses the site contact data, and states only what the evidence supports', async ({ page }) => {
+    await page.goto('/resume/');
+    expect(await page.locator('meta[name="robots"]').getAttribute('content')).toBe('noindex');
+    const t = await page.locator('main').innerText();
+    expect(t).toContain(contact.email!);
+    expect(await page.locator(`a[href="mailto:${contact.email}"]`).count()).toBe(1);
+    expect(await page.locator(`a[href="${contact.github}"]`).count()).toBe(1);
+    expect(await page.locator(`a[href="${contact.linkedin}"]`).count()).toBe(1);
+    for (const s of ['Expected Fall 2026', 'University of Hawai', 'Independent Software Engineer', 'November 2026']) expect(t, s).toContain(s);
+    // nothing the owner has not supplied: no phone number, street address, GPA or invented employer
+    expect(t).not.toMatch(/\b\d{3}[-. )]\d{3}[-. ]\d{4}\b/);
+    expect(t).not.toMatch(/GPA|Present\s*,\s*[A-Z]|Inc\.|LLC|Corp\./);
+    // the same banned phrases as the rest of the site
+    expect(t).not.toMatch(/world-class|cutting-edge|revolutioni|seamless|passionate|leverag|robust|high-traffic|enterprise-grade/i);
+    // external links on the resume stay on the allow-list
+    const hrefs = await page.$$eval('a[href^="http"]', (as) => as.map((a) => a.getAttribute('href') as string));
+    for (const h of hrefs) expect(ALLOWED_EXTERNAL).toContain(h);
+  });
+
+  test('resume.pdf is a real one-page PDF with a normal font embedding', async ({ request }) => {
+    const res = await request.get('/resume.pdf');
+    expect(res.status()).toBe(200);
+    expect(res.headers()['content-type']).toContain('application/pdf');
+    const body = await res.body();
+    const raw = body.toString('latin1');
+    expect(raw.startsWith('%PDF-')).toBe(true);
+    expect((raw.match(/\/Type\s*\/Page(?!s)/g) || []).length, 'page count').toBe(1);
+    expect(body.length, 'size').toBeLessThan(200 * 1024);
+    // fonts are embedded as TrueType/CID, not the unusual Type 3 that a variable web font produces
+    expect(raw).not.toMatch(/\/Subtype\s*\/Type3/);
+    expect(raw).toMatch(/\/FontFile2/);
+  });
 });

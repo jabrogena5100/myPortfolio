@@ -28,3 +28,18 @@ Weight: 141 KB for both (the previous pairing was 144 KB).
 ## Icons
 
 Lucide icons (ISC licence, `lucide-static` 1.74.0, https://lucide.dev) are inlined as SVG at build time by `src/components/Icon.astro`. Ten icons are used, all decorative. Nothing is loaded at runtime.
+
+## Resume fonts (static instances, added 2026-11-18)
+
+The resume PDF needs Geist as ordinary TrueType. Chromium embeds a *variable* web font in a PDF as **Type 3** fonts (15 of them in the first render), which some resume parsers read poorly (one parser warned that it could not read their bounding boxes). So `public/fonts/resume/` holds three static weights generated from the upstream variable file with `fontTools.varLib.instancer` (`wght=400`, `600`, `700`). The PDF then embeds them as TrueType (no Type 3), and the file shrank from 113 KB to 29 KB.
+
+- **Licence:** these are derived from Geist, covered by the same OFL 1.1 (`public/fonts/OFL-Geist.txt`, shipped beside them). Geist declares no Reserved Font Name, so a modified or derived version may keep the name. They were generated, not hand-edited, and the outlines come from the upstream file.
+- **Used by:** `src/pages/resume.astro` only (the screen version and the PDF). The rest of the site keeps the variable font.
+- **Integrity** (SHA-256 of the files as shipped):
+
+    103b6d9dbe79206617b8d7b19ba1d452c89f5bd9c12a0f3936bebb03de526bfc  Geist-Bold.woff2
+    493104f9e40638c165c3288c21ef6d789a03a7e10fe3a34c999feda301736fba  Geist-Regular.woff2
+    8e92ee975fd7c053b433544cc72a71a7e82caf13703083ab42794b26105f1075  Geist-SemiBold.woff2
+
+- **Regenerate:** run `fontTools.varLib.instancer` on `public/fonts/Geist-Variable.woff2` for each weight (needs the `fonttools` and `brotli` Python packages).
+
