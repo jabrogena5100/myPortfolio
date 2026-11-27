@@ -118,34 +118,6 @@
       ]
     },
     {
-      "path": "/projects/wildfire-monitoring/",
-      "preset": "mobile",
-      "repeat": 1,
-      "scores": {
-        "performance": 73,
-        "accessibility": 100,
-        "best-practices": 100,
-        "seo": 100
-      },
-      "metrics": {
-        "fcp_ms": 985,
-        "lcp_ms": 985,
-        "tbt_ms": 1673,
-        "cls": 0,
-        "speed_index_ms": 2613,
-        "transfer_bytes": 208607
-      },
-      "failing": [
-        "speed-index=0.97",
-        "total-blocking-time=0.11",
-        "max-potential-fid=0",
-        "interactive=0.96",
-        "mainthread-work-breakdown=0",
-        "network-dependency-tree-insight=0",
-        "render-blocking-insight=0.5"
-      ]
-    },
-    {
       "path": "/services/",
       "preset": "mobile",
       "repeat": 1,
@@ -316,32 +288,6 @@
         "speed-index=0.95",
         "total-blocking-time=0.42",
         "max-potential-fid=0.08",
-        "network-dependency-tree-insight=0",
-        "render-blocking-insight=0.5"
-      ]
-    },
-    {
-      "path": "/projects/wildfire-monitoring/",
-      "preset": "desktop",
-      "repeat": 1,
-      "scores": {
-        "performance": 85,
-        "accessibility": 100,
-        "best-practices": 100,
-        "seo": 100
-      },
-      "metrics": {
-        "fcp_ms": 358,
-        "lcp_ms": 358,
-        "tbt_ms": 343,
-        "cls": 0,
-        "speed_index_ms": 1072,
-        "transfer_bytes": 309464
-      },
-      "failing": [
-        "speed-index=0.96",
-        "total-blocking-time=0.51",
-        "max-potential-fid=0.13",
         "network-dependency-tree-insight=0",
         "render-blocking-insight=0.5"
       ]

@@ -1,13 +1,14 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const PAGES = ['/', '/projects/', '/projects/ryustorefront/', '/projects/ryucloud/', '/projects/wildfire-monitoring/', '/services/', '/about/', '/contact/'];
-// The only external destinations the site may link to (owner-approved 2026-11-18). Everything else must be internal.
+const PAGES = ['/', '/projects/', '/projects/ryustorefront/', '/projects/ryuzcloud/', '/services/', '/about/', '/contact/'];
+// The only external destinations the site may link to (owner-approved 2026-11-18; live project sites added 2026-11-26). Everything else must be internal.
 // The profile links and the email come from the site's own contact data, so this file never duplicates them.
-import { contact } from '../../src/data/site';
-const ALLOWED_EXTERNAL = [contact.github!, `${contact.github}/RyuCloud`, `${contact.github}/RyuStoreFront`, contact.linkedin!];
+import { contact, site } from '../../src/data/site';
+const LIVE = { ryuzcloud: 'https://ryuzcloud.com', ryustorefront: 'https://ryustorefront.com' } as const;
+const ALLOWED_EXTERNAL = [site.address, contact.github!, `${contact.github}/RyuZCloud`, `${contact.github}/RyuStoreFront`, contact.linkedin!, LIVE.ryuzcloud, LIVE.ryustorefront];
 const ALLOWED_MAILTO = `mailto:${contact.email}`;
-const CASE_STUDIES = ['/projects/ryustorefront/', '/projects/ryucloud/', '/projects/wildfire-monitoring/'];
+const CASE_STUDIES = ['/projects/ryustorefront/', '/projects/ryuzcloud/'];
 const WIDTHS = { phone: 390, tablet: 820, desktop: 1440 } as const;
 const HEIGHTS = { phone: 844, tablet: 1180, desktop: 900 } as const;
 
@@ -95,7 +96,7 @@ test('desktop keyboard: every nav link and project card is reachable with a visi
     seen.push(info.text);
     expect(info.outline, `focus ring on "${info.text}"`).toMatch(/solid 2px/);
   }
-  for (const t of ['Projects', 'Services', 'About', 'Contact', 'RyuStoreFront', 'RyuCloud', 'Wildfire monitoring']) {
+  for (const t of ['Projects', 'Services', 'About', 'Contact', 'RyuStoreFront', 'RyuZCloud']) {
     expect(seen.some((s) => s.includes(t)), `tabbed to ${t}`).toBe(true);
   }
 });
@@ -239,17 +240,31 @@ test.describe('case studies: structure and accessibility details', () => {
   }
 
   test('guardrail wording: the caveats that must appear, appear', async ({ page }) => {
-    await page.goto('/projects/wildfire-monitoring/');
+    await page.goto('/projects/ryuzcloud/');
     let t = await page.locator('main').innerText();
-    for (const s of ['nothing is claimed significant', '0.125', 'Neither perception arm reached the ignition cell sooner', 'cannot separate a training-domain effect', 'not published', 'was never built|file is empty']) {
-      expect(t, s).toMatch(new RegExp(s));
-    }
-    await page.goto('/projects/ryucloud/');
-    t = await page.locator('main').innerText();
-    for (const s of ['no raw output or screenshots were kept', 'currently down', 'not reconciled', 'No latency, throughput']) expect(t, s).toContain(s);
+    for (const s of ['Live at ryuzcloud.com', 'no number on this page was measured on the current deployment', 'do not reconcile', 'No latency, throughput', 'Estimates']) expect(t, s).toContain(s);
     await page.goto('/projects/ryustorefront/');
     t = await page.locator('main').innerText();
-    for (const s of ['no worker and no frontend', 'currently down', 'No load test', 'Not built yet']) expect(t, s).toContain(s);
+    for (const s of ['Live at ryustorefront.com', 'test mode', 'No load test', 'Not built yet', 'every AWS number on this page comes from the earlier, destroyed sessions']) expect(t, s).toContain(s);
+  });
+
+  test('only the two projects appear, and no AI-assistant or role wording remains', async ({ page }) => {
+    for (const path of [...PAGES, '/resume/']) {
+      await page.goto(path);
+      const t = await page.locator('body').innerText();
+      expect(t, path).not.toMatch(/wildfire|drone|ECE 496|capstone|YOLO|ArduPilot/i);
+      expect(t, path).not.toMatch(/Claude|AI assistant|AI coding|Codex/i);
+      expect(t, path).not.toContain('Independent Software Engineer');
+      expect(t, path).not.toMatch(/\bRyuCloud\b/);
+    }
+  });
+
+  test('old URLs redirect: RyuCloud to RyuZCloud, the removed case study to the project index', async ({ request }) => {
+    for (const [from, to] of [['/projects/ryucloud/', '/projects/ryuzcloud/'], ['/projects/wildfire-monitoring/', '/projects/']]) {
+      const html = await (await request.get(from)).text();
+      expect(html, from).toMatch(new RegExp(`http-equiv="refresh" content="0;url=${to}"`));
+      expect(html, from).not.toMatch(/<script/);
+    }
   });
 
   test('no marketing filler or unsupported scale claims on any page', async ({ page }) => {
@@ -282,8 +297,8 @@ test.describe('case studies: structure and accessibility details', () => {
     const home = await page.locator('#projects .card .ev li').allInnerTexts();
     await page.goto('/projects/');
     const names = await page.locator('.card h2').allInnerTexts();
-    expect(names).toEqual(['RyuStoreFront', 'RyuCloud', 'Wildfire monitoring']);
-    expect(home.length).toBe(9);
+    expect(names).toEqual(['RyuStoreFront', 'RyuZCloud']);
+    expect(home.length).toBe(6);
     // each home evidence line is also stored as a fact with a status, so no number lives only in markup
     expect(home.every((l) => l.length > 20)).toBe(true);
   });
@@ -317,25 +332,24 @@ test('case-study review crops (diagrams, figures, tables, header)', async ({ pag
 const PHASE5 = ['/services/', '/about/', '/contact/'];
 
 test.describe('services, about and contact', () => {
-  test('services: three numbered services with labelled evidence, plus what is not claimed', async ({ page }) => {
+  test('services: two numbered services with labelled evidence, plus what is not claimed', async ({ page }) => {
     await page.goto('/services/');
     const heads = await page.$$eval('main h2', (hs) => hs.map((h) => (h.textContent || '').replace(/\s+/g, ' ').trim()));
     expect(heads).toEqual([
       '1 Backend systems that stay correct under retries and failure',
       '2 AWS infrastructure as code, deployed and torn down',
-      '3 Experiment design and audit for computer-vision models',
       'What I do not claim',
     ]);
-    expect(await page.locator('.badge').count()).toBeGreaterThanOrEqual(12);
+    expect(await page.locator('.badge').count()).toBeGreaterThanOrEqual(8);
     const t = await page.locator('main').innerText();
-    for (const s of ['No clients, no paid work, no revenue', 'None of the projects has a load test', 'currently down', 'Where it stops']) expect(t, s).toContain(s);
+    for (const s of ['No clients, no paid work, no revenue', 'None of the projects has a load test', 'not on the current deployments', 'Where it stops']) expect(t, s).toContain(s);
   });
 
-  test('about: How I work is anchored and discloses AI assistance; the resume PDF is linked', async ({ page }) => {
+  test('about: How I work is anchored and states the verification rules; the resume PDF is linked', async ({ page }) => {
     await page.goto('/about/');
     expect(await page.locator('#how-i-work').count()).toBe(1);
     const section = await page.locator('#how-i-work').innerText();
-    for (const s of ['Claude Code', 'AI reviewer', 'unverified until it is tested', 'do not claim to have hand-written every line']) expect(section, s).toContain(s);
+    for (const s of ['saved plan', 'unverified until it is tested', 'metrics file', 'Estimates are left out']) expect(section, s).toContain(s);
     expect(await page.locator('a[href="/resume.pdf"]').count()).toBe(1);
     expect(await page.locator('main').innerText()).not.toContain('to be added');
     // the services page links to the anchor, and it resolves
@@ -482,7 +496,7 @@ test.describe('phase 6: responsive and adaptive behaviour', () => {
       await page.keyboard.press('Tab'); await page.keyboard.press('Tab');
       const o = await page.evaluate(() => { const s = getComputedStyle(document.activeElement as Element); return `${s.outlineStyle} ${s.outlineWidth}`; });
       expect(o).toMatch(/solid [1-9]/);
-      if (path === '/' || path === '/projects/ryucloud/') await page.screenshot({ path: `design/screenshots/phase6/forced-colors-${path === '/' ? 'home' : path.split('/').filter(Boolean).pop()}.png`, fullPage: false });
+      if (path === '/' || path === '/projects/ryuzcloud/') await page.screenshot({ path: `design/screenshots/phase6/forced-colors-${path === '/' ? 'home' : path.split('/').filter(Boolean).pop()}.png`, fullPage: false });
       await ctx.close();
     });
   }
@@ -524,7 +538,7 @@ test.describe('phase 6: responsive and adaptive behaviour', () => {
     for (const path of CASE_STUDIES) {
       await page.goto(path);
       const imgs = await page.$$eval('main img', (els) => (els as HTMLImageElement[]).map((i) => ({ w: i.getAttribute('width'), h: i.getAttribute('height'), lazy: i.loading, srcset: !!i.srcset })));
-      if (path.endsWith('/ryucloud/')) { expect(imgs.length, 'RyuCloud has no images by design').toBe(0); continue; }
+      if (path.endsWith('/ryuzcloud/')) { expect(imgs.length, 'RyuZCloud has no images by design').toBe(0); continue; }
       expect(imgs.length).toBeGreaterThan(0);
       for (const i of imgs) { expect(Number(i.w)).toBeGreaterThan(0); expect(Number(i.h)).toBeGreaterThan(0); expect(i.lazy).toBe('lazy'); expect(i.srcset).toBe(true); }
     }
@@ -566,7 +580,7 @@ test.describe('phase 6: responsive and adaptive behaviour', () => {
 
 test('phase 6 review screenshots: 320 px first screens, 320 px menu, 200% zoom first screen', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 700 });
-  for (const path of ['/', '/projects/ryustorefront/', '/projects/wildfire-monitoring/', '/services/']) {
+  for (const path of ['/', '/projects/ryustorefront/', '/projects/ryuzcloud/', '/services/']) {
     await page.goto(path);
     await page.evaluate(() => document.fonts.ready);
     await page.screenshot({ path: `design/screenshots/phase6/w320-${path === '/' ? 'home' : path.split('/').filter(Boolean).pop()}.png` });
@@ -575,8 +589,8 @@ test('phase 6 review screenshots: 320 px first screens, 320 px menu, 200% zoom f
   await page.locator('summary', { hasText: 'Menu' }).click();
   await page.screenshot({ path: 'design/screenshots/phase6/w320-menu-open.png', clip: { x: 0, y: 0, width: 320, height: 420 } });
   await page.setViewportSize({ width: 640, height: 800 });
-  await page.goto('/projects/wildfire-monitoring/');
-  await page.screenshot({ path: 'design/screenshots/phase6/zoom200-wildfire.png' });
+  await page.goto('/projects/ryuzcloud/');
+  await page.screenshot({ path: 'design/screenshots/phase6/zoom200-ryuzcloud.png' });
 });
 
 // ---------------------------------------------------------------- Phase 7: deployment readiness
@@ -716,9 +730,10 @@ test('every external link is on the allow-list and opens safely; both repositori
   }
   await page.goto('/projects/ryustorefront/');
   expect(await page.locator(`a[href="${contact.github}/RyuStoreFront"]`).count()).toBe(1);
-  expect(await page.locator('main').innerText()).toContain('README is minimal');
-  await page.goto('/projects/ryucloud/');
-  expect(await page.locator('a[href="https://github.com/jabrogena5100/RyuCloud"]').count()).toBe(1);
+  expect(await page.locator(`a[href="${LIVE.ryustorefront}"]`).count()).toBe(1);
+  await page.goto('/projects/ryuzcloud/');
+  expect(await page.locator(`a[href="${contact.github}/RyuZCloud"]`).count()).toBe(1);
+  expect(await page.locator(`a[href="${LIVE.ryuzcloud}"]`).count()).toBe(1);
 });
 
 test('about: education is stated and the resume is linked', async ({ page }) => {
@@ -809,7 +824,9 @@ test.describe('resume', () => {
     expect(await page.locator(`a[href="mailto:${contact.email}"]`).count()).toBe(1);
     expect(await page.locator(`a[href="${contact.github}"]`).count()).toBe(1);
     expect(await page.locator(`a[href="${contact.linkedin}"]`).count()).toBe(1);
-    for (const s of ['Expected Fall 2026', 'University of Hawai', 'Independent Software Engineer', 'November 2026']) expect(t, s).toContain(s);
+    expect(await page.locator(`a[href="${site.address}"]`).count()).toBe(1);
+    for (const s of ['Expected Fall 2026', 'University of Hawai', 'RyuZCloud', 'RyuStoreFront', 'ryuzcloud.com', 'ryustorefront.com']) expect(t, s).toContain(s);
+    expect(t).not.toMatch(/Experience|Independent Software Engineer|Wildfire/);
     // nothing the owner has not supplied: no phone number, street address, GPA or invented employer
     expect(t).not.toMatch(/\b\d{3}[-. )]\d{3}[-. ]\d{4}\b/);
     expect(t).not.toMatch(/GPA|Present\s*,\s*[A-Z]|Inc\.|LLC|Corp\./);

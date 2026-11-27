@@ -1,0 +1,156 @@
+---
+import CaseStudy from '../../layouts/CaseStudy.astro';
+import Section from '../../components/Section.astro';
+import FactList from '../../components/FactList.astro';
+import Diagram from '../../components/Diagram.astro';
+import RcArchitecture from '../../components/diagrams/RcArchitecture.astro';
+import RcCrashTimeline from '../../components/diagrams/RcCrashTimeline.astro';
+
+const toc: [string, string][] = [
+  ['problem', 'The problem'],
+  ['built', 'What I built'],
+  ['architecture', 'Architecture'],
+  ['challenges', 'Hardest challenges'],
+  ['evidence', 'Evidence'],
+  ['limits', 'Tradeoffs and limits'],
+  ['next', 'What I would improve'],
+  ['links', 'Links'],
+];
+---
+<CaseStudy
+  title="RyuZCloud: a crash-safe video platform case study | Joshua Abrogena"
+  description="A Go and Next.js video platform with direct-to-S3 uploads, a Go/FFmpeg HLS worker with crash recovery, and CloudFront signed cookies, on AWS with Terraform."
+  kind="Cloud video platform"
+  name="RyuZCloud"
+  status="Live at ryuzcloud.com on AWS (ECS Fargate, RDS, ALB, S3, CloudFront, SQS). No users and no load test. Every number below was measured either on my local VM or in the AWS session of 2026-11-14, and each one says which."
+  stack="Go API, Go and FFmpeg HLS worker, PostgreSQL, SQS, S3 and CloudFront signed cookies, Next.js 15, Terraform on AWS (ECS Fargate, RDS, ALB)"
+  meta={[
+    ['Kind', 'Solo portfolio project. No users, no revenue.'],
+    ['Measured where', 'Local: Docker Compose on one Ubuntu VM. AWS: us-west-2.'],
+  ]}
+  toc={toc}
+>
+  <Section n={1} id="problem" title="The problem">
+    <p>A video platform has two awkward properties. The files are large, so they should never pass through the API. And transcoding is slow and fails in interesting ways: a worker is killed halfway, a message is delivered twice, two workers race for the same job. A single upload still has to end up as exactly one playable video.</p>
+    <p>RyuZCloud is the core of a video site built to work through that: accounts, channels, direct uploads, an asynchronous HLS pipeline, and private, authorised playback.</p>
+  </Section>
+
+  <Section n={2} id="built" title="What I built">
+    <p>What exists, and what does not.</p>
+    <div class="twocol">
+      <div><h3>Built and tested</h3>
+<ul>
+                <li>A Go API (standard-library <code>net/http</code>, a modular monolith) with Argon2id passwords, server-side sessions and channels</li>
+                <li>Uploads straight to private S3 with a presigned <code>PUT</code>; the API confirms the object with <code>HeadObject</code> before queuing</li>
+                <li>A separate Go worker: <code>ffprobe</code>, then 360p and 720p HLS renditions and a thumbnail, with leases, retries and a sweeper</li>
+                <li>Private playback through CloudFront signed cookies scoped to one video's path</li>
+                <li>A Next.js 15 frontend with an hls.js player, and a seeded, licence-recorded demo library</li>
+                <li>Terraform for the whole AWS stack, and GitHub Actions CI that never touches AWS</li>
+              </ul></div>
+      <div><h3>Not built yet</h3>
+<ul>
+                <li>Multipart or resumable uploads (single <code>PUT</code> only)</li>
+                <li>Search, view counting</li>
+                <li>Autoscaling, Multi-AZ, WAF, private subnets, a tested database restore</li>
+                <li>Any measurement of load, concurrency or real cost</li>
+              </ul></div>
+    </div>
+  </Section>
+
+  <Section n={3} id="architecture" title="System architecture">
+    <Diagram id="rc-arch" label="System architecture on AWS" description="The browser reaches a load balancer that serves a Next.js app and a Go API. The browser uploads video directly to a private S3 bucket using a presigned URL. The API records the upload in PostgreSQL and puts a job ID on an SQS queue. A Go worker with FFmpeg takes the job, claims it in PostgreSQL, reads the source from S3 and writes HLS files back. Playback goes through CloudFront with signed cookies.">
+      <RcArchitecture />
+    </Diagram>
+    <p>An upload works like this: the API validates the request and returns a presigned <code>PUT</code>; the browser sends the file straight to the bucket; the API then confirms the stored object and, in one transaction, marks the video queued and inserts the job row. Only then does it send the job ID to SQS. Video bytes never touch the load balancer, the API or Next.js. Locally, the same code runs with MinIO, Redis and the API itself standing in for S3, SQS and CloudFront, selected by environment variables.</p>
+
+    <h3>Decisions and what each cost</h3>
+    <div class="tablewrap" role="region" tabindex="0" aria-label="Table: From the project's documented tradeoffs">
+      <table>
+        <caption>From the project's documented tradeoffs.</caption>
+        <thead><tr><th scope="col">Decision</th><th scope="col">Choice</th><th scope="col">Tradeoff accepted</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Job state</th><td>PostgreSQL is the source of truth; SQS only says "look at job X"</td><td>Duplicates are harmless by design. Crash recovery waits for the lease to expire.</td></tr>
+          <tr><th scope="row">Compute</th><td>ECS Fargate, worker on Fargate Spot</td><td>No servers to patch, and Spot is safe because jobs are leased and retried. An interrupted encode restarts from the beginning.</td></tr>
+          <tr><th scope="row">Playback</th><td>CloudFront signed cookies on a sibling subdomain, signed with the standard library</td><td>One signature covers the playlist and every relative segment, with no new dependency. Needs a domain I control, and cookies cannot be revoked early.</td></tr>
+          <tr><th scope="row">Networking</th><td>Public subnets, no NAT gateway; tasks accept traffic only from the load balancer</td><td>Cheaper, with weaker isolation. Private subnets are the hardening step.</td></tr>
+          <tr><th scope="row">Database</th><td>RDS PostgreSQL, single-AZ</td><td>An AZ outage means downtime until restore.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </Section>
+
+  <Section n={4} id="challenges" title="The three hardest problems">
+    <h3>1. A background pipeline that stays correct under crashes, duplicates and retries</h3>
+    <p>The queue delivers at least once and is not a store of truth, so it carries only a job ID. The truth lives in a job row in PostgreSQL, and the design follows from that:</p>
+    <ul>
+      <li><strong>Claim</strong> is one conditional <code>UPDATE</code>. With several workers racing, exactly one matches and the others drop the message.</li>
+      <li><strong>Lease and heartbeat.</strong> Every change to the job requires that this worker still owns it; otherwise the worker abandons its work.</li>
+      <li><strong>Sweeper.</strong> Jobs with no live owner are sent again, using <code>FOR UPDATE SKIP LOCKED</code>.</li>
+      <li><strong>Acknowledge only after commit.</strong> The result transaction commits first; the SQS message is deleted afterwards.</li>
+      <li><strong>Master playlist last.</strong> A half-finished video is never playable.</li>
+    </ul>
+    <Diagram id="rc-crash" label="Crash recovery" description="Worker A claims a job, which sets attempts to 1 and a 120 second lease, and starts encoding. It is killed at about 2 percent progress. The lease runs out. A sweeper notices the job has no live owner and puts the job ID back on the queue. Worker B claims it with attempts equal to 2, finishes, commits the result and only then acknowledges the message.">
+      <RcCrashTimeline />
+    </Diagram>
+    <p>Tradeoffs: recovery waits for the lease, a retry restarts the encode from the beginning, and how long recovery takes has not been measured yet.</p>
+
+    <h3>2. A CloudFront signed-cookie bug that a unit test could not see</h3>
+    <p>The bucket is private and video reaches viewers only through CloudFront, using signed cookies that the API sets after its normal visibility checks. An HLS playlist refers to its segments by relative path, which is why cookies are used instead of a signature in the URL.</p>
+    <p>In the first AWS session, uploads and processing worked, but playback returned 403. Decoding the cookie policy showed its resource ended in <code>%2A</code> rather than <code>*</code>: the code had built the URL with Go's URL type, which percent-encodes the wildcard, and CloudFront matches the literal text. The unit test had only signed a hand-written string, so it never exercised the real code path.</p>
+<pre tabindex="0" role="region" aria-label="Code comparison: broken and fixed policy resource"><code>Resource in the cookie policy
+  broken:  https://media.&lt;domain&gt;/videos/&lt;id&gt;/%2A
+  fixed:   built as  "https://" + domain + "/" + VideoPrefix + "*"</code></pre>
+    <p>The fix builds the string directly, and a regression test asserts that the real grant path keeps the literal wildcard. The lesson is to test what the handler builds, not what the helper accepts.</p>
+
+    <h3>3. Measuring honestly, including the changes that did not work</h3>
+    <p>After the frontend redesign I measured before and after on the same machine with the same seeded library. Two layout-shift fixes worked. One change did not: making Chrome use hls.js instead of its built-in HLS player was slower to the first frame and made pages heavier, so I reverted it. The ledger records both, and the revert is listed as not yet re-measured rather than assumed to be fixed.</p>
+  </Section>
+
+  <Section n={5} id="evidence" title="Evidence">
+    <p>Every number here has a row in the project's <code>docs/metrics.md</code>, and only rows marked <strong>Run</strong> or <strong>User-reported</strong> are quoted. Estimates, such as the list-price cost per day, are left out. Each line says whether it was measured on my local VM or on AWS. I ran none of these checks again while writing this page.</p>
+
+    <h3>Correctness and tests (local)</h3>
+    <FactList ids={['rzCrash', 'rzE2e', 'rzTests', 'rzVulns']} />
+
+    <h3>The seeded library (local)</h3>
+    <FactList ids={['rzSeed', 'rzTranscode']} />
+
+    <h3>Frontend (local)</h3>
+    <FactList ids={['rzA11y', 'rzPerf']} />
+
+    <h3>AWS</h3>
+    <FactList ids={['rzPrivate', 'rzBug', 'rzCloud']} />
+
+    <h3>Not measured yet</h3>
+    <FactList ids={['rzNotRun']} />
+  </Section>
+
+  <Section n={6} id="limits" title="Tradeoffs and limits">
+    <ul>
+      <li>The site is live, but no number on this page was measured on the current deployment. The AWS figures come from the 2026-11-14 session.</li>
+      <li>No latency, throughput, concurrent-upload or real-cost figures exist. Transcode speed was measured on my local VM, not on Fargate.</li>
+      <li>The AWS counts do not reconcile: 115 planned, 94 destroyed. The project's ledger leaves that unexplained.</li>
+      <li>Tasks have public IPs and no NAT, there is no WAF, no Multi-AZ database, and no restore has been tested.</li>
+      <li>Uploads are single-part only, and encodes are CPU-only.</li>
+      <li>Safari's native HLS with cross-origin cookies is configured but unverified.</li>
+    </ul>
+  </Section>
+
+  <Section n={7} id="next" title="What I would improve next">
+    <p>These come from the project's own list and are planned, not done.</p>
+    <ol>
+      <li>Measure transcode speed on Fargate with a stated task size, and the real cost of running the stack.</li>
+      <li>Measure recovery time after a worker kill, and run concurrent uploads to check nothing is lost or duplicated.</li>
+      <li>Re-measure the player revert, and time a rebuild from zero using the runbook.</li>
+      <li>Move to private subnets or endpoints, test a database restore, and add multipart uploads.</li>
+    </ol>
+  </Section>
+
+  <Section n={8} id="links" title="Links">
+    <ul>
+      <li><strong>Live:</strong> <a href="https://ryuzcloud.com" rel="noopener noreferrer">ryuzcloud.com</a></li>
+      <li><strong>Repository:</strong> <a href="https://github.com/jabrogena5100/RyuZCloud" rel="noopener noreferrer">github.com/jabrogena5100/RyuZCloud</a> (public). Its <code>docs/metrics.md</code> holds every number with its setup, date and status.</li>
+      <li><a href="/projects/">All projects</a></li>
+    </ul>
+  </Section>
+</CaseStudy>

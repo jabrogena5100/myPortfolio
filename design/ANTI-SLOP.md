@@ -67,7 +67,6 @@ Written before any component, as required. Every component and page is reviewed 
 ## F. Provenance of borrowed ideas
 
 - [ ] No code copied from 21st.dev or elsewhere without a verified licence. Inspiration is credited in `design/COMPONENT-NOTES.md`.
-- [ ] Real dataset imagery (Boreal, FireMan, FASDD) is not redistributed (licences require attribution and checks).
 
 ## G. Texture
 

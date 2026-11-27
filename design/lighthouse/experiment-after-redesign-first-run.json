@@ -113,32 +113,6 @@
       ]
     },
     {
-      "path": "/projects/wildfire-monitoring/",
-      "preset": "mobile",
-      "repeat": 1,
-      "scores": {
-        "performance": 99,
-        "accessibility": 100,
-        "best-practices": 100,
-        "seo": 100
-      },
-      "metrics": {
-        "fcp_ms": 966,
-        "lcp_ms": 966,
-        "tbt_ms": 147,
-        "cls": 0,
-        "speed_index_ms": 966,
-        "transfer_bytes": 163726
-      },
-      "failing": [
-        "total-blocking-time=0.95",
-        "max-potential-fid=0.74",
-        "mainthread-work-breakdown=0",
-        "network-dependency-tree-insight=0",
-        "render-blocking-insight=0"
-      ]
-    },
-    {
       "path": "/services/",
       "preset": "mobile",
       "repeat": 1,
@@ -299,30 +273,6 @@
         "transfer_bytes": 162360
       },
       "failing": [
-        "network-dependency-tree-insight=0",
-        "render-blocking-insight=0"
-      ]
-    },
-    {
-      "path": "/projects/wildfire-monitoring/",
-      "preset": "desktop",
-      "repeat": 1,
-      "scores": {
-        "performance": 100,
-        "accessibility": 100,
-        "best-practices": 100,
-        "seo": 100
-      },
-      "metrics": {
-        "fcp_ms": 350,
-        "lcp_ms": 350,
-        "tbt_ms": 14,
-        "cls": 0,
-        "speed_index_ms": 683,
-        "transfer_bytes": 163726
-      },
-      "failing": [
-        "max-potential-fid=0.99",
         "network-dependency-tree-insight=0",
         "render-blocking-insight=0"
       ]

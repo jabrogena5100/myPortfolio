@@ -267,3 +267,21 @@ Known limits: the default `*.cloudfront.net` certificate cannot enforce TLS 1.2 
 ## Fallback: GitHub Pages
 
 See `docs/deploy/github-pages.md`. It is free and simpler, with real limits (no custom security headers, root-path hosting only).
+
+## Plan C with DNS at Cloudflare (domain registered at Cloudflare Registrar)
+
+Added 2026-11-19. A domain on Cloudflare Registrar must keep Cloudflare's nameservers (Cloudflare FAQ: "all domains on Cloudflare Registrar use Cloudflare nameservers"; the public NS lookup for `joshuaabrogena.dev` returned two `*.ns.cloudflare.com` servers). A Route 53 hosted zone for the same name therefore never receives queries. So Terraform creates only the certificate and the CloudFront alias (`external_dns = true`), and you add two DNS records in Cloudflare. All Cloudflare steps below are yours; nothing here touches Cloudflare.
+
+1. In `infra/terraform/terraform.tfvars` (git-ignored) add `domain_name = "joshuaabrogena.dev"` and `external_dns = true`. Leave `hosted_zone_id` out.
+2. Create the certificate first (it is in `us-east-1`, which CloudFront requires):
+   `scripts/aws-terraform.sh -chdir=infra/terraform plan -target=aws_acm_certificate.site -out=tfplan`, read it, then `apply tfplan`.
+3. Get the validation record: `scripts/aws-terraform.sh -chdir=infra/terraform output dns_records_to_add`. If that output is empty after a targeted apply, read the CNAME name and value in the AWS console (Certificate Manager, region N. Virginia).
+4. In Cloudflare, DNS, Records, add that **CNAME**. Set the proxy status to **DNS only** (grey cloud).
+5. Full plan and apply: `plan -out=tfplan`, read it, `apply tfplan`. The apply waits until ACM sees the record, then updates the distribution (expect several minutes). Expected changes: the certificate validation, and the distribution gets the alias and the new certificate.
+6. In Cloudflare add a **CNAME** for `joshuaabrogena.dev` (name `@`) pointing at the `site_cname.value` from `output dns_records_to_add` (the `*.cloudfront.net` name). Proxy status **DNS only**. Cloudflare flattens a CNAME at the apex automatically. Do not proxy it: that would put Cloudflare in front of CloudFront and bypass the response-headers policy that sets the CSP.
+7. Rebuild with `SITE_URL=https://joshuaabrogena.dev`, upload with `scripts/site-sync.sh --apply`, and run the live suite with `E2E_BASE_URL=https://joshuaabrogena.dev`.
+8. Optional clean-up: the unused Route 53 hosted zone for `joshuaabrogena.dev` costs about $0.50 a month and can be deleted in the console.
+
+Rollback: remove `domain_name` and `external_dns` from `terraform.tfvars` and apply; the site returns to its `*.cloudfront.net` address.
+
+**Do not delete the validation CNAME in Cloudflare.** It is what lets AWS renew the certificate (valid to 2027-06-05) without anyone doing anything.

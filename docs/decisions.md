@@ -38,7 +38,7 @@ Nothing has been scaffolded. Versions below were read from the npm registry (`re
 Recommendation: write the Terraform and runbook (Phase 7) and have the owner decide. Nothing will be applied by me.
 A domain, DNS and `terraform apply` are the owner's actions.
 
-## D3. Positioning and services: **Proposed** (revised 2026-11-17 after all three evidence files)
+## D3. Positioning and services: **Proposed** (revised 2026-11-17 after the evidence files)
 
 Full reasoning, comparison table and case-study outlines are in `docs/content-plan.md`.
 
@@ -47,9 +47,8 @@ Positioning line (draft): "Software engineer building backends that stay correct
 Services, ranked by evidence strength:
 1. **Backend systems that stay correct under retries and failure** (payment webhooks, inventory holds, state machines, outbox and job-queue workers). Two independent projects, StoreFront and RyuCloud, with crash, race and duplicate tests.
 2. **AWS infrastructure as code with cost-aware deploy and teardown** (Terraform, ECS Fargate, RDS, S3/CloudFront, SQS, an audit script). Each stack ran once; no always-on operation, no measured cost.
-3. **Experiment design and audit for computer-vision models** (single-path evaluation harness, leakage audit, calibrated claims). Wildfire capstone; research context only.
 
-Full-stack work is a capability, not a headline service (no deployed frontend and no visible demo). "Distributed systems" and "AI-enabled systems" are **not** claimed: no multi-node, load or production evidence; the AI work is an academic simulation. Every service page states "demonstrated in personal and academic projects; no clients, revenue or users".
+Full-stack work is a capability, not a headline service (no deployed frontend and no visible demo). "Distributed systems" and "AI-enabled systems" are **not** claimed: no multi-node, load or production evidence. Every service page states "no clients, revenue or users".
 
 ## D4. Design direction — **Proposed**; full checklist in `design/ANTI-SLOP.md` (to be written in Phase 1)
 
@@ -79,7 +78,7 @@ Full-stack work is a capability, not a headline service (no deployed frontend an
 
 ## D6. Open items (owner decisions; see `docs/content-plan.md` section 7)
 
-- RyuCloud and wildfire evidence files (placeholders will be used until they arrive).
+- RyuCloud evidence file (placeholders will be used until it arrives).
 - Resume PDF (the link stays absent until you provide it).
 - Which public contact links (email, GitHub, LinkedIn) you want shown; I will not invent them.
 - Whether you want a custom domain.
@@ -113,15 +112,14 @@ Full-stack work is a capability, not a headline service (no deployed frontend an
 
 | Decision | Choice | Tradeoff |
 | --- | --- | --- |
-| Where numbers live | `src/data/facts.ts`: every quoted result has `short`, `claim`, `context`, `status` and `date`. Home cards and case studies read it | Prose in tables (the wildfire matrices) is still typed by hand, so no test compares it to the evidence automatically; I checked it by hand |
+| Where numbers live | `src/data/facts.ts`: every quoted result has `short`, `claim`, `context`, `status` and `date`. Home cards and case studies read it | Prose in tables is still typed by hand, so no test compares it to the evidence automatically; I checked it by hand |
 | Status vocabulary | Run, User-reported, **Documented**, Not run. "Documented" was added for results I quote from a project document and did not re-run | A fourth label; the home page "How I verify" band and the projects index now show four |
-| Wildfire figures | The author's own report figures (five of six), shown on a light mat (new token `--color-plate`) with a "Report figure" label. Figure 07 left out | They are blue and orange on white. Redrawing in the site palette from the recorded numbers was the alternative; I did not alter the charts |
 | StoreFront screenshots | Four images, each labelled "Real API data" or "Fixture data". The "live" listing shows 100 products, so it is not described as 49,507 | They are placeholder-picture screenshots (typographic initials), so they show layout, not photography |
 | Image handling | Source PNGs in `src/assets`, optimised to WebP at 480 to 1600 px by `astro:assets` at build time | Source PNGs stay in the repository (about 2 MB) |
 | Diagrams | Hand-written inline SVG, five of them, each with a title, description and visible caption. They scroll sideways on narrow screens with a hint, rather than reflow | Phone readers scroll; a vertical phone layout per diagram was the alternative |
 | Tables | Prose tables are keyboard-focusable named regions; numeric tables keep a minimum width and scroll on phones with a sticky caption | More horizontal scrolling on phones, but numbers never wrap |
-| Role and AI statement | Each case study states the AI assistance in its meta block. The wildfire page also states my part (chose Boreal, examined its limitations, ran the synthetic and external evaluations) and calls the AI audit "audit input I checked", not independent review. A fuller "How I work" goes on the About page in Phase 5 | The wording rests on the owner's short written answer; the owner should confirm it |
-| Links | No repository links on any page (placeholders). `ryustorefront.net` and `ryucloud.link` are named only as "currently down". Nothing links to the unpublished wildfire code, report or replay | Visitors cannot reach any code yet |
+| Role statement | Each case study's meta block links to "How I work" on the About page (superseded 2026-11-26: the AI-assistance statements were removed at the owner's request) | The owner confirmed the wording |
+| Links | No repository links on any page (placeholders). `ryustorefront.net` and `ryucloud.link` are named only as "currently down". | Visitors cannot reach any code yet |
 | Page length | Full 8-section template, not shortened, no collapsed sections | Long pages (10,000 to 15,000 px). Collapsing evidence is an option for the owner |
 
 ## D10. Phase 5 choices (2026-11-17)
@@ -130,11 +128,11 @@ Full-stack work is a capability, not a headline service (no deployed frontend an
 | --- | --- | --- |
 | Contact and resume data | One object, `contact` in `src/data/site.ts`, with every value `null` until supplied. Pages show "To be added." and render real links the moment a value is set; the home hero, About, Contact, the home closing line and the footer note all switch together | Nothing public is invented. The owner edits one file |
 | Contact form | None. No input, no storage, no analytics, no cookies, no third-party requests (all tested) | Visitors must use an email or profile link once supplied |
-| How I work | A section on About (`#how-i-work`) listing what I decide, run and verify, the AI tools used (Claude Code on all three projects and this site; Codex as an audit reviewer on the wildfire project) and one disclosure about the capped GPU budget. A sentence in each case study links to it | Draft; the owner should confirm it line by line |
+| How I work | A section on About (`#how-i-work`) listing what I decide, run and verify. A sentence in each case study links to it | Draft; the owner should confirm it line by line |
 | Services evidence | Compact one-line facts with status and date, linking to the case study for setup. The three services are the ones in D3 | The full caveats are one click away, not on the page |
 | "What I do not claim" | A section on Services and on About | Repetition between the two, on purpose |
 | Experience | Only the owner's own description ("Independent Software Engineer, November 2026 to present"), with a note that it is not a claim of client work. Education and earlier experience are left to the resume | The About page is short and factual |
-| Dates | Project dates are each repository's git history range (wildfire 2026-09-19 to 2026-11-13, RyuCloud 2026-11-03 to 2026-11-14) and, for RyuStoreFront, its first dated decision (2026-11-14) | They show when work was recorded, not hours; the page says so |
+| Dates | Project dates are each repository's git history range (RyuCloud 2026-11-03 to 2026-11-14) and, for RyuStoreFront, its first dated decision (2026-11-14) | They show when work was recorded, not hours; the page says so |
 
 ## D11. Phase 6 choices (2026-11-17)
 
@@ -148,7 +146,6 @@ Full-stack work is a capability, not a headline service (no deployed frontend an
 | Forced colors | Transparent borders on the primary button and skip link; tests run every page under `forcedColors: active` | None |
 | Zoom and spacing | Tests assert 320 px reflow, 200% zoom, 200% text size and WCAG 1.4.12 spacing overrides on every page | Wide tables, code and diagrams scroll inside focusable regions rather than reflow |
 | Deferred to Phase 7 | Canonical URLs, Open Graph URL and image, sitemap (all need the final domain), HTTP compression and security headers (CloudFront), Lighthouse on the deployed site | Social previews have no image until then |
-| Owner AI-assistance corrections | About and the wildfire page now say Claude Code launched the RunPod sessions through the MCP server within a written budget, with the owner approving each next step, and that the "I run Git, AWS and Terraform" line applies to RyuCloud, RyuStoreFront and this portfolio only | Based on the owner's written answer; no separate evidence |
 
 ## D12. Phase 7 choices: deployment preparation (2026-11-17)
 
@@ -211,7 +208,7 @@ The owner asked me to pick the plan I best recommend. I did not run `terraform p
 | --- | --- | --- |
 | Contact | Email, GitHub and LinkedIn from the owner, in the single `contact` object; the contact page shows addresses without the scheme and wraps them on narrow screens | The email is a public `mailto:` link that scrapers will harvest (the owner chose to publish it) |
 | Resume | Still a placeholder ("To be added.") on Contact and About; the owner is writing it | One visible placeholder remains |
-| Education | One line on About: Computer Engineering, University of Hawaiʻi at Mānoa, expected Fall 2026, tied to the ECE 496 capstone. No degree type, GPA or dates beyond what the owner gave | The owner wrote "UH Manoa"; the expansion is mine and should be confirmed |
+| Education | One line on About: Computer Engineering, University of Hawaiʻi at Mānoa, expected Fall 2026. No degree type, GPA or dates beyond what the owner gave | The owner wrote "UH Manoa"; the expansion is mine and should be confirmed |
 | Repository links | **RyuCloud linked** (public). **RyuStoreFront not linked yet**: it says "not linked yet" | GitHub already reports it public, so this is the owner's call, not a technical one. RyuCloud's own README is stale and contradicts the case study |
 | External-link rule | Allow-list of exactly three URLs plus one `mailto`, all with `rel="noopener noreferrer"`, enforced by a test on every page | Any new external link needs a deliberate edit to the allow-list |
 | Wording | "without fooling myself" removed from the home page at the owner's request | None |
@@ -235,7 +232,7 @@ The owner asked me to create it, which reverses the original rule "do not fabric
 | Decision | Choice | Tradeoff |
 | --- | --- | --- |
 | Source of truth | `src/pages/resume.astro`, an Astro page; the PDF is a print of it (`scripts/resume.sh`). Contact details come from `src/data/site.ts` | Editing the resume means editing a page and rerunning the script, not opening a word processor |
-| Content | Summary, education, one experience entry (the owner's own title and start date), three projects (the three case studies; the owner removed this portfolio as a fourth entry on 2026-11-18), skills. Every number keeps its context from the evidence files | Short on history: there is no earlier work to list, and I did not invent any |
+| Content | Summary, education, two projects (the two case studies; superseded 2026-11-26, see D19), skills. Every number keeps its context from the evidence files | Short on history: there is no earlier work to list, and I did not invent any |
 | Left off | Phone (owner: leave off), GPA (owner: leave off), earlier jobs, the portfolio address (until the permanent domain is live). Added on the owner's word: "Open to work anywhere" and the degree abbreviation CENG | The owner can add each; the address should be added once the permanent domain exists |
 | AI assistance | One sentence in the experience entry: Claude Code was used, under the owner's decisions and verification (matches the About page the owner approved) | Some employers read this differently; it is the owner's call to keep or cut |
 | Format | One US Letter page, single column, real text, standard section names, real links | Plain on purpose, for readability and parsers |
@@ -243,3 +240,27 @@ The owner asked me to create it, which reverses the original rule "do not fabric
 | Web version | `/resume/` is public but `noindex`, outside the sitemap, and not linked from navigation | A public HTML copy of the same facts; the PDF is the downloadable one |
 | Deployment | `pdf` added to the upload script's content-type map (it refuses unknown types) | None |
 
+
+## D18. Custom domain with DNS at Cloudflare (2026-11-19)
+
+The owner registered `joshuaabrogena.dev` at Cloudflare Registrar and created a Route 53 hosted zone for it. Cloudflare documents that Registrar domains cannot use third-party nameservers, and a public NS lookup confirmed Cloudflare nameservers, so the Route 53 zone cannot work.
+
+| Option | Choice | Tradeoff |
+| --- | --- | --- |
+| Keep DNS at Cloudflare, Terraform makes only the certificate and the alias (`external_dns = true`) | **Chosen** | Two DNS records are added by hand in Cloudflare; the apply is done in two steps. Free, and no domain transfer |
+| Delegate a subdomain (for example `www`) to Route 53 | Not chosen | Works, but needs a second hosted zone and gives a less clean address. Cloudflare also says its CDN and security features do not apply to a delegated subdomain |
+| Transfer the registration out of Cloudflare | Not chosen | Slow, and a new registrar fee; only worth it if Route 53 DNS matters |
+
+Rules kept: the new variable is validated (`external_dns` needs a domain; it forbids `hosted_zone_id`), the Route 53 path is unchanged, and the Cloudflare records must be **DNS only**, because proxying would bypass the CloudFront response-headers policy (the CSP). Not run: no `terraform plan` or `apply` for this was run by the assistant; the AWS steps are the owner's.
+
+Outcome (2026-11-19, user-reported apply plus my public checks): the domain is live over HTTPS with the same headers. One thing to keep: **the certificate-validation CNAME in Cloudflare must stay.** ACM renews the certificate automatically only while that record exists; if it is deleted the certificate expires on 2027-06-05 and the site shows a certificate error. The cloudfront.net address keeps working beside the custom domain, so both URLs serve the site.
+
+## D19. Two projects only: RyuZCloud and RyuStoreFront (2026-11-26)
+
+| Decision | Choice | Tradeoff |
+| --- | --- | --- |
+| Projects | The site and resume show only RyuZCloud and RyuStoreFront. The third project's case study, figures, diagram, facts, evidence file, screenshots and Lighthouse entries were deleted; its old URL redirects to `/projects/` | Less breadth on the page; the portfolio is now about backend and AWS work only |
+| Rename | RyuCloud became RyuZCloud. The case study moved to `/projects/ryuzcloud/`; `/projects/ryucloud/` redirects there (Astro static redirect: a meta refresh, no script, so the CSP holds) | Old screenshots under `design/screenshots/` still carry the old name |
+| Numbers | Every number comes from a row marked Run or User-reported in the project's own `docs/metrics.md` (snapshots: `content/evidence/*-metrics-2026-11-26.md`), and says whether it was measured locally or on AWS. Documented rows and estimates are left out | Some earlier figures were dropped (Terraform block counts, Go test-function counts, cost estimates) |
+| Live status | Both projects are live (ryuzcloud.com, ryustorefront.com; owner-reported 2026-11-26, both answered HTTP 200 from here). The pages say that no number was measured on the current deployments | Visitors can reach demos; any claim about them waits for new measurements |
+| Role and AI wording | "Independent Software Engineer" and the resume's Experience section were removed; mentions of AI assistants were removed from the site and resume at the owner's request | The site no longer explains how assistants were used |

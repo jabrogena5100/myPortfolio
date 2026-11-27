@@ -1,6 +1,6 @@
 # myPortfolio
 
-Joshua Abrogena's software engineering portfolio: a static Astro site documenting three projects with their evidence.
+Joshua Abrogena's software engineering portfolio: a static Astro site documenting two projects, RyuZCloud and RyuStoreFront, with their evidence.
 
 ## Develop (Node runs in Docker; no host Node needed)
 

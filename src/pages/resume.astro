@@ -6,44 +6,40 @@ import { contact, site } from '../data/site';
 
 const shown = (u: string) => u.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '');
 
+// Every number below comes from a Run or User-reported row of the project's docs/metrics.md
+// (snapshots: content/evidence/*-metrics-2026-11-26.md). Each says whether it was measured locally or on AWS.
 const projects = [
   {
+    name: 'RyuZCloud',
+    url: 'https://ryuzcloud.com',
+    stack: 'Go, FFmpeg, PostgreSQL, SQS, S3/CloudFront, Next.js 15, Terraform, AWS',
+    when: 'Nov 2026',
+    bullets: [
+      'Built direct-to-S3 uploads and a Go/FFmpeg HLS worker with leased jobs; a worker killed mid-encode was recovered on the 2nd attempt, passing 43 of 43 crash-recovery checks (local).',
+      'Seeded a 40-clip library through the real upload path: 40 of 40 transcoded with 0 failures or retries, at a median 0.768\u00d7 the clip\u2019s length (local VM, n = 40).',
+      'Deployed on AWS with Terraform (ECS Fargate, RDS, ALB, SQS, CloudFront; 115-resource plan): uploads transcoded to 360p and 720p, and private media returned 403 without signed cookies and 200 with them.',
+      'Cut reachable Go vulnerabilities from 13 to 0, and reached 0 WCAG A/AA axe violations across 9 pages at 2 widths (local).',
+    ],
+  },
+  {
     name: 'RyuStoreFront',
-    stack: 'Java 25, Spring Boot, PostgreSQL, Next.js, Terraform, AWS',
+    url: 'https://ryustorefront.com',
+    stack: 'Java 25, Spring Boot 4, PostgreSQL, Next.js, Stripe, Terraform, AWS',
     when: 'Nov 2026',
     bullets: [
-      'Payments and inventory backend: idempotent Stripe (test mode) webhook handling, atomic stock reservation, an order state machine, and a transactional outbox with a background worker.',
-      'Tested the failure paths: duplicate and out-of-order webhooks (six simultaneous duplicates leave one paid order), a 50-thread stock race (exactly 10 reservations for 10 units), and a worker killed mid-job; 235 tests, Testcontainers.',
-      'Terraform for ECS Fargate, RDS and an ALB; ran one real checkout on AWS in test mode, then destroyed the stack and audited it for leftovers.',
-    ],
-  },
-  {
-    name: 'RyuCloud',
-    stack: 'Go, PostgreSQL, FFmpeg, Next.js, Terraform, AWS',
-    when: 'Nov 2026',
-    bullets: [
-      'Video platform: browsers upload straight to private S3; a Go worker transcodes to adaptive HLS with lease-based job claims, retries and crash recovery (a worker killed mid-encode, the job finished by a second attempt).',
-      'Found and fixed a CloudFront signed-cookie bug that appeared only on AWS (a wildcard percent-encoded in the policy) and added a regression test; cleared 13 reachable Go vulnerabilities to 0.',
-      'Deployed once to AWS with Terraform (ECS Fargate, RDS, S3, CloudFront, SQS) and tore it down; recovered from expired credentials and a failed apply.',
-    ],
-  },
-  {
-    name: 'Wildfire monitoring (ECE 496 capstone)',
-    stack: 'Python, YOLOv8, PyTorch, ArduPilot SITL',
-    when: 'Sep – Nov 2026',
-    bullets: [
-      'Chose the Boreal dataset and examined its limits. Compared smoke detectors trained on synthetic versus real imagery through one evaluation harness (3 seeds per model); an audit found train/test leakage, so a clip-disjoint split was built and the models retrained.',
-      'Integrated the detector into an ArduPilot simulation where the fire state is hidden from the agent; ran 56 simulated runs and reported the results as descriptive, with a timing confound and censored events documented.',
+      'Built idempotent Stripe webhooks: the same event sent 6 times at once leaves 1 paid order, 1 payment and 1 email; 245 backend tests, 0 failures (local).',
+      'Prevented overselling with atomic stock reservation: 50 concurrent buyers for 10 units get exactly 10 reservations in each of 20 rounds; a worker killed mid-job finishes exactly once (local).',
+      'Cut catalogue queries at 50,000 products from 518 to 22 ms (count) and 227 to 20 ms (price sort) with a maintained minimum-price column (local, single runs).',
+      'Deployed the API, worker and frontend on AWS with Terraform (44 resources): a real test-mode purchase was paid by webhook, and 19 of 19 browser checks passed against the deployed shop.',
     ],
   },
 ];
 
 const skills = [
-  ['Languages', 'Java, Go, Python, TypeScript, SQL'],
-  ['Backend and data', 'Spring Boot, PostgreSQL, Flyway, Stripe, FFmpeg'],
+  ['Languages', 'Java, Go, TypeScript, SQL'],
+  ['Backend and data', 'Spring Boot, PostgreSQL, Flyway, Stripe, FFmpeg, HLS'],
   ['Cloud and delivery', 'AWS (ECS Fargate, RDS, ALB, S3, CloudFront, SQS, IAM), Terraform, Docker, GitHub Actions'],
-  ['Testing', 'JUnit, Testcontainers, Playwright, axe, Vitest'],
-  ['ML and simulation', 'PyTorch, YOLOv8, ArduPilot SITL'],
+  ['Testing', 'JUnit, Testcontainers, Go test, Playwright, axe, Vitest, Lighthouse'],
 ];
 ---
 <!doctype html>
@@ -64,6 +60,9 @@ const skills = [
         <p class="contact">
           <a href={`mailto:${contact.email}`}>{contact.email}</a>
           <span class="sep" aria-hidden="true">&middot;</span>
+          <a href={site.address} rel="noopener noreferrer">{shown(site.address)}</a>
+        </p>
+        <p class="contact line2">
           <a href={contact.github!} rel="noopener noreferrer">{shown(contact.github!)}</a>
           <span class="sep" aria-hidden="true">&middot;</span>
           <a href={contact.linkedin!} rel="noopener noreferrer">{shown(contact.linkedin!)}</a>
@@ -72,26 +71,20 @@ const skills = [
 
       <section aria-labelledby="summary-h">
         <h2 id="summary-h">Summary</h2>
-        <p>I build backends that stay correct under retries and failure, and the AWS infrastructure to run them. Three projects in Java, Go and Python, each tested on its failure paths, with every result labelled by how it was obtained.</p>
+        <p>I build backends that stay correct under retries and failure, and the AWS infrastructure to run them. Two live projects in Java and Go, each tested on its failure paths, with every number traced to the project's metrics ledger.</p>
       </section>
 
       <section aria-labelledby="edu-h">
         <h2 id="edu-h">Education</h2>
         <div class="row"><strong>University of Hawai<span class="okina">&#699;</span>i at M&#257;noa</strong><span class="when">Expected Fall 2026</span></div>
-        <p class="sub">Computer Engineering (CENG). Capstone: ECE 496, wildfire monitoring study (below).</p>
-      </section>
-
-      <section aria-labelledby="exp-h">
-        <h2 id="exp-h">Experience</h2>
-        <div class="row"><strong>Independent Software Engineer</strong><span class="when">November 2026 &ndash; Present</span></div>
-        <p class="sub">Designed, built, tested and deployed the personal projects below, with AI coding assistants (Claude Code) under my own design decisions and verification. Each has a public case study.</p>
+        <p class="sub">Computer Engineering (CENG).</p>
       </section>
 
       <section aria-labelledby="proj-h">
         <h2 id="proj-h">Projects</h2>
         {projects.map((p) => (
           <div class="project">
-            <div class="row"><span><strong>{p.name}</strong> <span class="stack">{p.stack}</span></span><span class="when">{p.when}</span></div>
+            <div class="row"><span><strong>{p.name}</strong> <a class="live" href={p.url} rel="noopener noreferrer">{shown(p.url)}</a> <span class="stack">{p.stack}</span></span><span class="when">{p.when}</span></div>
             <ul>{p.bullets.map((b) => <li>{b}</li>)}</ul>
           </div>
         ))}
@@ -123,6 +116,7 @@ const skills = [
   h1 { margin: 0; font-size: 2.1em; letter-spacing: -0.03em; line-height: 1.1; font-weight: 700; }
   .role { margin: 4px 0 0; color: #3d3d3a; }
   .contact { margin: 6px 0 0; color: #3d3d3a; overflow-wrap: anywhere; }
+  .line2 { margin-top: 1px; }
   .sep { margin: 0 0.55em; color: #7a7a75; }
   .okina { font-family: 'Liberation Sans', 'DejaVu Sans', Arial, sans-serif; font-weight: 700; }
   a { color: #141414; text-decoration: underline; text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
@@ -133,6 +127,7 @@ const skills = [
   .row { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
   .when { color: #3d3d3a; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .stack { color: #3d3d3a; font-size: 0.92em; }
+  .live { font-size: 0.92em; margin-right: 0.35em; }
   .project { margin-top: 8px; }
   .project:first-of-type { margin-top: 2px; }
   ul { margin: 2px 0 0; padding-left: 1.15em; }
