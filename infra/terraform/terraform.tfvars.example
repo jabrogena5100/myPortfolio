@@ -10,6 +10,13 @@ bucket_name = "REPLACE-with-a-globally-unique-lowercase-name"
 # budget_amount_usd = 5
 # budget_email      = "REPLACE-with-your-email"
 
-# LATER ("Plan C"), once you own a domain with a Route 53 hosted zone. Set both together:
-# domain_name    = "www.example.com"
-# hosted_zone_id = "ZXXXXXXXXXXXXX"
+# LATER ("Plan C"), a custom domain. Two ways; pick one.
+#
+# (a) DNS in Route 53 (Terraform creates the records). Set both together:
+# domain_name    = "example.com"
+# hosted_zone_id = "ZXXXXXXXXXXXXX"     # starts with Z; Route 53 console > Hosted zones
+#
+# (b) DNS anywhere else, for example a domain registered at Cloudflare (it must keep Cloudflare nameservers).
+#     Terraform creates only the certificate and the CloudFront alias; you add the records it prints:
+# domain_name  = "example.com"
+# external_dns = true

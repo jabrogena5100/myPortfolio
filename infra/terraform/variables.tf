@@ -15,19 +15,30 @@ variable "bucket_name" {
 }
 
 variable "domain_name" {
-  description = "Optional custom domain, for example www.example.com. Leave null to use the default *.cloudfront.net address."
+  description = "Optional custom domain, for example example.dev. Leave null to use the default *.cloudfront.net address."
   type        = string
   default     = null
 }
 
+variable "external_dns" {
+  description = "true when DNS is NOT in Route 53 (for example a domain registered at Cloudflare Registrar, which must use Cloudflare nameservers). Terraform then creates only the ACM certificate and the CloudFront alias, and prints the DNS records you must add at your DNS provider. Leave false to have Terraform create the records in a Route 53 hosted zone."
+  type        = bool
+  default     = false
+
+  validation {
+    condition     = !var.external_dns || var.domain_name != null
+    error_message = "external_dns = true only makes sense together with domain_name."
+  }
+}
+
 variable "hosted_zone_id" {
-  description = "Route 53 hosted zone ID that contains domain_name. Required with domain_name (ACM validation and the alias records are created there)."
+  description = "Route 53 hosted zone ID that contains domain_name (starts with Z). Required with domain_name unless external_dns is true; must be null when it is (ACM validation and the alias records are created in that zone)."
   type        = string
   default     = null
 
   validation {
-    condition     = (var.domain_name == null) == (var.hosted_zone_id == null)
-    error_message = "Set domain_name and hosted_zone_id together, or leave both null."
+    condition     = var.external_dns ? var.hosted_zone_id == null : (var.domain_name == null) == (var.hosted_zone_id == null)
+    error_message = "Without external_dns, set domain_name and hosted_zone_id together (or leave both null). With external_dns = true, leave hosted_zone_id null."
   }
 }
 

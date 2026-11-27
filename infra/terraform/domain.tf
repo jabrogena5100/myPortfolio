@@ -1,5 +1,6 @@
-# Everything in this file is created only when domain_name and hosted_zone_id are set.
-# It needs a Route 53 hosted zone you control. The owner registers the domain and delegates DNS; nothing here does.
+# The certificate is created whenever domain_name is set. The DNS records are created in Route 53 only when
+# hosted_zone_id is set; with external_dns = true (for example Cloudflare DNS) you add them yourself from the
+# outputs. The owner registers the domain and controls DNS; nothing here does.
 
 resource "aws_acm_certificate" "site" {
   count    = local.use_domain ? 1 : 0
@@ -14,7 +15,7 @@ resource "aws_acm_certificate" "site" {
 }
 
 resource "aws_route53_record" "validation" {
-  for_each = local.use_domain ? {
+  for_each = local.use_route53 ? {
     for o in aws_acm_certificate.site[0].domain_validation_options : o.domain_name => {
       name   = o.resource_record_name
       type   = o.resource_record_type
@@ -35,11 +36,12 @@ resource "aws_acm_certificate_validation" "site" {
   provider = aws.us_east_1
 
   certificate_arn         = aws_acm_certificate.site[0].arn
-  validation_record_fqdns = [for r in aws_route53_record.validation : r.fqdn]
+  # With external DNS there are no Route 53 records to name; ACM validates once the CNAME you add is visible.
+  validation_record_fqdns = local.use_route53 ? [for r in aws_route53_record.validation : r.fqdn] : null
 }
 
 resource "aws_route53_record" "alias_a" {
-  count = local.use_domain ? 1 : 0
+  count = local.use_route53 ? 1 : 0
 
   zone_id = var.hosted_zone_id
   name    = var.domain_name
@@ -53,7 +55,7 @@ resource "aws_route53_record" "alias_a" {
 }
 
 resource "aws_route53_record" "alias_aaaa" {
-  count = local.use_domain ? 1 : 0
+  count = local.use_route53 ? 1 : 0
 
   zone_id = var.hosted_zone_id
   name    = var.domain_name
