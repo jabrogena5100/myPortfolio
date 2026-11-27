@@ -1,5 +1,5 @@
 <svg viewBox="0 0 760 360" role="img" aria-labelledby="rc-cr-t rc-cr-d" xmlns="http://www.w3.org/2000/svg">
-  <title id="rc-cr-t">RyuCloud worker crash recovery timeline</title>
+  <title id="rc-cr-t">RyuZCloud worker crash recovery timeline</title>
   <desc id="rc-cr-d">Worker A claims a job, which sets attempts to 1 and a 120 second lease, and starts encoding. It is killed at about 2 percent progress. The lease runs out. A sweeper notices the job has no live owner and puts the job ID back on the queue. Worker B claims it with attempts equal to 2, finishes, commits the result and only then acknowledges the message.</desc>
   <defs><marker id="rc-t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="d-arrow"/></marker></defs>
   <text class="d-text" x="10" y="66">Worker A</text>

@@ -13,6 +13,12 @@ export default defineConfig({
   output: 'static',
   trailingSlash: 'always',
   build: { format: 'directory' },
+  // Old URLs: RyuCloud was renamed RyuZCloud, and the wildfire case study was removed (2026-11-26).
+  // In a static build each redirect is a small HTML page with a meta refresh (no script, so the CSP still holds).
+  redirects: {
+    '/projects/ryucloud/': '/projects/ryuzcloud/',
+    '/projects/wildfire-monitoring/': '/projects/',
+  },
   // The HTML resume (/resume/) is the source of public/resume.pdf. It is noindex and kept out of the sitemap.
   integrations: site ? [sitemap({ filter: (page) => !page.endsWith('/resume/') })] : [],
   vite: {

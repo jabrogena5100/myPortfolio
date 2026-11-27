@@ -5,16 +5,16 @@ import Icon from '../components/Icon.astro';
 import StatusBadge from '../components/StatusBadge.astro';
 import { site, services, projects, verifyTerms, capabilities, contact, hasContact } from '../data/site';
 import { siteChecks } from '../data/checks';
-const serviceIcons = ['server', 'cloud', 'flask'] as const;
-const spec = [['projects', '3'], ['AWS stacks', '3: 2 destroyed, this site live'], ['live demos', 'none (domains down)'], ['client work', 'none listed']];
+const serviceIcons = ['server', 'cloud'] as const;
+const spec = [['projects', '2'], ['AWS stacks', '3 live: both projects and this site'], ['live demos', 'ryuzcloud.com, ryustorefront.com'], ['client work', 'none listed']];
 ---
 <Base
   title={`${site.name}: ${site.role}`}
-  description="Backend systems that stay correct under retries and failure, and the AWS infrastructure to run them. Three projects with their evidence."
+  description="Backend systems that stay correct under retries and failure, and the AWS infrastructure to run them. Two projects with their evidence."
 >
   <section class="hero texture-dots">
     <div class="container">
-      <p class="chip mono"><span class="dot" aria-hidden="true"></span>{site.role} &middot; {site.since}</p>
+      <p class="chip mono"><span class="dot" aria-hidden="true"></span>Backend systems &middot; AWS infrastructure</p>
       <h1>{site.positioning}</h1>
       <p class="intro">{site.intro}</p>
       <p class="cta">
@@ -32,7 +32,7 @@ const spec = [['projects', '3'], ['AWS stacks', '3: 2 destroyed, this site live'
     <div class="container">
       <div class="section-head">
         <p class="eyebrow">What I can do for you</p>
-        <h2 id="services-h">Three services, each tied to evidence</h2>
+        <h2 id="services-h">Two services, each tied to evidence</h2>
       </div>
       <ul class="svc">
         {services.map((sv, i) => (
@@ -53,7 +53,7 @@ const spec = [['projects', '3'], ['AWS stacks', '3: 2 destroyed, this site live'
     <div class="container">
       <div class="section-head">
         <p class="eyebrow">Selected work</p>
-        <h2 id="projects-h">Three projects</h2>
+        <h2 id="projects-h">Two projects</h2>
         <p class="lede">None of these has users or clients. Each card says exactly what is true today.</p>
       </div>
       <ul class="cards">
@@ -208,7 +208,7 @@ const spec = [['projects', '3'], ['AWS stacks', '3: 2 destroyed, this site live'
     .spec { grid-template-columns: repeat(4, 1fr); }
     .spec div { border-bottom: 0; border-right: 1px solid var(--color-border); }
     .spec div:last-child { border-right: 0; }
-    .svc { grid-template-columns: repeat(3, 1fr); }
+    .svc { grid-template-columns: repeat(2, 1fr); }
     .terms { grid-template-columns: repeat(2, 1fr); }
     .caps { grid-template-columns: repeat(2, 1fr); }
     .checks li { grid-template-columns: 11rem 15rem 1fr auto; align-items: center; gap: var(--space-4); }

@@ -6,9 +6,9 @@ import Figure from '../../components/Figure.astro';
 import Diagram from '../../components/Diagram.astro';
 import SsfArchitecture from '../../components/diagrams/SsfArchitecture.astro';
 import SsfOrderStates from '../../components/diagrams/SsfOrderStates.astro';
-import listing from '../../assets/ryustorefront/listing-live-desktop.png';
-import pdp from '../../assets/ryustorefront/pdp-live-desktop.png';
-import pdpPhone from '../../assets/ryustorefront/pdp-live-phone.png';
+import listing from '../../assets/ryustorefront/listing-photos-desktop.png';
+import pdp from '../../assets/ryustorefront/pdp-photos-desktop.png';
+import pdpPhone from '../../assets/ryustorefront/pdp-photos-phone.png';
 import checkout from '../../assets/ryustorefront/checkout-fixture-desktop.png';
 
 const toc: [string, string][] = [
@@ -27,11 +27,11 @@ const toc: [string, string][] = [
   description="A Java and Spring Boot shoe store with idempotent Stripe webhooks, atomic stock reservation, an order state machine and a transactional outbox."
   kind="Backend and payments"
   name="RyuStoreFront"
-  status="Backend and storefront built and tested locally. One real AWS checkout in Stripe test mode on 2026-11-15, then everything was destroyed. Order history and the admin API are still being built. Not running now."
-  stack="Java 25, Spring Boot 4, PostgreSQL 18, Next.js 16, Stripe (test mode), Terraform, AWS"
+  status="Live at ryustorefront.com on AWS, with Stripe in test mode only (no card is charged). Earlier AWS sessions on 2026-11-15 and 2026-11-23 were measured and then destroyed; no number below comes from the current deployment. Order history and the admin API are still being built."
+  stack="Java 25, Spring Boot 4, PostgreSQL 18, Next.js 16, Stripe (test mode), Terraform, AWS (ECS Fargate, RDS, ALB)"
   meta={[
     ['Kind', 'Solo portfolio project. No users, no real payments, no revenue.'],
-    ['Written with', 'Claude Code as a coding assistant; see the About page for how I work.'],
+    ['Measured where', 'Local: one dev VM. AWS: us-west-2. Every number says which.'],
   ]}
   toc={toc}
 >
@@ -50,17 +50,15 @@ const toc: [string, string][] = [
                 <li>Checkout with atomic stock reservation, an idempotency key and an expiring hold</li>
                 <li>Stripe Checkout (hosted page), a signed webhook, refunds when the money cannot be honoured</li>
                 <li>Order state machine, and a transactional outbox with a background worker for email, cart clearing and expiry</li>
-                <li>Next.js storefront wired to the API, built from a token design system</li>
-                <li>Terraform for a persistent foundation stage and a destroyable per-session stage</li>
+                <li>Next.js storefront wired to the API, with 142 demo products and 188 licensed photos served as AVIF and WebP</li>
+                <li>Terraform for a persistent foundation stage and a destroyable per-session stage that runs the API, worker and frontend</li>
               </ul></div>
       <div><h3>Not built yet</h3>
 <ul>
                 <li>Order history and the admin API (the admin screens exist only as designs on fixtures)</li>
                 <li>Login rate limiting, password reset, email verification</li>
-                <li>Load testing, security headers, dependency scanning</li>
-                <li>A full AWS session that includes the worker and the frontend</li>
-                <li>Real product photography (images are typographic placeholders)</li>
-                <li>SQS, S3 and CloudFront images, SES: planned at the start, replaced or not built</li>
+                <li>A load test and a measured cloud cost</li>
+                <li>Photos on the cart and order pages (their APIs return none yet)</li>
               </ul></div>
     </div>
   </Section>
@@ -113,36 +111,37 @@ const toc: [string, string][] = [
   </Section>
 
   <Section n={5} id="evidence" title="Evidence">
-    <p>Each result carries a status. <strong>Run</strong> means the output was seen. <strong>User-reported</strong> means I ran it and recorded the result, but the raw output was not kept. <strong>Documented</strong> means a project document states it. I ran none of these tests again while writing this page.</p>
+    <p>Every number here has a row in the project's <code>docs/metrics.md</code>, and only rows marked <strong>Run</strong> (the output was seen) or <strong>User-reported</strong> (I ran it and recorded the result) are quoted. Each line says whether it was measured locally or on AWS. I ran none of these tests again while writing this page.</p>
 
-    <h3>Correctness under failure</h3>
+    <h3>Correctness under failure (local)</h3>
     <FactList ids={['ssfWebhookDupes', 'ssfWebhookOrder', 'ssfStockRace', 'ssfWorkerKill', 'ssfStateMachine', 'ssfSuite']} />
 
-    <h3>The real cloud run</h3>
-    <FactList ids={['ssfCloudCheckout', 'ssfTeardown', 'ssfStartup']} />
+    <h3>On AWS</h3>
+    <FactList ids={['ssfCloudCheckout', 'ssfCloudChecks', 'ssfOutboxRetry', 'ssfTeardown', 'ssfStartup']} />
 
-    <h3>Queries and accessibility</h3>
-    <FactList ids={['ssfExplain', 'ssfAxe']} />
+    <h3>Queries, frontend and accessibility (local)</h3>
+    <FactList ids={['ssfExplain', 'ssfAxe', 'ssfPhotos', 'ssfLighthouse']} />
 
-    <h3>Not done</h3>
+    <h3>Not measured yet</h3>
     <FactList ids={['ssfNotRun']} />
 
     <h3>Screenshots</h3>
-    <p>Each image says what it was captured from. None shows real products or customers: the brands are invented and the pictures are typographic placeholders.</p>
-    <Figure src={listing} alt="Product listing page with a filter sidebar showing counts for occasion, gender, price and size, and a grid of shoe cards with large tone-on-tone letters as placeholder pictures." caption="Listing page against the real API running locally with a seeded demo catalogue (100 products visible in this capture). Filter counts come from the API." label="Real API data" crop="top" ratio="16 / 11" />
-    <Figure src={pdp} alt="Product page for the Kestrel Stiletto Pump with colour choices Black, Burgundy and Ivory, a row of US sizes with two sold-out sizes struck through, and an Add to cart button." caption="Product page against the real API. Variants are size by colour; sold-out sizes are struck through." label="Real API data" crop="top" ratio="16 / 11" />
-    <Figure src={checkout} alt="Checkout page with a contact email field, a shipping address form, and an order summary card with three items, a $953 total and a Place order button." caption="Checkout screen. This capture is a design-review state on fixture data; the sample email is a placeholder. The live checkout flow was wired afterwards and its run is user-reported, not shown here." label="Fixture data" crop="top" ratio="16 / 11" />
-    <Figure src={pdpPhone} alt="Phone-width product page with a full-width placeholder picture, colour and size choices, and an Add to cart button." caption="The same product page at phone width (390 px), real API data." label="Real API data" narrow crop="top" ratio="9 / 14" />
+    <p>Each image says what it was captured from. The brands and products are invented; the photos are licensed (CC0 or public domain) and credited on the store's credits page.</p>
+    <Figure src={listing} alt="All shoes listing page showing 142 pairs, with a filter sidebar for occasion, who it is for, price, US size and availability, and a grid of shoe photos with brand, name, price and category." caption="Listing page against the real API running locally with the photographed demo catalogue. Filter counts come from the API." label="Real API data" crop="top" ratio="16 / 11" />
+    <Figure src={pdp} alt="Product page for the Umber Chelsea Boot at $380: a large photo of a brown leather boot with two more thumbnails, US sizes 8 to 10.5, an Add to cart button and a More in Boots row." caption="Product page against the real API, with a three-photo gallery." label="Real API data" crop="top" ratio="16 / 11" />
+    <Figure src={checkout} alt="Checkout page with a contact email field, a shipping address form, and an order summary card with three items, a $953 total and a Place order button." caption="Checkout screen. This capture is a design-review state on fixture data from before the photos were added; the sample email is a placeholder. The real checkout ran on AWS and is user-reported, not shown here." label="Fixture data" crop="top" ratio="16 / 11" />
+    <Figure src={pdpPhone} alt="Phone-width product page for the Umber Chelsea Boot with a full-width photo, sizes, and an Add to cart button." caption="The same product page at phone width (390 px), real API data." label="Real API data" narrow crop="top" ratio="9 / 14" />
   </Section>
 
   <Section n={6} id="limits" title="Tradeoffs and limits">
     <ul>
-      <li>The cloud run had no worker and no frontend, so email and cart clearing never ran on AWS, and the database rows were not inspected there.</li>
-      <li>No load test, no Lighthouse run and no measured cost per session. I make no claim about scale, throughput or latency under load.</li>
+      <li>The site is live, but every AWS number on this page comes from the earlier, destroyed sessions. The shop's order history page is still a design fixture, so the cloud purchase was confirmed from Stripe and the worker log, not from the shop.</li>
+      <li>No load test and no measured cost per session. I make no claim about scale, throughput or latency under load. Lighthouse figures are local and simulated.</li>
+      <li>Real photos made the listing's largest paint slower than the placeholders, even after the fix.</li>
       <li>Tasks have public IP addresses; the security group is the only barrier. The database connection encrypts but does not verify the server certificate.</li>
       <li>The database on AWS was Postgres 18.6 while tests ran on 18.7; the application's tests were not run against RDS.</li>
       <li>Sign-in has no rate limiting, password reset or email verification.</li>
-      <li>Accessibility was checked with axe in Chromium only, on a mock API; no screen-reader or keyboard-only walkthrough yet.</li>
+      <li>Accessibility was checked with axe in Chromium only, on a mock API; no screen-reader walkthrough yet.</li>
       <li>All test results are my own records. Nobody else has reviewed them.</li>
     </ul>
   </Section>
@@ -152,15 +151,15 @@ const toc: [string, string][] = [
     <ol>
       <li>Finish order history and the admin API, then wire the admin screens.</li>
       <li>Hardening: login rate limits, security headers, a dependency scan, and a load test whose setup is written down.</li>
-      <li>A full AWS session with the worker and the frontend running, capturing logs and cost as it happens.</li>
+      <li>Measure a session's real cost, replay webhooks against the cloud endpoint, and time a rebuild from zero.</li>
       <li>An alarm on the age of the oldest pending outbox event, and a metric for dead events.</li>
     </ol>
   </Section>
 
   <Section n={8} id="links" title="Links">
     <ul>
-      <li><strong>Repository:</strong> <a href="https://github.com/jabrogena5100/RyuStoreFront" rel="noopener noreferrer">github.com/jabrogena5100/RyuStoreFront</a> (public). Its README is minimal; this page is the better starting point, and the decision and verification logs are under <code>docs/</code> in the repository.</li>
-      <li><strong>Live demo:</strong> none. ryustorefront.net is currently down; the AWS stack was destroyed after testing.</li>
+      <li><strong>Repository:</strong> <a href="https://github.com/jabrogena5100/RyuStoreFront" rel="noopener noreferrer">github.com/jabrogena5100/RyuStoreFront</a> (public). Its <code>docs/metrics.md</code> holds every number with its setup, date and status, and the decision log is in <code>docs/decisions.md</code>.</li>
+      <li><strong>Live:</strong> <a href="https://ryustorefront.com" rel="noopener noreferrer">ryustorefront.com</a> (Stripe test mode: card 4242 4242 4242 4242, no card is charged)</li>
       <li><a href="/projects/">All projects</a></li>
     </ul>
   </Section>

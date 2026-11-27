@@ -5,12 +5,12 @@ import { facts } from './facts';
 
 export const site = {
   name: 'Joshua Abrogena',
-  role: 'Independent Software Engineer',
-  since: 'November 2026 to present', // owner's preferred description, not proof of client work
+  role: 'Software engineer', // plain label for page titles; matches the resume header
+  address: 'https://joshuaabrogena.dev', // permanent address (custom domain, DNS at Cloudflare), live 2026-11-19
   positioning:
     'I build backends that stay correct under retries and failure, and the AWS infrastructure to run them.',
   intro:
-    'Payment webhooks, inventory holds, background job workers: the parts of a system where duplicates, crashes and races are the normal case. I build them in Java and Go, test the failure paths, and deploy them to AWS with Terraform and tear them down again. I also studied how to evaluate a smoke-detection model.',
+    'Payment webhooks, inventory holds, background job workers: the parts of a system where duplicates, crashes and races are the normal case. I build them in Java and Go, test the failure paths, and deploy them to AWS with Terraform.',
 };
 
 // Fill these in when you have them; every page reads this object. null = not supplied yet,
@@ -36,22 +36,15 @@ export const services = [
     n: '01',
     title: 'Backend systems that stay correct under retries and failure',
     body: 'Payment webhooks, stock reservations, order state machines, outbox and job-queue workers, with tests that kill workers and replay events.',
-    proof: 'Shown in RyuStoreFront and RyuCloud.',
+    proof: 'Shown in RyuStoreFront and RyuZCloud.',
     limit: 'Test results are my own records. No load testing and no production traffic.',
   },
   {
     n: '02',
     title: 'AWS infrastructure as code, deployed and torn down',
     body: 'Terraform for ECS Fargate, RDS, load balancing, S3 with CloudFront, queues and least-privilege IAM, plus an audit script that checks nothing billable is left behind.',
-    proof: 'Applied and destroyed once each for RyuStoreFront and RyuCloud.',
-    limit: 'Each stack ran for one session. No always-on operation and no measured cost.',
-  },
-  {
-    n: '03',
-    title: 'Experiment design and audit for computer-vision models',
-    body: 'One evaluation path for every model and dataset, leakage audits, hash-pinned artifacts, and conclusions that say no more than the data does.',
-    proof: 'Shown in the wildfire monitoring capstone.',
-    limit: 'Academic simulation. Not a production machine-learning system.',
+    proof: 'Both projects are live on AWS, deployed with Terraform.',
+    limit: 'No load test and no measured cost for either project.',
   },
 ];
 
@@ -62,8 +55,8 @@ export const projects = [
     kind: 'Backend and payments',
     name: 'RyuStoreFront',
     problem: 'A shoe store built around the parts of e-commerce that fail: money and stock under retries and races.',
-    status: 'Built and tested locally. One real AWS checkout in test mode, then destroyed. Not running now.',
-    stack: 'Java 25, Spring Boot, PostgreSQL, Next.js, Terraform',
+    status: 'Live at ryustorefront.com on AWS, Stripe in test mode. No users and no load test; every measured number is from local runs or earlier AWS sessions.',
+    stack: 'Java 25, Spring Boot 4, PostgreSQL, Next.js, Stripe (test mode), Terraform',
     evidence: [
       facts.ssfWebhookDupes.short,
       facts.ssfStockRace.short,
@@ -71,29 +64,16 @@ export const projects = [
     ],
   },
   {
-    slug: 'ryucloud',
-    kind: 'Cloud video pipeline',
-    name: 'RyuCloud',
-    problem: 'A video platform where uploads skip the API and a worker transcodes to streaming video, surviving crashes and duplicates.',
-    status: 'Locally complete. Deployed to AWS once and destroyed. Not production-ready. Currently down.',
-    stack: 'Go, PostgreSQL, FFmpeg, Next.js, Terraform',
+    slug: 'ryuzcloud',
+    kind: 'Cloud video platform',
+    name: 'RyuZCloud',
+    problem: 'A video platform where uploads skip the API and a Go worker transcodes to streaming video, surviving crashes and duplicates.',
+    status: 'Live at ryuzcloud.com on AWS. No users and no load test; every measured number is from local runs or the 2026-11-14 AWS session.',
+    stack: 'Go, FFmpeg, PostgreSQL, SQS, S3 and CloudFront, Next.js 15, Terraform',
     evidence: [
-      facts.rcCrash.short,
-      facts.rcBug.short,
-      facts.rcCloud.short,
-    ],
-  },
-  {
-    slug: 'wildfire-monitoring',
-    kind: 'Research capstone',
-    name: 'Wildfire monitoring',
-    problem: 'Does training a smoke detector on synthetic or real imagery change how a simulated UAV monitors a fire?',
-    status: 'University research (ECE 496). Simulation and public datasets. Results are descriptive.',
-    stack: 'Python, YOLOv8, ArduPilot SITL, PyTorch',
-    evidence: [
-      facts.wfSplit.short,
-      facts.wfOnePath.short,
-      facts.wfLevel3Headline.short,
+      facts.rzCrash.short,
+      facts.rzSeed.short,
+      facts.rzPrivate.short,
     ],
   },
 ];
@@ -107,40 +87,31 @@ export const verifyTerms = [
   {
     term: 'User-reported',
     body: 'I ran it and recorded the result; the raw output was not stored.',
-    example: 'RyuCloud AWS session, 2026-11-14: stack destroyed, audit clean.',
-  },
-  {
-    term: 'Documented',
-    body: 'A project document states it; I could not re-check it.',
-    example: 'Wildfire study: 385 tests reported passing in the project log.',
+    example: 'RyuStoreFront on AWS, 2026-11-23: 19 of 19 browser checks passed against the deployed shop.',
   },
   {
     term: 'Not run',
     body: 'No evidence exists, so no claim is made.',
-    example: 'Load tests. None of the three projects has one.',
+    example: 'Load tests. Neither project has one.',
   },
 ];
 
 export const capabilities = [
   { group: 'Backend and data', items: [
     ['Java, Spring Boot, JPA and plain SQL', 'RyuStoreFront'],
-    ['Go services with net/http and pgx', 'RyuCloud'],
-    ['PostgreSQL: constraints, locking, full-text search, query plans', 'RyuStoreFront, RyuCloud'],
-    ['Idempotency, outbox, leases and retries', 'RyuStoreFront, RyuCloud'],
+    ['Go services with net/http and pgx', 'RyuZCloud'],
+    ['PostgreSQL: constraints, locking, full-text search, query plans', 'RyuStoreFront, RyuZCloud'],
+    ['Idempotency, outbox, leases and retries', 'RyuStoreFront, RyuZCloud'],
   ]},
   { group: 'Cloud and delivery', items: [
-    ['Terraform: ECS Fargate, RDS, ALB, S3, CloudFront, SQS', 'RyuStoreFront, RyuCloud'],
-    ['Deploy, destroy and audit routines', 'RyuStoreFront, RyuCloud'],
-    ['GitHub Actions CI, secret scanning, vulnerability checks', 'RyuCloud'],
+    ['Terraform: ECS Fargate, RDS, ALB, S3, CloudFront, SQS', 'RyuStoreFront, RyuZCloud'],
+    ['CloudFront signed cookies for private HLS video', 'RyuZCloud'],
+    ['Deploy, destroy and audit routines', 'RyuStoreFront, RyuZCloud'],
+    ['GitHub Actions CI, secret scanning, vulnerability checks', 'RyuZCloud'],
   ]},
   { group: 'Frontend and quality', items: [
-    ['Next.js and TypeScript against a real API', 'RyuStoreFront, RyuCloud'],
-    ['Playwright and axe accessibility checks', 'RyuStoreFront'],
+    ['Next.js and TypeScript against a real API', 'RyuStoreFront, RyuZCloud'],
+    ['Playwright and axe accessibility checks', 'RyuStoreFront, RyuZCloud'],
     ['Testcontainers integration tests', 'RyuStoreFront'],
-  ]},
-  { group: 'Machine-learning evaluation', items: [
-    ['YOLOv8 training and one-path evaluation', 'Wildfire monitoring'],
-    ['Leakage audits, seed variance, clustered bootstrap', 'Wildfire monitoring'],
-    ['ArduPilot SITL integration', 'Wildfire monitoring'],
   ]},
 ] as const;
