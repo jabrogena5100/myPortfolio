@@ -2,38 +2,38 @@
   "note": "Uncompressed bytes from `astro preview` (no HTTP compression). initial = before any lazy image loads; full = after every image is forced to load.",
   "report": {
     "/": {
-      "initial_kb": 190,
-      "full_kb": 190,
+      "initial_kb": 195,
+      "full_kb": 195,
       "images_kb": 0
     },
     "/projects/": {
-      "initial_kb": 11,
-      "full_kb": 11,
+      "initial_kb": 34,
+      "full_kb": 34,
       "images_kb": 0
     },
     "/projects/ryustorefront/": {
-      "initial_kb": 51,
-      "full_kb": 465,
-      "images_kb": 415
+      "initial_kb": 67,
+      "full_kb": 315,
+      "images_kb": 248
     },
     "/projects/ryuzcloud/": {
-      "initial_kb": 36,
-      "full_kb": 36,
+      "initial_kb": 24,
+      "full_kb": 24,
       "images_kb": 0
     },
     "/services/": {
-      "initial_kb": 16,
-      "full_kb": 16,
+      "initial_kb": 46,
+      "full_kb": 46,
       "images_kb": 0
     },
     "/about/": {
-      "initial_kb": 8,
-      "full_kb": 8,
+      "initial_kb": 33,
+      "full_kb": 33,
       "images_kb": 0
     },
     "/contact/": {
-      "initial_kb": 7,
-      "full_kb": 7,
+      "initial_kb": 27,
+      "full_kb": 27,
       "images_kb": 0
     }
   }

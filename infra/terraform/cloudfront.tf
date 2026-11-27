@@ -1,5 +1,6 @@
 locals {
-  use_domain = var.domain_name != null
+  use_domain   = var.domain_name != null
+  use_route53  = local.use_domain && !var.external_dns
 }
 
 resource "aws_cloudfront_origin_access_control" "site" {
